@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[FiddlyBits]]></title>
-  <link href="http://mtstickney.github.com/atom.xml" rel="self"/>
+  <title><![CDATA[Category: ABL | FiddlyBits]]></title>
+  <link href="http://mtstickney.github.com/blog/categories/abl/atom.xml" rel="self"/>
   <link href="http://mtstickney.github.com/"/>
   <updated>2013-04-05T12:55:04-04:00</updated>
   <id>http://mtstickney.github.com/</id>
