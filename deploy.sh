@@ -1,0 +1,16 @@
+#!/bin/sh
+
+OUTPUT_DIR=output
+# Generate fresh production output
+pelican -s publishconf.py
+
+# Just to be safe, make sure we won't be committing anything except the output
+git reset HEAD
+
+# Add and commit the new output
+git add --all output
+DATE=$(date -u "+%Y-%m-%d %H:%M:%S %Z")
+git commit -m "Site updated at $DATE"
+
+# push it to the master
+git subtree push --prefix $OUTPUT_DIR origin master
