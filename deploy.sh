@@ -4,7 +4,7 @@ OUTPUT_DIR=output
 # Generate fresh production output
 pelican -s publishconf.py
 
-# Just to be safe, make sure we won't be committing anything except the output
+# Just to be safe, make sure we don't commit staged changes
 git reset HEAD
 
 # Add and commit the new output
