@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Infrastructure Notes: Pelican Setup &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">Infrastructure Notes: Pelican Setup</h1>
+    <p class="meta">
+<time datetime="2015-04-26T00:00:00-04:00" pubdate>Sun 26 April 2015</time>    </p>
+</header>
+
+  <div class="entry-content"><blockquote>
+<p>I have slipped the surly bonds of Octopress<br />
+ pulled the trigger<br />
+ and converted this sucker to Pelican.<br />
+ -- definitely not John Gillespie Magee, Jr.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup></p>
+</blockquote>
+<p>This blog used to be powered by <a href="http://octopress.org">Octopress</a>, but
+I've just finished converting the whole thing to
+<a href="http://blog.getpelican.com">Pelican</a>, and wanted to make a few notes
+about the switch and the current setup.</p>
+<h2>Why Switch?</h2>
+<p>First though, a comment about my reasons for switching: Octopress is a
+solid piece of software, with good out-of-the-box settings for the
+sort of blogging I want to do (and probably for most blogs in
+general). So why the switch? In my case, the two killer issues were
+Ruby and the deployment scenario.</p>
+<p>Getting Ruby to run on Windows is an absolute nightmare, and despite
+my preference for Linux systems I do have Windows machines around and
+I'd like to be able to update the site from them. I'm also not as
+familiar with Ruby so the barrier for hacking on Octopress is higher,
+although I doubt I'd have needed to do so.</p>
+<p>Octopress is designed to run on the github-pages platform, and has
+Rake tasks to support updating and deploying the site. Unfortunately
+it's not completely clear what these are actually doing -- they commit
+the contents of a folder to the <code>master</code> or <code>gh-pages</code> branch of a
+repo, which is an unusual operation in git -- which makes it easy to
+make mistakes. I'm quite familiar with git, and I still managed to
+commit the generated site but not my article source. On top of that,
+you get octopress by forking the author's repo, which makes updating
+octopress itself tricky.</p>
+<p>Octopress' author has <a href="octopress-3.0">noted</a> the issues with the
+deployment process, and has plans to fix them in a future version, but
+that still leaves me with the Ruby issues. "Figure out Octopress" has
+been on my To-Do list for so long that I'm not actually writing (last
+post was more than a year ago), which in the end is the whole point,
+so after much procrastinating I'm pulling the trigger and switching to
+Pelican.</p>
+<h2>The Setup</h2>
+<p>First, create a virtualenv for the site in question:</p>
+<div class="highlight"><pre><span class="nv">$ </span>virtualenv .
+<span class="nv">$ </span><span class="nb">source </span>Scripts/activate
+</pre></div>
+
+
+<p>Next, install the pelican components and create the project skeleton:</p>
+<div class="highlight"><pre><span class="nv">$ </span>pip install pelican markdown typogrify
+<span class="nv">$ </span>pelican-quickstart
+</pre></div>
+
+
+<p>It's not a great idea to add the virtualenv components to the git
+repo, but we do want to track the installed components so setup on a
+new machine is easy. The best way I've found to do that is to save the
+requirements list from pip:</p>
+<div class="highlight"><pre><span class="nv">$ </span>pip -l freeze &gt; requirements.txt
+</pre></div>
+
+
+<p>You'll want to add Pelican's files, the requirements file, and any
+existing content (but not the <code>output/</code> folder just yet):</p>
+<div class="highlight"><pre><span class="nv">$ </span>git add pelicanconf.py <span class="se">\</span>
+          publishconf.py <span class="se">\</span>
+          Makefile <span class="se">\</span>
+          fabfiile.py <span class="se">\</span>
+          develop_server.sh <span class="se">\</span>
+          requirements.txt <span class="se">\</span>
+          content/
+<span class="nv">$ </span>git commit -m <span class="s1">&#39;Add Pelican files.&#39;</span>
+</pre></div>
+
+
+<p>I like Octopress' default theme, so I'm using the
+<a href="pelican-octopress">pelican-octopress</a> theme. There is a small
+issue with the github scripts it uses for the sidebar, but I'm hoping
+to submit a patch for that shortly. This is also the one and only part
+of the site that I haven't figured out how to store in the main repo
+yet (a submodule would probably do it). Installation:</p>
+<div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
+<span class="nv">$ </span>pelican-theme -i ../pelican-octopress
+</pre></div>
+
+
+<h2>Github Pages</h2>
+<p>Getting Pelican's output into the right branch for Github Pages can be
+a little tricky to wrangle (this was the most confusing part of
+Octopress for me), but there are several ways to approach the
+problem. I chose to stick with Octopress' <code>source</code> and <code>master</code> (or
+<code>gh-pages</code>) branch scheme, where the code for generating the site
+resides in the <code>source</code> branch of the same repo as the site. Using an
+external repo could also work, but I didn't want the clutter.</p>
+<p>Instead of using an existing script like <code>ghp-import</code> and trying to
+convince it to use <code>master</code> instead of <code>gh-pages</code>, I was able to roll
+my own deployment script quite easily using <code>git subtree</code>.</p>
+<p>The first thing to do is to add the <code>output/</code> directory as a subtree
+from the master branch:</p>
+<div class="highlight"><pre><span class="nv">$ </span>git subtree add --prefix output/ origin master
+</pre></div>
+
+
+<p>Then we can use a deployment script to generate the site, commit the
+changes, and push the generated content to the master branch:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
+
+<span class="nv">OUTPUT_DIR</span><span class="o">=</span>output
+<span class="c"># Generate fresh production output</span>
+pelican -s publishconf.py
+
+<span class="c"># Just to be safe, make sure we don&#39;t commit staged changes</span>
+git reset HEAD
+
+<span class="c"># Add and commit the new output</span>
+git add --all <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span>
+<span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date -u <span class="s2">&quot;+%Y-%m-%d %H:%M:%S %Z&quot;</span><span class="k">)</span>
+git commit -m <span class="s2">&quot;Site updated at </span><span class="nv">$DATE</span><span class="s2">&quot;</span>
+
+<span class="c"># Push it to the remote</span>
+git subtree push --prefix <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span> origin master
+</pre></div>
+</td></tr></table>
+
+<p>Works like a charm, and I (now) know exactly what it's doing. The only
+thing missing is <code>git pull</code>ing the new <code>master</code>, but you generally
+won't even have it checked out locally.</p>
+<h2>New Machine Setup</h2>
+<p>With all that in place, setup on a new machine is pretty
+straightforward, assuming Python is already installed:</p>
+<div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/mtstickney/mtstickney.github.com site
+<span class="nv">$ </span>git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+<span class="nv">$ </span><span class="nb">cd </span>site
+<span class="nv">$ </span>virtualenv .
+<span class="nv">$ </span><span class="nb">source </span>Scripts/activate
+<span class="nv">$ </span>pip install -r requirements.txt
+<span class="nv">$ </span>pelican-themes -i ../pelican-octopress
+<span class="nv">$ </span>&lt;write write write&gt;
+<span class="nv">$ </span>./deploy.sh
+</pre></div>
+
+
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>This is a shameless ripoff of John Gillespie Magee Jr.'s fabulous
+  poem
+  <a href="http://www.woodiescciclub.com/high-flight.htm">High Flight</a>. You
+  should go read it.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2015-04-26T00:00:00-04:00" pubdate>Sun 26 April 2015</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>Blog</a>
+  </span>
+  <span class="categories">
+    <a class="category" href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a class="category" href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="http://mtstickney.github.io/tag/meta.html">meta</a>  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>
