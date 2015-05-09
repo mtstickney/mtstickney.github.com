@@ -17,7 +17,6 @@
   <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="robots" content="noindex, nofollow" />
 
     <link href="http://mtstickney.github.io/favicon.png" rel="icon">
 
@@ -74,20 +73,21 @@ solid piece of software, with good out-of-the-box settings for the
 sort of blogging I want to do (and probably for most blogs in
 general). So why the switch? In my case, the two killer issues were
 Ruby and the deployment scenario.</p>
-<p>Getting Ruby to run on Windows is an absolute nightmare, and despite
-my preference for Linux systems I do have Windows machines around and
-I'd like to be able to update the site from them. I'm also not as
-familiar with Ruby so the barrier for hacking on Octopress is higher,
-although I doubt I'd have needed to do so.</p>
+<p>Getting Ruby to run on Windows is an absolute nightmare (mainly a
+problem with gems). I generally prefer Linux systems, but some of my
+machines are Windows-based and the harder it is to update the site the
+less likely I am to actually do it. I'm also not as familiar with
+Ruby, so the barrier for hacking on Octopress is higher, although I
+doubt I'd have needed to do so.</p>
 <p>Octopress is designed to run on the github-pages platform, and has
 Rake tasks to support updating and deploying the site. Unfortunately
 it's not completely clear what these are actually doing -- they commit
 the contents of a folder to the <code>master</code> or <code>gh-pages</code> branch of a
 repo, which is an unusual operation in git -- which makes it easy to
-make mistakes. I'm quite familiar with git, and I still managed to
-commit the generated site but not my article source. On top of that,
-you get octopress by forking the author's repo, which makes updating
-octopress itself tricky.</p>
+make mistakes. I use git every day, and I still managed to commit the
+generated site but not my article source. On top of that, you get
+octopress by forking the author's repo, which makes it tricky to
+update octopress itself.</p>
 <p>Octopress' author has <a href="octopress-3.0">noted</a> the issues with the
 deployment process, and has plans to fix them in a future version, but
 that still leaves me with the Ruby issues. "Figure out Octopress" has
@@ -97,7 +97,8 @@ so after much procrastinating I'm pulling the trigger and switching to
 Pelican.</p>
 <h2>The Setup</h2>
 <p>First, create a virtualenv for the site in question:</p>
-<div class="highlight"><pre><span class="nv">$ </span>virtualenv .
+<div class="highlight"><pre><span class="nv">$ </span>mkdir my_site/ <span class="o">&amp;&amp;</span> <span class="nb">cd </span>my_site/
+<span class="nv">$ </span>virtualenv .
 <span class="nv">$ </span><span class="nb">source </span>Scripts/activate
 </pre></div>
 
@@ -233,7 +234,7 @@ straightforward, assuming Python is already installed:</p>
     <a class='category' href='http://mtstickney.github.io/category/blog.html'>Blog</a>
   </span>
   <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a class="category" href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="http://mtstickney.github.io/tag/meta.html">meta</a>  </span>
+    <a class="category" href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a class="category" href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a class="category" href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a class="category" href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>  </span>
 </p><div class="sharing">
 </div>    </footer>
   </article>
@@ -243,6 +244,9 @@ straightforward, assuming Python is already installed:</p>
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
+      </li>
       <li class="post">
           <a href="http://mtstickney.github.io/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
       </li>
@@ -259,7 +263,7 @@ straightforward, assuming Python is already installed:</p>
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>  </section>
 
 
 
@@ -294,7 +298,7 @@ straightforward, assuming Python is already installed:</p>
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2013  Matthew Stickney &mdash;
+    Copyright &copy;  2013&ndash;2015  Matthew Stickney &mdash;
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 </body>
