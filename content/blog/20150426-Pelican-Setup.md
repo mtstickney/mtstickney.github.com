@@ -2,7 +2,6 @@ Title: Infrastructure Notes: Pelican Setup
 Date: 2015-04-26
 Category: Blog
 Tags: infrastructure note, blog, meta, pelican, github-pages
-Status: draft
 
 >  I have slipped the surly bonds of Octopress  
 >  pulled the trigger  
