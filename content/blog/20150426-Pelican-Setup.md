@@ -28,21 +28,22 @@ sort of blogging I want to do (and probably for most blogs in
 general). So why the switch? In my case, the two killer issues were
 Ruby and the deployment scenario.
 
-Getting Ruby to run on Windows is an absolute nightmare, and despite
-my preference for Linux systems I do have Windows machines around and
-I'd like to be able to update the site from them. I'm also not as
-familiar with Ruby so the barrier for hacking on Octopress is higher,
-although I doubt I'd have needed to do so.
+Getting Ruby to run on Windows is an absolute nightmare (mainly a
+problem with gems). I generally prefer Linux systems, but some of my
+machines are Windows-based and the harder it is to update the site the
+less likely I am to actually do it. I'm also not as familiar with
+Ruby, so the barrier for hacking on Octopress is higher, although I
+doubt I'd have needed to do so.
 
 Octopress is designed to run on the github-pages platform, and has
 Rake tasks to support updating and deploying the site. Unfortunately
 it's not completely clear what these are actually doing -- they commit
 the contents of a folder to the `master` or `gh-pages` branch of a
 repo, which is an unusual operation in git -- which makes it easy to
-make mistakes. I'm quite familiar with git, and I still managed to
-commit the generated site but not my article source. On top of that,
-you get octopress by forking the author's repo, which makes updating
-octopress itself tricky.
+make mistakes. I use git every day, and I still managed to commit the
+generated site but not my article source. On top of that, you get
+octopress by forking the author's repo, which makes it tricky to
+update octopress itself.
 
 Octopress' author has [noted](octopress-3.0) the issues with the
 deployment process, and has plans to fix them in a future version, but
