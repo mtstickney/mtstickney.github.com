@@ -1,5 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2013-02-12T00:00:00-05:00</updated><entry><title>Abusing Search Paths for Fun and Profit</title><link href="http://mtstickney.github.io/abusing-search-paths-for-fun-and-profit.html" rel="alternate"></link><updated>2013-02-12T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2013-02-12:abusing-search-paths-for-fun-and-profit.html</id><summary type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2015-04-26T00:00:00-04:00</updated><entry><title>Infrastructure Notes: Pelican Setup</title><link href="http://mtstickney.github.io/infrastructure-notes-pelican-setup.html" rel="alternate"></link><updated>2015-04-26T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;I have slipped the surly bonds of Octopress&lt;br /&gt;
+ pulled the trigger&lt;br /&gt;
+ and converted this sucker to Pelican.&lt;br /&gt;
+ -- definitely not John Gillespie Magee, Jr.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This blog used to be powered by &lt;a href="http://octopress.org"&gt;Octopress&lt;/a&gt;, but
+I've just finished converting the whole thing to
+&lt;a href="http://blog.getpelican.com"&gt;Pelican&lt;/a&gt;, and wanted to make a few notes
+about the switch and the current setup.&lt;/p&gt;
+&lt;h2&gt;Why Switch?&lt;/h2&gt;
+&lt;p&gt;First though, a comment about my reasons for switching: Octopress is a
+solid piece of software, with good out-of-the-box settings for the
+sort of blogging I want to do (and probably for most blogs in
+general). So why the switch? In my case, the two killer issues were
+Ruby and the deployment scenario.&lt;/p&gt;
+&lt;p&gt;Getting Ruby to run on Windows is an absolute nightmare (mainly a
+problem with gems). I generally prefer Linux systems, but some of my
+machines are Windows-based and the harder it is to update the site the
+less likely I am to actually do it. I'm also not as familiar with
+Ruby, so the barrier for hacking on Octopress is higher, although I
+doubt I'd have needed to do so.&lt;/p&gt;
+&lt;p&gt;Octopress is designed to run on the github-pages platform, and has
+Rake tasks to support updating and deploying the site. Unfortunately
+it's not completely clear what these are actually doing -- they commit
+the contents of a folder to the &lt;code&gt;master&lt;/code&gt; or &lt;code&gt;gh-pages&lt;/code&gt; branch of a
+repo, which is an unusual operation in git -- which makes it easy to
+make mistakes. I use git every day, and I still managed to commit the
+generated site but not my article source. On top of that, you get
+octopress by forking the author's repo, which makes it tricky to
+update octopress itself.&lt;/p&gt;
+&lt;p&gt;Octopress' author has &lt;a href="octopress-3.0"&gt;noted&lt;/a&gt; the issues with the
+deployment process, and has plans to fix them in a future version, but
+that still leaves me with the Ruby issues. "Figure out Octopress" has
+been on my To-Do list for so long that I'm not actually writing (last
+post was more than a year ago), which in the end is the whole point,
+so after much procrastinating I'm pulling the trigger and switching to
+Pelican.&lt;/p&gt;
+&lt;h2&gt;The Setup&lt;/h2&gt;
+&lt;p&gt;First, create a virtualenv for the site in question:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;mkdir my_site/ &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd &lt;/span&gt;my_site/
+&lt;span class="nv"&gt;$ &lt;/span&gt;virtualenv .
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;source &lt;/span&gt;Scripts/activate
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next, install the pelican components and create the project skeleton:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip install pelican markdown typogrify
+&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-quickstart
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It's not a great idea to add the virtualenv components to the git
+repo, but we do want to track the installed components so setup on a
+new machine is easy. The best way I've found to do that is to save the
+requirements list from pip:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip -l freeze &amp;gt; requirements.txt
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You'll want to add Pelican's files, the requirements file, and any
+existing content (but not the &lt;code&gt;output/&lt;/code&gt; folder just yet):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git add pelicanconf.py &lt;span class="se"&gt;\&lt;/span&gt;
+          publishconf.py &lt;span class="se"&gt;\&lt;/span&gt;
+          Makefile &lt;span class="se"&gt;\&lt;/span&gt;
+          fabfiile.py &lt;span class="se"&gt;\&lt;/span&gt;
+          develop_server.sh &lt;span class="se"&gt;\&lt;/span&gt;
+          requirements.txt &lt;span class="se"&gt;\&lt;/span&gt;
+          content/
+&lt;span class="nv"&gt;$ &lt;/span&gt;git commit -m &lt;span class="s1"&gt;&amp;#39;Add Pelican files.&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I like Octopress' default theme, so I'm using the
+&lt;a href="pelican-octopress"&gt;pelican-octopress&lt;/a&gt; theme. There is a small
+issue with the github scripts it uses for the sidebar, but I'm hoping
+to submit a patch for that shortly. This is also the one and only part
+of the site that I haven't figured out how to store in the main repo
+yet (a submodule would probably do it). Installation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
+&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-theme -i ../pelican-octopress
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Github Pages&lt;/h2&gt;
+&lt;p&gt;Getting Pelican's output into the right branch for Github Pages can be
+a little tricky to wrangle (this was the most confusing part of
+Octopress for me), but there are several ways to approach the
+problem. I chose to stick with Octopress' &lt;code&gt;source&lt;/code&gt; and &lt;code&gt;master&lt;/code&gt; (or
+&lt;code&gt;gh-pages&lt;/code&gt;) branch scheme, where the code for generating the site
+resides in the &lt;code&gt;source&lt;/code&gt; branch of the same repo as the site. Using an
+external repo could also work, but I didn't want the clutter.&lt;/p&gt;
+&lt;p&gt;Instead of using an existing script like &lt;code&gt;ghp-import&lt;/code&gt; and trying to
+convince it to use &lt;code&gt;master&lt;/code&gt; instead of &lt;code&gt;gh-pages&lt;/code&gt;, I was able to roll
+my own deployment script quite easily using &lt;code&gt;git subtree&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The first thing to do is to add the &lt;code&gt;output/&lt;/code&gt; directory as a subtree
+from the master branch:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git subtree add --prefix output/ origin master
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then we can use a deployment script to generate the site, commit the
+changes, and push the generated content to the master branch:&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+
+&lt;span class="nv"&gt;OUTPUT_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;output
+&lt;span class="c"&gt;# Generate fresh production output&lt;/span&gt;
+pelican -s publishconf.py
+
+&lt;span class="c"&gt;# Just to be safe, make sure we don&amp;#39;t commit staged changes&lt;/span&gt;
+git reset HEAD
+
+&lt;span class="c"&gt;# Add and commit the new output&lt;/span&gt;
+git add --all &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;DATE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;date -u &lt;span class="s2"&gt;&amp;quot;+%Y-%m-%d %H:%M:%S %Z&amp;quot;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+git commit -m &lt;span class="s2"&gt;&amp;quot;Site updated at &lt;/span&gt;&lt;span class="nv"&gt;$DATE&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+
+&lt;span class="c"&gt;# Push it to the remote&lt;/span&gt;
+git subtree push --prefix &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; origin master
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;Works like a charm, and I (now) know exactly what it's doing. The only
+thing missing is &lt;code&gt;git pull&lt;/code&gt;ing the new &lt;code&gt;master&lt;/code&gt;, but you generally
+won't even have it checked out locally.&lt;/p&gt;
+&lt;h2&gt;New Machine Setup&lt;/h2&gt;
+&lt;p&gt;With all that in place, setup on a new machine is pretty
+straightforward, assuming Python is already installed:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone https://github.com/mtstickney/mtstickney.github.com site
+&lt;span class="nv"&gt;$ &lt;/span&gt;git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;site
+&lt;span class="nv"&gt;$ &lt;/span&gt;virtualenv .
+&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;source &lt;/span&gt;Scripts/activate
+&lt;span class="nv"&gt;$ &lt;/span&gt;pip install -r requirements.txt
+&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-themes -i ../pelican-octopress
+&lt;span class="nv"&gt;$ &lt;/span&gt;&amp;lt;write write write&amp;gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;./deploy.sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;This is a shameless ripoff of John Gillespie Magee Jr.'s fabulous
+  poem
+  &lt;a href="http://www.woodiescciclub.com/high-flight.htm"&gt;High Flight&lt;/a&gt;. You
+  should go read it.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</summary><category term="infrastructure note"></category><category term="blog"></category><category term="meta"></category><category term="pelican"></category><category term="github-pages"></category></entry><entry><title>Abusing Search Paths for Fun and Profit</title><link href="http://mtstickney.github.io/abusing-search-paths-for-fun-and-profit.html" rel="alternate"></link><updated>2013-02-12T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2013-02-12:abusing-search-paths-for-fun-and-profit.html</id><summary type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
 engineer it, naturally. I was recently in the position of having to
 automate some functions of an interactive tool provided by my language
 environment. The language docs said the procedure I needed could be
