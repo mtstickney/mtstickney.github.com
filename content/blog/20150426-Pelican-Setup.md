@@ -59,6 +59,7 @@ Pelican.
 
 First, create a virtualenv for the site in question:
 
+    $ mkdir my_site/ && cd my_site/
     $ virtualenv .
     $ source Scripts/activate
 
