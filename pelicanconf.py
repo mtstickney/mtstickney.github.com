@@ -6,6 +6,9 @@ AUTHOR = u'Matthew Stickney'
 SITENAME = u'FiddlyBits'
 SITEURL = ''
 
+ARTICLE_URL = 'posts/{date:%Y}/{date:%m}/{date:%d}/{slug}.html'
+ARTICLE_SAVE_AS = ARTICLE_URL
+
 PATH = 'content'
 
 TIMEZONE = 'America/New_York'
