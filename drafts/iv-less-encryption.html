@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>IV-less Encryption &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">IV-less Encryption</h1>
+    <p class="meta">
+<time datetime="2015-08-02T00:00:00-04:00" pubdate>Sun 02 August 2015</time>    </p>
+</header>
+
+  <div class="entry-content"><p>Programmers new to encryption are often surprised to find that some
+algorithms require them to make special arrangements to transmit or
+store Initialization Vectors. What follows is a handy trick for doing
+AES encryption without an IV in CBC mode, without sacrificing
+security.</p>
+<h2>Who Needs IVs, Anyway?</h2>
+<p>Initialization Vectors are actually a critical piece of strong
+encryption in CBC mode. Without it, or with a poorly chosen IV, the
+encrypted data is subject to known-ciphertext attacks (i.e. it's not
+<a href="https://en.wikipedia.org/wiki/Semantic_security">semantically secure</a>). In
+order to function properly, the IV used to encrypt and decrypt data
+needs to be cryptographically random.</p>
+<h2>Quirks of CBC Mode</h2>
+<p>In CBC mode, each block is encrypted and then <code>XOR</code>ed with the preceding
+output block. The first block, which has no preceding output block, is
+<code>XOR</code>ed with the IV instead. Since blocks are <code>XOR</code>ed with the previous
+<em>output</em> block, this has a curious property: if you have two blocks,
+you can recover the second (and subsequent blocks) even if you have no
+way to recover the first.</p>
+<p>We can exploit this property pretty easily: if losing the IV means we
+can no longer retrieve the first block, then we can treat the first
+block as sacrificial and ignore the IV entirely, adding a sacrificial
+block when encrypting and discarding it on decryption. You could use
+an IV of a block of all-zero bytes (some systems refer to this as
+encrypting "without an IV"), or a random value, or even different
+values when encrypting and decrypting.</p>
+<p>In order to maintain good security properties, we should still use a
+cryptographically-random IV (but now we don't need to store or
+transmit it). It might be tempting to use an all-zero IV and a
+cryptographically-random first block, but the properties will only
+hold if the result of encrypting the block is suitably random<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
+<h2>Credit Where Credit is Due</h2>
+<p>I came up with this scheme while I was exploring the AES encryption in
+our system at work, which features an option where "no initialization
+vector value is used", after a Stack Overflow answer pointed out that
+losing the IV only means losing the first block. However, it's not the
+first time someone's come up with the idea:
+<a href="http://crypto.stackexchange.com/a/7937">this answer</a> refers to the
+same scheme.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>It should be, but I'm not a cryptographer and it defitely works
+the other way around.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2015-08-02T00:00:00-04:00" pubdate>Sun 02 August 2015</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>Blog</a>
+  </span>
+  <span class="categories">
+    <a class="category" href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a class="category" href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a class="category" href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a class="category" href="http://mtstickney.github.io/tag/programming.html">programming</a>  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013&ndash;2015  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>
