@@ -42,7 +42,7 @@ transmit it). It might be tempting to use an all-zero IV and a
 cryptographically-random first block, but the properties will only
 hold if the result of encrypting the block is suitably random[^1].
 
-[^1]: It should be, but I'm not a cryptographer and it defitely works
+[^1]: It should be, but I'm not a cryptographer and it definitely works
 the other way around.
 
 ## Credit Where Credit is Due
