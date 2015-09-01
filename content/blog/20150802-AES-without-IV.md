@@ -1,4 +1,4 @@
-Title: IV-less Encryption
+Title: Look Ma, No IVs!
 Date: 2015-09-01
 Category: Blog
 Tags: cryptography, encryption, AES, programming
