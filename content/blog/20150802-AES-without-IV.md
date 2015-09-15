@@ -60,17 +60,23 @@ with two different IVs, we only lose the first block of data.
 The obvious way to exploit this behavior is to have the encrypting
 party and the decrypting party generate independent cryptographically
 random IVs, and treat the first block of data as sacrificial
-garbage. Since the encrypting side and decrypting side aren't using
-the same IV, they don't need to store or transmit it. The encrypted
-data will be a block larger (the same as if you were to concatenate
-the IV and the ciphertext), and there is one extra encrypt and decrypt
-operation.
+garbage[^1]. Since the encrypting side and decrypting side aren't
+using the same IV, they don't need to store or transmit it. The
+encrypted data will be a block larger (the same as if you were to
+concatenate the IV and the ciphertext), and there is one extra encrypt
+and decrypt operation.
+
+[^1]: Fun fact: `XOR` is entropy-preserving (i.e. the enropy of `a XOR
+b` is the maximum of `a` or `b`'s entropy) so having a random or
+all-zero (or any other) value here doesn't decrease the entropy
+contributed by the IV. CBC-mode relies on this property to work, since
+the ciphertext might naturally have any value in a block.
 
 This is a rather cute trick for doing encryption without synchronizing
 IVs (and without resorting to an all-zero IV and sacrificing data
 security), but it's only applicable to CBC-mode, which you probably
 shouldn't be using. CBC-mode doesn't do authentication, which is
-Bad[^1]; you should use an authenticating mode like
+Bad[^2]; you should use an authenticating mode like
 [GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) or
 [EAX](https://en.wikipedia.org/wiki/EAX_mode) instead (or at least use
 a Message Authentication Code). Better still, make your life easier
@@ -78,7 +84,7 @@ and use a library that avoids insecure modes altogether, like the
 excellent [libsodium](https://libsodium.org). In short: cryptography
 is hard, lets go shopping!
 
-[^1]: This is surprising to many people, but without a special
+[^2]: This is surprising to many people, but without a special
 provision for message authentication, encryption ciphers have no way
 to tell the difference between a legitimately encrypted message and
 random garbage (and this is a good thing). It is surprisingly easy to
