@@ -58,14 +58,12 @@
 <time datetime="2015-09-01T00:00:00-04:00" pubdate>Tue 01 September 2015</time>    </p>
 </header>
 
-  <div class="entry-content"><p>To the surprise of many a prorammer new to encryption, several
-algorithms require a third parameter when encrypting, in addition to
-the key and the data. This parameter (the Initialization Vector) needs
-to be stored and re-supplied in order to properly decrypt the data
-later. There are plenty of ways to store the IV, and really you can
-use whatever is convenient; what follows is an interesting trick that
-allows you to do encryption in AES CBC-mode without ever explicitly
-storing or transmitting IVs, and without sacrificing security.</p>
+  <div class="entry-content"><p>Encryption algorithms in some modes require three parameters for
+encryption and decryption: the encryption key, the data (plaintext or
+ciphertext) and an Initialization Vector. Storing IVs is a hassle;
+what follows is a cute trick for doing encryption in AES CBC-mode
+without explicitly storing or transmitting IVs, and without
+sacrificing data security.</p>
 <h2>Who Needs IVs, Anyway?</h2>
 <p>First, a brief note on IVs: Initialization Vectors are actually a
 critical piece of strong encryption in CBC mode. Without it, or with a
@@ -75,7 +73,7 @@ attacks (i.e. it's not
 order to function properly, the IV used to encrypt and decrypt data
 needs to be cryptographically random. If your library makes the mistake
 of having one, it can be tempting to use the "don't use an IV" option
-just for convenience. This is a Bad Idea(tm); Just Say No.</p>
+just for convenience. This is a Bad Idea(tm); just say no.</p>
 <h2>Quirks of CBC Mode</h2>
 <p>In CBC mode, each block is encrypted and then <code>XOR</code>ed with the
 preceding output block. That is, <code>out[n] = encrypt(key, (input[n] XOR
@@ -87,14 +85,14 @@ input[n]) XOR input[n-1]</code>, and <code>out[0] = decrypt(key, input[0]) XOR
 iv</code>. Note that the decrypted block <code>n</code> doesn't require the <em>decrypted</em>
 block <code>n-1</code>, just the <em>encrypted</em> block <code>n-1</code> that you were handed to
 decrypt.</p>
-<p>Now lets supposed you have a message with two blocks, <code>p[0]</code> and
-<code>p[1]</code>, which were encrypted with a key <code>k</code> and an IV <code>iv1</code> into a
-ciphertext (call the ciphertext blocks <code>c[0]</code> and <code>c[1]</code>). Now lets
-see what happens if we try to decrypt that with a completely different
-IV, <code>iv2</code>: for the first block, we first decrypt the ciphertext block
-to get <code>p[0] XOR iv1</code> and then <code>XOR</code> it with out IV, <code>iv2</code>. Whoops!
-Unless <code>iv1</code> and <code>iv2</code> happen to be the same, <code>p[0] XOR iv1 XOR iv2</code>
-is going to be garbage. So much for the first block.</p>
+<p>Suppose you have a message with two blocks, <code>p[0]</code> and <code>p[1]</code>, which
+were encrypted with a key <code>k</code> and an IV <code>iv1</code> into a ciphertext (call
+the ciphertext blocks <code>c[0]</code> and <code>c[1]</code>). Now lets see what happens if
+we try to decrypt that with a completely different IV, <code>iv2</code>: for the
+first block, we first decrypt the ciphertext block to get <code>p[0] XOR
+iv1</code> and then <code>XOR</code> it with out IV, <code>iv2</code>. Whoops!  Unless <code>iv1</code> and
+<code>iv2</code> happen to be the same, <code>p[0] XOR iv1 XOR iv2</code> is going to be
+garbage. So much for the first block.</p>
 <p>But wait! What about the second block? First we decrypt the ciphertext
 block to get <code>p[1] XOR c[0]</code>, and then we <code>XOR</code> with the preceding
 ciphertext block <code>c[0]</code> to get <code>p[1] XOR c[0] XOR c[0]</code>, which most
