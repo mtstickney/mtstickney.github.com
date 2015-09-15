@@ -19,6 +19,10 @@ I've just finished converting the whole thing to
 [Pelican](http://blog.getpelican.com), and wanted to make a few notes
 about the switch and the current setup.
 
+## Updates
+- _2015-09-01_: Deploy script was updated to remove the output files
+before regenerating the site.
+
 ## Why Switch?
 
 First though, a comment about my reasons for switching: Octopress is a
@@ -124,9 +128,10 @@ changes, and push the generated content to the master branch:
     
     OUTPUT_DIR=output
     # Generate fresh production output
+    rm -rf "$OUTPUT_DIR"
     pelican -s publishconf.py
     
-    # Just to be safe, make sure we don't commit staged changes
+    # Just to be safe, make sure we don't commit already-staged changes
     git reset HEAD
     
     # Add and commit the new output
