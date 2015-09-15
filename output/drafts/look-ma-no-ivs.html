@@ -105,16 +105,16 @@ with two different IVs, we only lose the first block of data.</p>
 <p>The obvious way to exploit this behavior is to have the encrypting
 party and the decrypting party generate independent cryptographically
 random IVs, and treat the first block of data as sacrificial
-garbage. Since the encrypting side and decrypting side aren't using
-the same IV, they don't need to store or transmit it. The encrypted
-data will be a block larger (the same as if you were to concatenate
-the IV and the ciphertext), and there is one extra encrypt and decrypt
-operation.</p>
+garbage<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>. Since the encrypting side and decrypting side aren't
+using the same IV, they don't need to store or transmit it. The
+encrypted data will be a block larger (the same as if you were to
+concatenate the IV and the ciphertext), and there is one extra encrypt
+and decrypt operation.</p>
 <p>This is a rather cute trick for doing encryption without synchronizing
 IVs (and without resorting to an all-zero IV and sacrificing data
 security), but it's only applicable to CBC-mode, which you probably
 shouldn't be using. CBC-mode doesn't do authentication, which is
-Bad<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>; you should use an authenticating mode like
+Bad<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>; you should use an authenticating mode like
 <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a> or
 <a href="https://en.wikipedia.org/wiki/EAX_mode">EAX</a> instead (or at least use
 a Message Authentication Code). Better still, make your life easier
@@ -133,13 +133,20 @@ same scheme.</p>
 <hr />
 <ol>
 <li id="fn:1">
+<p>Fun fact: <code>XOR</code> is entropy-preserving (i.e. the enropy of <code>a XOR
+b</code> is the maximum of <code>a</code> or <code>b</code>'s entropy) so having a random or
+all-zero (or any other) value here doesn't decrease the entropy
+contributed by the IV. CBC-mode relies on this property to work, since
+the ciphertext might naturally have any value in a block.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
 <p>This is surprising to many people, but without a special
 provision for message authentication, encryption ciphers have no way
 to tell the difference between a legitimately encrypted message and
 random garbage (and this is a good thing). It is surprisingly easy to
 produce certain kinds of outputs by modifying the ciphertext, and a
 non-authenticating mode like CBC will happily decrypt it without any
-idea that it's been tampered with.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+idea that it's been tampered with.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div></div>
