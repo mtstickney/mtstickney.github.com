@@ -2,6 +2,7 @@
 
 OUTPUT_DIR=output
 # Generate fresh production output
+rm -rf "$OUTPUT_DIR"
 pelican -s publishconf.py
 
 # Just to be safe, make sure we don't commit staged changes
