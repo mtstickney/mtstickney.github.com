@@ -37,14 +37,14 @@ iv`. Note that the decrypted block `n` doesn't require the _decrypted_
 block `n-1`, just the _encrypted_ block `n-1` that you were handed to
 decrypt.
 
-Now lets supposed you have a message with two blocks, `p[0]` and
-`p[1]`, which were encrypted with a key `k` and an IV `iv1` into a
-ciphertext (call the ciphertext blocks `c[0]` and `c[1]`). Now lets
-see what happens if we try to decrypt that with a completely different
-IV, `iv2`: for the first block, we first decrypt the ciphertext block
-to get `p[0] XOR iv1` and then `XOR` it with out IV, `iv2`. Whoops!
-Unless `iv1` and `iv2` happen to be the same, `p[0] XOR iv1 XOR iv2`
-is going to be garbage. So much for the first block.
+Suppose you have a message with two blocks, `p[0]` and `p[1]`, which
+were encrypted with a key `k` and an IV `iv1` into a ciphertext (call
+the ciphertext blocks `c[0]` and `c[1]`). Now lets see what happens if
+we try to decrypt that with a completely different IV, `iv2`: for the
+first block, we first decrypt the ciphertext block to get `p[0] XOR
+iv1` and then `XOR` it with out IV, `iv2`. Whoops!  Unless `iv1` and
+`iv2` happen to be the same, `p[0] XOR iv1 XOR iv2` is going to be
+garbage. So much for the first block.
 
 But wait! What about the second block? First we decrypt the ciphertext
 block to get `p[1] XOR c[0]`, and then we `XOR` with the preceding
