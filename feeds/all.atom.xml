@@ -1,5 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2015-04-26T00:00:00-04:00</updated><entry><title>Infrastructure Notes: Pelican Setup</title><link href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html" rel="alternate"></link><updated>2015-04-26T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:posts/2015/04/26/infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2015-09-01T00:00:00-04:00</updated><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><updated>2015-09-01T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
+encryption and decryption: the encryption key, the data (plaintext or
+ciphertext) and an Initialization Vector. Storing IVs is a hassle;
+what follows is a cute trick for doing encryption in AES CBC-mode
+without explicitly storing or transmitting IVs, and without
+sacrificing data security.&lt;/p&gt;
+&lt;h2&gt;Who Needs IVs, Anyway?&lt;/h2&gt;
+&lt;p&gt;First, a brief note on IVs: Initialization Vectors are actually a
+critical piece of strong encryption in CBC mode. Without it, or with a
+poorly chosen IV, the encrypted data is subject to known-ciphertext
+attacks (i.e. it's not
+&lt;a href="https://en.wikipedia.org/wiki/Semantic_security"&gt;semantically secure&lt;/a&gt;). In
+order to function properly, the IV used to encrypt and decrypt data
+needs to be cryptographically random. If your library makes the mistake
+of having one, it can be tempting to use the "don't use an IV" option
+just for convenience. This is a Bad Idea(tm); just say no.&lt;/p&gt;
+&lt;h2&gt;Quirks of CBC Mode&lt;/h2&gt;
+&lt;p&gt;In CBC mode, each block is encrypted and then &lt;code&gt;XOR&lt;/code&gt;ed with the
+preceding output block. That is, &lt;code&gt;out[n] = encrypt(key, (input[n] XOR
+out[n-1]))&lt;/code&gt;. The first block, which has no preceding output block, is
+&lt;code&gt;XOR&lt;/code&gt;ed with the IV instead: &lt;code&gt;out[0] = encrypt(key, (input[0] XOR
+iv))&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Decryption works the same way, but in reverse: &lt;code&gt;out[n] = decrypt(key,
+input[n]) XOR input[n-1]&lt;/code&gt;, and &lt;code&gt;out[0] = decrypt(key, input[0]) XOR
+iv&lt;/code&gt;. Note that the decrypted block &lt;code&gt;n&lt;/code&gt; doesn't require the &lt;em&gt;decrypted&lt;/em&gt;
+block &lt;code&gt;n-1&lt;/code&gt;, just the &lt;em&gt;encrypted&lt;/em&gt; block &lt;code&gt;n-1&lt;/code&gt; that you were handed to
+decrypt.&lt;/p&gt;
+&lt;p&gt;Suppose you have a message with two blocks, &lt;code&gt;p[0]&lt;/code&gt; and &lt;code&gt;p[1]&lt;/code&gt;, which
+were encrypted with a key &lt;code&gt;k&lt;/code&gt; and an IV &lt;code&gt;iv1&lt;/code&gt; into a ciphertext (call
+the ciphertext blocks &lt;code&gt;c[0]&lt;/code&gt; and &lt;code&gt;c[1]&lt;/code&gt;). Now lets see what happens if
+we try to decrypt that with a completely different IV, &lt;code&gt;iv2&lt;/code&gt;: for the
+first block, we first decrypt the ciphertext block to get &lt;code&gt;p[0] XOR
+iv1&lt;/code&gt; and then &lt;code&gt;XOR&lt;/code&gt; it with out IV, &lt;code&gt;iv2&lt;/code&gt;. Whoops!  Unless &lt;code&gt;iv1&lt;/code&gt; and
+&lt;code&gt;iv2&lt;/code&gt; happen to be the same, &lt;code&gt;p[0] XOR iv1 XOR iv2&lt;/code&gt; is going to be
+garbage. So much for the first block.&lt;/p&gt;
+&lt;p&gt;But wait! What about the second block? First we decrypt the ciphertext
+block to get &lt;code&gt;p[1] XOR c[0]&lt;/code&gt;, and then we &lt;code&gt;XOR&lt;/code&gt; with the preceding
+ciphertext block &lt;code&gt;c[0]&lt;/code&gt; to get &lt;code&gt;p[1] XOR c[0] XOR c[0]&lt;/code&gt;, which most
+certainly &lt;em&gt;does&lt;/em&gt; equal our original plaintext block &lt;code&gt;p[0]&lt;/code&gt;. We've
+successfully decrypted the data and the IV hasn't even come into the
+picture, and this will also be true for any subsequent ciphertext
+blocks for the same reason. In other words, if we encrypt and decrypt
+with two different IVs, we only lose the first block of data.&lt;/p&gt;
+&lt;h2&gt;Spooky IV Action at a Distance&lt;/h2&gt;
+&lt;p&gt;The obvious way to exploit this behavior is to have the encrypting
+party and the decrypting party generate independent cryptographically
+random IVs, and treat the first block of data as sacrificial
+garbage&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;. Since the encrypting side and decrypting side aren't
+using the same IV, they don't need to store or transmit it. The
+encrypted data will be a block larger (the same as if you were to
+concatenate the IV and the ciphertext), and there is one extra encrypt
+and decrypt operation.&lt;/p&gt;
+&lt;p&gt;This is a rather cute trick for doing encryption without synchronizing
+IVs (and without resorting to an all-zero IV and sacrificing data
+security), but it's only applicable to CBC-mode, which you probably
+shouldn't be using. CBC-mode doesn't do authentication, which is
+Bad&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;; you should use an authenticating mode like
+&lt;a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"&gt;GCM&lt;/a&gt; or
+&lt;a href="https://en.wikipedia.org/wiki/EAX_mode"&gt;EAX&lt;/a&gt; instead (or at least use
+a Message Authentication Code). Better still, make your life easier
+and use a library that avoids insecure modes altogether, like the
+excellent &lt;a href="https://libsodium.org"&gt;libsodium&lt;/a&gt;. In short: cryptography
+is hard, lets go shopping!&lt;/p&gt;
+&lt;h2&gt;Addendum: Credit Where Credit is Due&lt;/h2&gt;
+&lt;p&gt;I came up with this scheme while I was exploring the AES encryption in
+our system at work, which features an option where "no initialization
+vector value is used", after a Stack Overflow answer pointed out that
+losing the IV only means losing the first block. However, it's not the
+first time someone's come up with the idea:
+&lt;a href="http://crypto.stackexchange.com/a/7937"&gt;this answer&lt;/a&gt; refers to the
+same scheme.&lt;/p&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;Fun fact: &lt;code&gt;XOR&lt;/code&gt; is entropy-preserving (i.e. the enropy of &lt;code&gt;a XOR
+b&lt;/code&gt; is the maximum of &lt;code&gt;a&lt;/code&gt; or &lt;code&gt;b&lt;/code&gt;'s entropy) so having a random or
+all-zero (or any other) value here doesn't decrease the entropy
+contributed by the IV. CBC-mode relies on this property to work, since
+the ciphertext might naturally have any value in a block.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;This is surprising to many people, but without a special
+provision for message authentication, encryption ciphers have no way
+to tell the difference between a legitimately encrypted message and
+random garbage (and this is a good thing). It is surprisingly easy to
+produce certain kinds of outputs by modifying the ciphertext, and a
+non-authenticating mode like CBC will happily decrypt it without any
+idea that it's been tampered with.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</summary><category term="cryptography"></category><category term="encryption"></category><category term="AES"></category><category term="programming"></category></entry><entry><title>Infrastructure Notes: Pelican Setup</title><link href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html" rel="alternate"></link><updated>2015-04-26T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:posts/2015/04/26/infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;I have slipped the surly bonds of Octopress&lt;br /&gt;
  pulled the trigger&lt;br /&gt;
  and converted this sucker to Pelican.&lt;br /&gt;
