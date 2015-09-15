@@ -21,7 +21,7 @@ attacks (i.e. it's not
 order to function properly, the IV used to encrypt and decrypt data
 needs to be cryptographically random. If your library makes the mistake
 of having one, it can be tempting to use the "don't use an IV" option
-just for convenience. This is a Bad Idea(tm); Just Say No.
+just for convenience. This is a Bad Idea(tm); just say no.
 
 ## Quirks of CBC Mode
 
