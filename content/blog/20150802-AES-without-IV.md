@@ -4,14 +4,12 @@ Category: Blog
 Tags: cryptography, encryption, AES, programming
 Status: draft
 
-To the surprise of many a prorammer new to encryption, several
-algorithms require a third parameter when encrypting, in addition to
-the key and the data. This parameter (the Initialization Vector) needs
-to be stored and re-supplied in order to properly decrypt the data
-later. There are plenty of ways to store the IV, and really you can
-use whatever is convenient; what follows is an interesting trick that
-allows you to do encryption in AES CBC-mode without ever explicitly
-storing or transmitting IVs, and without sacrificing security.
+Encryption algorithms in some modes require three parameters for
+encryption and decryption: the encryption key, the data (plaintext or
+ciphertext) and an Initialization Vector. Storing IVs is a hassle;
+what follows is a cute trick for doing encryption in AES CBC-mode
+without explicitly storing or transmitting IVs, and without
+sacrificing data security.
 
 ## Who Needs IVs, Anyway?
 
