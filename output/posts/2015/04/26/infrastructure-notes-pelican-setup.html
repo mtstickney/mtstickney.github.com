@@ -67,6 +67,11 @@
 I've just finished converting the whole thing to
 <a href="http://blog.getpelican.com">Pelican</a>, and wanted to make a few notes
 about the switch and the current setup.</p>
+<h2>Updates</h2>
+<ul>
+<li><em>2015-09-01</em>: Deploy script was updated to remove the output files
+before regenerating the site.</li>
+</ul>
 <h2>Why Switch?</h2>
 <p>First though, a comment about my reasons for switching: Octopress is a
 solid piece of software, with good out-of-the-box settings for the
@@ -175,13 +180,15 @@ changes, and push the generated content to the master branch:</p>
 13
 14
 15
-16</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
 
 <span class="nv">OUTPUT_DIR</span><span class="o">=</span>output
 <span class="c"># Generate fresh production output</span>
+rm -rf <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span>
 pelican -s publishconf.py
 
-<span class="c"># Just to be safe, make sure we don&#39;t commit staged changes</span>
+<span class="c"># Just to be safe, make sure we don&#39;t commit already-staged changes</span>
 git reset HEAD
 
 <span class="c"># Add and commit the new output</span>

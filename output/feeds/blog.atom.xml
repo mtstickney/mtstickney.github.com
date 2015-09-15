@@ -100,6 +100,11 @@ idea that it's been tampered with.&amp;#160;&lt;a class="footnote-backref" href=
 I've just finished converting the whole thing to
 &lt;a href="http://blog.getpelican.com"&gt;Pelican&lt;/a&gt;, and wanted to make a few notes
 about the switch and the current setup.&lt;/p&gt;
+&lt;h2&gt;Updates&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;2015-09-01&lt;/em&gt;: Deploy script was updated to remove the output files
+before regenerating the site.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;Why Switch?&lt;/h2&gt;
 &lt;p&gt;First though, a comment about my reasons for switching: Octopress is a
 solid piece of software, with good out-of-the-box settings for the
@@ -208,13 +213,15 @@ changes, and push the generated content to the master branch:&lt;/p&gt;
 13
 14
 15
-16&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+16
+17&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
 
 &lt;span class="nv"&gt;OUTPUT_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;output
 &lt;span class="c"&gt;# Generate fresh production output&lt;/span&gt;
+rm -rf &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 pelican -s publishconf.py
 
-&lt;span class="c"&gt;# Just to be safe, make sure we don&amp;#39;t commit staged changes&lt;/span&gt;
+&lt;span class="c"&gt;# Just to be safe, make sure we don&amp;#39;t commit already-staged changes&lt;/span&gt;
 git reset HEAD
 
 &lt;span class="c"&gt;# Add and commit the new output&lt;/span&gt;
