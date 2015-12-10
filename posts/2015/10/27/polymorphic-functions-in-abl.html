@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Polymorphic Functions in ABL &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">Polymorphic Functions in ABL</h1>
+    <p class="meta">
+<time datetime="2015-10-27T00:00:00-04:00" pubdate>Tue 27 October 2015</time>    </p>
+</header>
+
+  <div class="entry-content"><p>Tags: abl, OO, experiments</p>
+<p>If you've ever looked at books on refactoring code, there's one common
+theme among them: every piece of refactoring advice that has ever been
+given assumes the existence of an object system in your language<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
+<p>At work, we use this crummy business-oriented language called ABL. It
+actually has objects, despite their
+<a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/">many shortcomings</a><sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>,
+but they come at a prohibitive cost for us: they require manual
+memory management, and there are a number of subtle compiler bugs that
+affects code compiled one one version and run on another.</p>
+<p>So what's a down-and-out developer to do? If you squint hard enough,
+you'll notice that objects are useful for refactoring mostly because
+they provide polymorphic methods. Encapsulation is largely handled by
+forward-declaring functions (and ABL doesn't even have the notion of a
+struct, so no need to worry about those), and while inheritance is
+nice, it's mostly a convenience. Polymorphism allows you to substitute
+implementations without changing the code that uses them.</p>
+<h1>Requirements</h1>
+<p>I wanted to see if I could provide polymorphism in ABL without the
+drawbacks of objects. There were a few requirements:</p>
+<ol>
+<li>Implementations must be able to be stored in variables and passed
+   to functions.</li>
+<li>Implementations shouldn't require explicit create/release calls.</li>
+<li>The system should allow basic mistakes like typos to be caught at
+compile time.</li>
+<li>It would be nice if it wasn't completely impossible to read.</li>
+</ol>
+<h1>The Experiment</h1>
+<p>I spent some time this afternoon to attempt an implementation, and
+wound up with the following scheme: I'd focus just on dispatching
+function (method) calls, and use interface and implementation keys to
+look up the concrete procedure in question. ABL does allow procedures
+to be dynamically invoked, so by returning a procedure, we can also
+punt parameter passing to the caller.</p>
+<p>Here's what it looks like:</p>
+<div class="highlight"><pre><span class="cm">/* Top-level include for the runtime and type definition. */</span><span class="w"></span>
+<span class="err">{</span>interfaces<span class="o">.</span>i<span class="w"> </span><span class="o">&amp;</span>NEW<span class="o">=</span><span class="s">&quot;NEW&quot;</span><span class="err">}</span><span class="w"></span>
+
+<span class="cm">/* Declare an interface method (mostly just for compiler support). */</span><span class="w"></span>
+<span class="err">{</span>define<span class="o">-</span>interface<span class="o">.</span>i<span class="w"> </span><span class="s">&quot;igreeter.sayhello&quot;</span><span class="err">}</span><span class="w"></span>
+
+<span class="cm">/* You can now use {&amp;igreeter.sayhello} to refer to this</span>
+<span class="cm">interface. */</span><span class="w"></span>
+DEFINE<span class="w"> </span>VAR<span class="w"> </span>greeter<span class="w"> </span>AS<span class="w"> </span><span class="err">{</span><span class="o">&amp;</span>INTERFACE<span class="err">}</span><span class="w"> </span>NO<span class="o">-</span>UNDO<span class="o">.</span><span class="w"></span>
+greeter<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="o">&amp;</span>igreeter<span class="o">.</span>sayhello<span class="err">}</span><span class="o">.</span><span class="w"></span>
+</pre></div>
+
+
+<p>To supply an implementation of a method, you create a normal procedure
+and register it with an implementation class:</p>
+<div class="highlight"><pre>{implements.i {&amp;igreeter.sayhello} greeter.english hello.p}
+{implements.i {&amp;igreeter.sayhello} greeter.spanish hola.p}
+
+/* The methods can be invoked directly....*/
+{invoke.i {&amp;igreeter.sayhello} {&amp;greeter.english}} (&quot;Jimmy&quot;).
+{invoke.i {&amp;igreeter.sayhello} {&amp;greeter.spanish}} (&quot;Jimmy&quot;).
+
+/* ...or by passing implementation classes around. */
+PROCEDURE SayHi:
+    DEFINE INPUT PARAM klass AS {&amp;INTERFACE} NO-UNDO.
+    DEFINE INPUT PARAM name AS CHARACTER NO-UNDO.
+    {invoke.i {&amp;igreeter.sayhello} klass} (name).
+END.
+
+RUN SayHi({&amp;greeter.english}, &quot;Jimmy&quot;).
+RUN SayHi({&amp;greeter.spanish}, &quot;Jimmy&quot;).
+</pre></div>
+
+
+<h1>Results</h1>
+<p>The interfaces (and implementation classes) in this system can be
+stored in variables and passed to procedures, require no memory
+management, and will even show up nicely in logs. Since they're
+referred to with preprocessor macros, typos in interface or class
+names will be caught at compile time (procedure names and parameter
+lists are not normally checked). It's debatable whether this counts as
+"not impossible to read", but it's at least vaguely decipherable, and
+it's pretty easy to wrap.</p>
+<p>The current incarnation is pretty basic, and has a number of
+limitations:</p>
+<ol>
+<li>It only supports procedures (not functions or methods).</li>
+<li>It only support <em>local</em> procedures (can't call a procedure in another
+persistent procedure).</li>
+<li>Procedure parameters aren't checked against the interface for consistency.</li>
+</ol>
+<h1>Implementation</h1>
+<p>The implementation of this scheme is rather strange, mostly because of
+preprocessor contortions, though it's also rather small at about 60
+lines of code.</p>
+<p>The core is a small runtime that is responsible for registering and
+looking up concrete procedures for interface implementations:</p>
+<div class="highlight"><pre>CLASS MethodRuntime:
+    DEFINE PROTECTED TEMP-TABLE tt_method NO-UNDO
+            FIELD klass AS CHARACTER
+            FIELD methodName AS CHARACTER
+            FIELD procName AS CHARACTER
+            FIELD procHdl AS HANDLE
+            INDEX method_index IS PRIMARY
+                    klass
+                    methodName.
+
+    METHOD PUBLIC VOID RegisterMethod(klass AS CHARACTER, methodName AS CHARACTER):
+            FIND FIRST tt_method WHERE tt_method.klass = klass
+                            AND tt_method.methodName = methodName
+                            NO-LOCK NO-ERROR.
+            IF AVAILABLE tt_method THEN DO:
+                    ASSIGN tt_method.procName = procName
+                            tt_method.procHdl = procHdl.
+                    RETURN.
+            END.
+
+            CREATE tt_method.
+            ASSIGN tt_method.klass = klass
+                    tt_method.methodName = methodName
+                    tt_method.procName = procName
+                    tt_method.procHdl = procHdl.
+    END.
+
+    METHOD PUBLIC CHARACTER MethodProc(methodName AS CHARACTER,
+                   klass AS CHARACTER):
+            FIND FIRST tt_method WHERE tt_method.klass = klass
+                            AND tt_method.methodName = methodName
+                            NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE tt_method THEN DO:
+                   FIND FIRST tt_method WHERE tt_method.klass = klass
+                                   NO-LOCK NO-ERROR.
+                   IF NOT AVAILABLE tt_method THEN
+                          RETURN ERROR SUBSITUTE(&quot;No such class&#39;&amp;1&#39;&quot;, klass).
+                   ELSE
+                          RETURN ERROR SUBSTITUTE(&quot;Class &#39;&amp;1&#39; has no method &#39;&amp;2&#39;&quot;,
+                                        klass, methodName).
+            END.
+            RETURN tt_method.procName.
+    END.
+END.
+</pre></div>
+
+
+<p>Internally, classes and interfaces are strings: this allow them to be
+created without memory management issues, and means they'll print
+nicely in logfiles. They're stored in a temp-table with an index,
+since we expect method registration to happen less than method calls,
+and we'd like those to be fast if possible.</p>
+<p>The toplevel <code>interfaces.i</code> include defines a shared instance of the
+runtime class, and establishes the opaque <code>{&amp;INTERFACE}</code> type synonym
+for interfaces and implementation classes.</p>
+<div class="highlight"><pre>&amp;IF DEFINED(INTERFACES_I_)=0 &amp;THEN
+&amp;GLOBAL-DEFINE INTERFACES_I_
+
+&amp;GLOBAL-DEFINE INTERFACE CHARACTER
+DEFINE {&amp;NEW} SHARED VAR MethodRuntime AS CLASS MethodRuntime NO-UNDO.
+
+&amp;IF &#39;{&amp;NEW}&#39;&lt;&gt;&#39;&#39; &amp;THEN
+MethodRuntime = NEW MethodRuntime().
+&amp;ENDIF
+
+&amp;ENDIF
+</pre></div>
+
+
+<p>The <code>define-interface.i</code> include-macro does very little: it simply
+defines a preprocessor name for the string constant that is the
+interface name.</p>
+<div class="highlight"><pre>&amp;GLOBAL-DEFINE {1} &#39;{1}&#39;
+</pre></div>
+
+
+<p>The <code>implements.i</code> include-macro does the same for the implementation
+class, and expands to a call to <code>MethodRuntime:RegisterMethod()</code>. The
+parent-procedure handle parameter of <code>RegisterMethod</code> is unused for
+now.</p>
+<div class="highlight"><pre>&amp;GLOBAL-DEFINE {2} &#39;{2}&#39;
+MethodRuntime:RegisterMethod({1}, {&amp;{2}}, &quot;{3}&quot;, ?).
+</pre></div>
+
+
+<p><code>invoke.i</code> is a simple expansion to all but the parameter list of a
+dynamic procedure call, using the procedure name returned by the
+runtime:</p>
+<div class="highlight"><pre>RUN VALUE(MethodRuntime:MethodProc({1}, {2}))
+</pre></div>
+
+
+<h1>Conclusion</h1>
+<p>It is clearly possible to provide polymorphic functions in ABL, with a
+few nice properties, as long as you're willing to accept a slightly
+cumbersome syntax and some modest restrictions on the implementations
+of methods. Basic compile-time support is doable, and there is no risk
+of memory leaks without garbage collector support.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>Michael Feathers'
+<a href="http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052">book</a>
+actually includes a tiny little section at the end about working
+with C. It consists mainly of the author throwing up his hands and
+suggesting you use a real language.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>See the "OOABL" sections toward the end. Bear in mind that most
+of the "fixed" issues don't apply to the versions we have in the field.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2015-10-27T00:00:00-04:00" pubdate>Tue 27 October 2015</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>Blog</a>
+  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013&ndash;2015  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>
