@@ -1,5 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2015-09-01T00:00:00-04:00</updated><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><updated>2015-09-01T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2015-10-27T00:00:00-04:00</updated><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><updated>2015-10-27T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;Tags: abl, OO, experiments&lt;/p&gt;
+&lt;p&gt;If you've ever looked at books on refactoring code, there's one common
+theme among them: every piece of refactoring advice that has ever been
+given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;At work, we use this crummy business-oriented language called ABL. It
+actually has objects, despite their
+&lt;a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/"&gt;many shortcomings&lt;/a&gt;&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;,
+but they come at a prohibitive cost for us: they require manual
+memory management, and there are a number of subtle compiler bugs that
+affects code compiled one one version and run on another.&lt;/p&gt;
+&lt;p&gt;So what's a down-and-out developer to do? If you squint hard enough,
+you'll notice that objects are useful for refactoring mostly because
+they provide polymorphic methods. Encapsulation is largely handled by
+forward-declaring functions (and ABL doesn't even have the notion of a
+struct, so no need to worry about those), and while inheritance is
+nice, it's mostly a convenience. Polymorphism allows you to substitute
+implementations without changing the code that uses them.&lt;/p&gt;
+&lt;h1&gt;Requirements&lt;/h1&gt;
+&lt;p&gt;I wanted to see if I could provide polymorphism in ABL without the
+drawbacks of objects. There were a few requirements:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Implementations must be able to be stored in variables and passed
+   to functions.&lt;/li&gt;
+&lt;li&gt;Implementations shouldn't require explicit create/release calls.&lt;/li&gt;
+&lt;li&gt;The system should allow basic mistakes like typos to be caught at
+compile time.&lt;/li&gt;
+&lt;li&gt;It would be nice if it wasn't completely impossible to read.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1&gt;The Experiment&lt;/h1&gt;
+&lt;p&gt;I spent some time this afternoon to attempt an implementation, and
+wound up with the following scheme: I'd focus just on dispatching
+function (method) calls, and use interface and implementation keys to
+look up the concrete procedure in question. ABL does allow procedures
+to be dynamically invoked, so by returning a procedure, we can also
+punt parameter passing to the caller.&lt;/p&gt;
+&lt;p&gt;Here's what it looks like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* Top-level include for the runtime and type definition. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;interfaces&lt;span class="o"&gt;.&lt;/span&gt;i&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;NEW&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;NEW&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="cm"&gt;/* Declare an interface method (mostly just for compiler support). */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;define&lt;span class="o"&gt;-&lt;/span&gt;interface&lt;span class="o"&gt;.&lt;/span&gt;i&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;quot;igreeter.sayhello&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+
+&lt;span class="cm"&gt;/* You can now use {&amp;amp;igreeter.sayhello} to refer to this&lt;/span&gt;
+&lt;span class="cm"&gt;interface. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+DEFINE&lt;span class="w"&gt; &lt;/span&gt;VAR&lt;span class="w"&gt; &lt;/span&gt;greeter&lt;span class="w"&gt; &lt;/span&gt;AS&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;INTERFACE&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;NO&lt;span class="o"&gt;-&lt;/span&gt;UNDO&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+greeter&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;igreeter&lt;span class="o"&gt;.&lt;/span&gt;sayhello&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To supply an implementation of a method, you create a normal procedure
+and register it with an implementation class:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;{implements.i {&amp;amp;igreeter.sayhello} greeter.english hello.p}
+{implements.i {&amp;amp;igreeter.sayhello} greeter.spanish hola.p}
+
+/* The methods can be invoked directly....*/
+{invoke.i {&amp;amp;igreeter.sayhello} {&amp;amp;greeter.english}} (&amp;quot;Jimmy&amp;quot;).
+{invoke.i {&amp;amp;igreeter.sayhello} {&amp;amp;greeter.spanish}} (&amp;quot;Jimmy&amp;quot;).
+
+/* ...or by passing implementation classes around. */
+PROCEDURE SayHi:
+    DEFINE INPUT PARAM klass AS {&amp;amp;INTERFACE} NO-UNDO.
+    DEFINE INPUT PARAM name AS CHARACTER NO-UNDO.
+    {invoke.i {&amp;amp;igreeter.sayhello} klass} (name).
+END.
+
+RUN SayHi({&amp;amp;greeter.english}, &amp;quot;Jimmy&amp;quot;).
+RUN SayHi({&amp;amp;greeter.spanish}, &amp;quot;Jimmy&amp;quot;).
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;Results&lt;/h1&gt;
+&lt;p&gt;The interfaces (and implementation classes) in this system can be
+stored in variables and passed to procedures, require no memory
+management, and will even show up nicely in logs. Since they're
+referred to with preprocessor macros, typos in interface or class
+names will be caught at compile time (procedure names and parameter
+lists are not normally checked). It's debatable whether this counts as
+"not impossible to read", but it's at least vaguely decipherable, and
+it's pretty easy to wrap.&lt;/p&gt;
+&lt;p&gt;The current incarnation is pretty basic, and has a number of
+limitations:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;It only supports procedures (not functions or methods).&lt;/li&gt;
+&lt;li&gt;It only support &lt;em&gt;local&lt;/em&gt; procedures (can't call a procedure in another
+persistent procedure).&lt;/li&gt;
+&lt;li&gt;Procedure parameters aren't checked against the interface for consistency.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1&gt;Implementation&lt;/h1&gt;
+&lt;p&gt;The implementation of this scheme is rather strange, mostly because of
+preprocessor contortions, though it's also rather small at about 60
+lines of code.&lt;/p&gt;
+&lt;p&gt;The core is a small runtime that is responsible for registering and
+looking up concrete procedures for interface implementations:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;CLASS MethodRuntime:
+    DEFINE PROTECTED TEMP-TABLE tt_method NO-UNDO
+            FIELD klass AS CHARACTER
+            FIELD methodName AS CHARACTER
+            FIELD procName AS CHARACTER
+            FIELD procHdl AS HANDLE
+            INDEX method_index IS PRIMARY
+                    klass
+                    methodName.
+
+    METHOD PUBLIC VOID RegisterMethod(klass AS CHARACTER, methodName AS CHARACTER):
+            FIND FIRST tt_method WHERE tt_method.klass = klass
+                            AND tt_method.methodName = methodName
+                            NO-LOCK NO-ERROR.
+            IF AVAILABLE tt_method THEN DO:
+                    ASSIGN tt_method.procName = procName
+                            tt_method.procHdl = procHdl.
+                    RETURN.
+            END.
+
+            CREATE tt_method.
+            ASSIGN tt_method.klass = klass
+                    tt_method.methodName = methodName
+                    tt_method.procName = procName
+                    tt_method.procHdl = procHdl.
+    END.
+
+    METHOD PUBLIC CHARACTER MethodProc(methodName AS CHARACTER,
+                   klass AS CHARACTER):
+            FIND FIRST tt_method WHERE tt_method.klass = klass
+                            AND tt_method.methodName = methodName
+                            NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE tt_method THEN DO:
+                   FIND FIRST tt_method WHERE tt_method.klass = klass
+                                   NO-LOCK NO-ERROR.
+                   IF NOT AVAILABLE tt_method THEN
+                          RETURN ERROR SUBSITUTE(&amp;quot;No such class&amp;#39;&amp;amp;1&amp;#39;&amp;quot;, klass).
+                   ELSE
+                          RETURN ERROR SUBSTITUTE(&amp;quot;Class &amp;#39;&amp;amp;1&amp;#39; has no method &amp;#39;&amp;amp;2&amp;#39;&amp;quot;,
+                                        klass, methodName).
+            END.
+            RETURN tt_method.procName.
+    END.
+END.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Internally, classes and interfaces are strings: this allow them to be
+created without memory management issues, and means they'll print
+nicely in logfiles. They're stored in a temp-table with an index,
+since we expect method registration to happen less than method calls,
+and we'd like those to be fast if possible.&lt;/p&gt;
+&lt;p&gt;The toplevel &lt;code&gt;interfaces.i&lt;/code&gt; include defines a shared instance of the
+runtime class, and establishes the opaque &lt;code&gt;{&amp;amp;INTERFACE}&lt;/code&gt; type synonym
+for interfaces and implementation classes.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;amp;IF DEFINED(INTERFACES_I_)=0 &amp;amp;THEN
+&amp;amp;GLOBAL-DEFINE INTERFACES_I_
+
+&amp;amp;GLOBAL-DEFINE INTERFACE CHARACTER
+DEFINE {&amp;amp;NEW} SHARED VAR MethodRuntime AS CLASS MethodRuntime NO-UNDO.
+
+&amp;amp;IF &amp;#39;{&amp;amp;NEW}&amp;#39;&amp;lt;&amp;gt;&amp;#39;&amp;#39; &amp;amp;THEN
+MethodRuntime = NEW MethodRuntime().
+&amp;amp;ENDIF
+
+&amp;amp;ENDIF
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;define-interface.i&lt;/code&gt; include-macro does very little: it simply
+defines a preprocessor name for the string constant that is the
+interface name.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;amp;GLOBAL-DEFINE {1} &amp;#39;{1}&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;implements.i&lt;/code&gt; include-macro does the same for the implementation
+class, and expands to a call to &lt;code&gt;MethodRuntime:RegisterMethod()&lt;/code&gt;. The
+parent-procedure handle parameter of &lt;code&gt;RegisterMethod&lt;/code&gt; is unused for
+now.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;amp;GLOBAL-DEFINE {2} &amp;#39;{2}&amp;#39;
+MethodRuntime:RegisterMethod({1}, {&amp;amp;{2}}, &amp;quot;{3}&amp;quot;, ?).
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;invoke.i&lt;/code&gt; is a simple expansion to all but the parameter list of a
+dynamic procedure call, using the procedure name returned by the
+runtime:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;RUN VALUE(MethodRuntime:MethodProc({1}, {2}))
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;It is clearly possible to provide polymorphic functions in ABL, with a
+few nice properties, as long as you're willing to accept a slightly
+cumbersome syntax and some modest restrictions on the implementations
+of methods. Basic compile-time support is doable, and there is no risk
+of memory leaks without garbage collector support.&lt;/p&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;Michael Feathers'
+&lt;a href="http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052"&gt;book&lt;/a&gt;
+actually includes a tiny little section at the end about working
+with C. It consists mainly of the author throwing up his hands and
+suggesting you use a real language.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;See the "OOABL" sections toward the end. Bear in mind that most
+of the "fixed" issues don't apply to the versions we have in the field.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</summary></entry><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><updated>2015-09-01T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
 encryption and decryption: the encryption key, the data (plaintext or
 ciphertext) and an Initialization Vector. Storing IVs is a hassle;
 what follows is a cute trick for doing encryption in AES CBC-mode
