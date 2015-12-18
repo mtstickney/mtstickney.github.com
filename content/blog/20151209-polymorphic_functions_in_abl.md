@@ -30,7 +30,8 @@ they provide polymorphic methods. Encapsulation is largely handled by
 forward-declaring functions (and ABL doesn't even have the notion of a
 struct, so no need to worry about those), and while inheritance is
 nice, it's mostly a convenience. Polymorphism allows you to substitute
-implementations without changing the code that uses them.
+implementations without changing the code that uses them, which allows
+hard code dependencies to be broken.
 
 # Requirements
 
