@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Work Challenge #1: Down the Rabbit Hole &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">Work Challenge #1: Down the Rabbit Hole</h1>
+    <p class="meta">
+<time datetime="2016-01-27T00:00:00-05:00" pubdate>Wed 27 January 2016</time>    </p>
+</header>
+
+  <div class="entry-content"><blockquote>
+<p>In the desert<br />
+ I saw a creature, naked, bestial,<br />
+ Who, squatting upon the ground,<br />
+ Held his heart in his hands,<br />
+ And ate of it.<br />
+ I said, "Is it good, friend?"<br />
+ "It is bitter--bitter," he answered;  </p>
+<p>"But I like it<br />
+ "Because it is bitter,<br />
+ "And because is is my heart."<br />
+-- Stephen Crane, "In the Desert"</p>
+</blockquote>
+<h2>Note on the series</h2>
+<p><em>This is the first in a series of interesting challenges I've
+encountered at work. Most of them are issues with the environment, and
+are obstacles to the main work at hand, and not the work itself.</em></p>
+<h2>The Wasteland</h2>
+<p>Our primary language at work is, to put it politely, underpowered. It
+has no real data structures, only asynchronous networking (but without
+promises or lambdas), is strictly single-threaded, and has a
+non-existent standard library. Basic tasks like making an HTTP request
+or sending mail via SMTP are untenably difficult, but still necessary
+for our application. Later versions of the language have a bridge to
+.NET code, but we can't rely on it being available.</p>
+<p>This came to a head with our previous mail client, which had been
+copied off a community wiki some time in the murky past. It couldn't
+talk to any server that used encryption, which is most of them these
+days, and it had some protocol issues that caused certain severs --
+like GMail -- to reject the communication as invalid. The existing
+code was nearly impossible to modify: all the networking was
+asynchronous, and without data structure all the state was kept in a
+pile of global variables. We needed to roll out new email features,
+which meant replacing this client with something more robust.</p>
+<p>Since you can't implement a reasonable SMTP client in the primary
+language, and since the .NET bridge wasn't available, I figured it
+would be useful to embed a more capable language myself. I initially
+planned on the JVM, but after a little research it looked like it
+would be much simpler to use
+<a href="https://common-lisp.net/project/ecl/">ECL</a> -- Common Lisp is a
+capable language with a model that makes interop easy, and the ECL
+implementation was designed to be embedded in other programs.</p>
+<h2>If it ain't one thing...</h2>
+<p>After a fair bit of work, I had a version of ECL that could be loaded
+into our main application, and used to call Lisp code that had been
+loaded in the image. An SMTP library provided non-broken email
+support, threads appeared to work, and life was good. Rumor had it
+that our language's VM was unfriendly toward embedded code, but
+everything was working well. Then, on the brink of success, the
+unthinkable: our tester reported that our application crashed on
+<em>every machine that wasn't my VM</em><sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
+<p>Not only had my project catastrophically failed, but now all of the
+email-based features we were trying to roll out were in jeopardy. In a
+desperate attempt to stem the bleeding, I called upon the Unix gods
+and did what any gray-bearded programmer would: moved the Lisp
+implementation into a separate process. Since I couldn't just pass
+pointers around anymore, I had to find an wire-format encoding that
+could be used by both the Lisp process and our gimpy language; and
+since I couldn't initialize the process with a blocking call, I'd need
+a way to know when it had started up (or worse, when it failed
+to). Performance would probably also take a hit, so mitigating that
+would be important for fine-grained calls<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>.</p>
+<p>I settled on a scheme where the two processes would communicate with
+<a href="http://msgpack.org/index.html">MsgPack</a> over a named pipe. The main
+process would act as a pipe server, and the Lisp process would connect
+to it after receiving the pipe name as an argument. That way the main
+process could block waiting for a connection, and would at least be
+notified if the Lisp process was killed because the pipe would be
+broken. I had to write a wrapper library to allow our main language to
+work with pipes, and I had to work around issues on the Lisp side
+too<sup id="fnref:3"><a class="footnote-ref" href="#fn:3" rel="footnote">3</a></sup>, but eventually it seemed to be working reliably, and we were
+able to roll out the email features to a few customers without
+problems. There were even a few opportunities for performance
+improvements, and life was good again.</p>
+<h2>...it's another.</h2>
+<p>Another unfortunate feature of our primary language is that it's
+extremely chatty when talking to the database, which makes it unusably
+slow over a non-local network connection. Some of our customers have
+installations at several locations that need to share a database; our
+solution in these cases is to run our software on a Terminal Server
+machine that's local to the database, and have each location log in
+remotely.</p>
+<p>One of these customers was recently given the version of our software
+with the Lisp co-process to solve some email issues they were having,
+and instantly ran out of virtual address space on their server. They
+had 60 clients running sessions simultaneously, and like many other
+garbage-collected languages, Lisp implementations often allocate their
+whole heap space on startup. Linux systems handle this with
+overcommit, but on Windows our implementation allocates the memory
+with <code>MEM_COMMIT | MEM_RESERVE</code>, which consumes the whole chunk of
+address space on allocation.</p>
+<p>Increasing the system's page file up to 50Gb was sufficient to solve
+their immediate problem, but starting 60 large processes is wasteful
+for an application that just uses them for networking services and
+some text processing. The solution was to share a single co-process
+among all the users on the same machine.</p>
+<p>The first step was to make the co-process the pipe server, so that
+multiple instances of the main application could connect to it, and
+have the co-process exit if the pipe already existed. That was simple
+enough, but we lost the ability to wait for the co-process to connect,
+so initialization had to get timeout parameters and a special wait
+function<sup id="fnref:4"><a class="footnote-ref" href="#fn:4" rel="footnote">4</a></sup>.</p>
+<p>Now we have to deal with the first real problem in this setup: when
+the first instance of our application starts up, it will launch the
+co-process which will act as a server for all other instances of our
+application. So far so good. However, the co-process is started as the
+user who is currently logged in -- which means that as soon as they
+end the remote session, the co-process will be killed, leaving other
+instances of our application stranded.</p>
+<p>To solve this, we need a non-user service to be responsible for
+launching instances of the co-process, so that they won't be owned by
+logged-in users. On Linux, we'd just start this as a DBus client and
+be done with it, but since Windows doesn't have a reasonable DBus
+equivalent, it has to listen on a well-known named pipe for launch
+requests (we can re-use the MsgPack protocol here). A little bit of
+work in <a href="https://golang.org">Go</a> solved this admirably, except that
+named pipes in Windows only grant permissions to their creator by
+default -- now <em>nobody</em> could connect to the server.</p>
+<h2>And another?</h2>
+<p>With a little bit of fooling with Go's foreign-function system and a
+few patches to the <a href="https://github.com/natefinch/npipe">npipe</a>
+library, I had an implementation that would correctly launch shared
+co-process instances for multiple users without getting terminated at
+logout. Our application could now do basic things like speaking to
+mail servers and processing a config file, all things that should been
+available to begin with.</p>
+<p>Surely this house of cards won't last. Something, somewhere, is going
+to go wrong with one of these moving parts -- my bet is that someone
+will manage to kill the shared co-process while other instances are in
+the middle of using it. The only real solution is to port our
+application to a sane language, just as fast as we possibly can. For
+now, though, our Rube-Goldberg-ian creation will have to rumble along
+until we hit another hurdle.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>I suspect this may have had something to do with Windows'
+Dynamic Execution Prevention system. Lisp implementations
+typically set this off because of the dynamic code generation they
+do, but it's only enabled by default on Server editions of
+Windows, so it's easy to miss during development. Sadly I haven't
+had the time to verify the theory.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>As part of the original system, I had implemented a rather
+cunning, if complex, system that allowed the Lisp image to call
+back into the main process to handle database manipulation (our
+language is a 4gl and can't talk to normal databases -- it's on
+loan to us from the 80s). Unfortunately, with the number of calls
+required, performance was slow even with the directly-embedded
+version.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>For example, most Lisps check file existence with the <code>_stat()</code>
+function, which calls <code>CreateFile()</code> internally. This counts as a
+connection to the pipe, and a subsequent open will fail unless the
+server re-creates the instance. Since most Lisps check file existence
+before opening in order to signal an error for missing files, a normal
+open call can't be used to connect to a named pipe.&#160;<a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:4">
+<p>Windows has a function to wait for a named pipe to become
+available for connection, but it can't be used to wait on a pipe
+that doesn't exist yet. To get a proper timeout, you have to
+<code>Sleep()</code> in the case that the pipe doesn't exist, and
+<code>WaitNamedPipe()</code> when it does; since <code>Sleep()</code> isn't interrupted
+when the pipe becomes available, you need a timeout that retries
+connections a certain number of times.&#160;<a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2016-01-27T00:00:00-05:00" pubdate>Wed 27 January 2016</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+  </span>
+  <span class="categories">
+    <a class="category" href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a class="category" href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a class="category" href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a class="category" href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a class="category" href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013&ndash;2015  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>
