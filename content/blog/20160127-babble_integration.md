@@ -26,12 +26,12 @@ are obstacles to the main work at hand, and not the work itself._
 ## The Wasteland
 
 Our primary language at work is, to put it politely, underpowered. It
-has no real data structures, only asynchronous networking (but without
-promises or lambdas), is strictly single-threaded, and has a
-non-existent standard library. Basic tasks like making an HTTP request
-or sending mail via SMTP are untenably difficult, but still necessary
-for our application. Later versions of the language have a bridge to
-.NET code, but we can't rely on it being available.
+has no real data structures, synchronous and asynchronous networking
+but without streams or promises, is strictly single-threaded, and has
+a non-existent standard library. Basic tasks like making an HTTP
+request or sending mail via SMTP are untenably difficult, but still
+necessary for our application. Later versions of the language have a
+bridge to .NET code, but we can't rely on it being available.
 
 This came to a head with our previous mail client, which had been
 copied off a community wiki some time in the murky past. It couldn't
