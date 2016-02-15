@@ -1,7 +1,6 @@
 Title: Work Challenge #1: Down the Rabbit Hole
 Date: 2016-01-27
 Category: blog
-Status: draft
 Tags: blog, programming, language interop, abl, windows, work challenge
 
 >  In the desert  
