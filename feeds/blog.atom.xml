@@ -1,5 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2015-10-27T00:00:00-04:00</updated><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><updated>2015-10-27T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;Tags: abl, OO, experiments&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2016-01-27T00:00:00-05:00</updated><entry><title>Work Challenge #1: Down the Rabbit Hole</title><link href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html" rel="alternate"></link><updated>2016-01-27T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-27:posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;In the desert&lt;br /&gt;
+ I saw a creature, naked, bestial,&lt;br /&gt;
+ Who, squatting upon the ground,&lt;br /&gt;
+ Held his heart in his hands,&lt;br /&gt;
+ And ate of it.&lt;br /&gt;
+ I said, "Is it good, friend?"&lt;br /&gt;
+ "It is bitter--bitter," he answered;  &lt;/p&gt;
+&lt;p&gt;"But I like it&lt;br /&gt;
+ "Because it is bitter,&lt;br /&gt;
+ "And because is is my heart."&lt;br /&gt;
+-- Stephen Crane, "In the Desert"&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;Note on the series&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;This is the first in a series of interesting challenges I've
+encountered at work. Most of them are issues with the environment, and
+are obstacles to the main work at hand, and not the work itself.&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;The Wasteland&lt;/h2&gt;
+&lt;p&gt;Our primary language at work is, to put it politely, underpowered. It
+has no real data structures, synchronous and asynchronous networking
+but without streams or promises (or lambdas), is strictly
+single-threaded, and has a non-existent standard library. Basic tasks
+like making an HTTP request or sending mail via SMTP are untenably
+difficult, but still necessary for our application. Later versions of
+the language have a bridge to .NET code, but we can't rely on it being
+available on our customer's systems.&lt;/p&gt;
+&lt;p&gt;This came to a head with our previous mail client, which had been
+copied off a community wiki some time in the murky past. It couldn't
+talk to any server that used encryption, which is most of them these
+days, and it had some protocol issues that caused certain severs --
+like GMail -- to reject the communication as invalid. The existing
+code was nearly impossible to modify: all the networking was
+asynchronous, and without data structure all the state was kept in a
+pile of global variables. We needed to roll out new email features,
+which meant replacing this client with something more robust.&lt;/p&gt;
+&lt;p&gt;Since you can't implement a reasonable SMTP client in the primary
+language, and since the .NET bridge wasn't available, I figured it
+would be useful to embed a more capable language myself. I initially
+planned on the JVM, but after a little research it looked like it
+would be much simpler to use
+&lt;a href="https://common-lisp.net/project/ecl/"&gt;ECL&lt;/a&gt; -- Common Lisp is a
+capable language with a model that makes interop easy, and the ECL
+implementation was designed to be embedded in other programs.&lt;/p&gt;
+&lt;h2&gt;If it ain't one thing...&lt;/h2&gt;
+&lt;p&gt;After a fair bit of work, I had a version of ECL that could be loaded
+into our main application, and used to call Lisp code that had been
+loaded in the image. An SMTP library provided non-broken email
+support, threads appeared to work, and life was good. Rumor had it
+that our language's VM was unfriendly toward embedded code, but
+everything was working well. Then, on the brink of success, the
+unthinkable: our tester reported that our application crashed on
+&lt;em&gt;every machine that wasn't my VM&lt;/em&gt;&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Not only had my project catastrophically failed, but now all of the
+email-based features we were trying to roll out were in jeopardy. In a
+desperate attempt to stem the bleeding, I called upon the Unix gods
+and did what any gray-bearded programmer would: moved the Lisp
+implementation into a separate process. Since I couldn't just pass
+pointers around anymore, I had to find an wire-format encoding that
+could be used by both the Lisp process and our gimpy language; and
+since I couldn't initialize the process with a blocking call, I'd need
+a way to know when it had started up (or worse, when it failed
+to). Performance would probably also take a hit, so mitigating that
+would be important for fine-grained calls&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;I settled on a scheme where the two processes would communicate with
+&lt;a href="http://msgpack.org/index.html"&gt;MsgPack&lt;/a&gt; over a named pipe. The main
+process would act as a pipe server, and the Lisp process would connect
+to it after receiving the pipe name as an argument. That way the main
+process could block waiting for a connection, and would at least be
+notified if the Lisp process was killed because the pipe would be
+broken. I had to write a wrapper library to allow our main language to
+work with pipes, and I had to work around issues on the Lisp side
+too&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;, but eventually it seemed to be working reliably, and we were
+able to roll out the email features to a few customers without
+problems. There were even a few opportunities for performance
+improvements, and life was good again.&lt;/p&gt;
+&lt;h2&gt;...it's another.&lt;/h2&gt;
+&lt;p&gt;Another unfortunate feature of our primary language is that it's
+extremely chatty when talking to the database, which makes it unusably
+slow over a non-local network connection. Some of our customers have
+installations at several locations that need to share a database; our
+solution in these cases is to run our software on a Terminal Server
+machine that's local to the database, and have each location log in
+remotely.&lt;/p&gt;
+&lt;p&gt;One of these customers was recently given the version of our software
+with the Lisp co-process to solve some email issues they were having,
+and instantly ran out of virtual address space on their server. They
+had 60 clients running sessions simultaneously, and like many other
+garbage-collected languages, Lisp implementations often allocate their
+whole heap space on startup. Linux systems handle this with
+overcommit, but on Windows our implementation allocates the memory
+with &lt;code&gt;MEM_COMMIT | MEM_RESERVE&lt;/code&gt;, which consumes the whole chunk of
+address space on allocation.&lt;/p&gt;
+&lt;p&gt;Increasing the system's page file up to 50Gb was sufficient to solve
+their immediate problem, but starting 60 large processes is wasteful
+for an application that just uses them for networking services and
+some text processing. The solution was to share a single co-process
+among all the users on the same machine.&lt;/p&gt;
+&lt;p&gt;The first step was to make the co-process the pipe server, so that
+multiple instances of the main application could connect to it, and
+have the co-process exit if the pipe already existed. That was simple
+enough, but we lost the ability to wait for the co-process to connect,
+so initialization had to get timeout parameters and a special wait
+function&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="footnote"&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Now we have to deal with the first real problem in this setup: when
+the first instance of our application starts up, it will launch the
+co-process which will act as a server for all other instances of our
+application. So far so good. However, the co-process is started as the
+user who is currently logged in -- which means that as soon as they
+end the remote session, the co-process will be killed, leaving other
+instances of our application stranded.&lt;/p&gt;
+&lt;p&gt;To solve this, we need a non-user service to be responsible for
+launching instances of the co-process, so that they won't be owned by
+logged-in users. On Linux, we'd just start this as a DBus client and
+be done with it, but since Windows doesn't have a reasonable DBus
+equivalent, it has to listen on a well-known named pipe for launch
+requests (we can re-use the MsgPack protocol here). A little bit of
+work in &lt;a href="https://golang.org"&gt;Go&lt;/a&gt; solved this admirably, except that
+named pipes in Windows only grant permissions to their creator by
+default -- now &lt;em&gt;nobody&lt;/em&gt; could connect to the server.&lt;/p&gt;
+&lt;h2&gt;And another?&lt;/h2&gt;
+&lt;p&gt;With a little bit of fooling with Go's foreign-function system and a
+few patches to the &lt;a href="https://github.com/natefinch/npipe"&gt;npipe&lt;/a&gt;
+library, I had an implementation that would correctly launch shared
+co-process instances for multiple users without getting terminated at
+logout. Our application could now do basic things like speaking to
+mail servers and processing a config file, all things that should been
+available to begin with.&lt;/p&gt;
+&lt;p&gt;Surely this house of cards won't last. Something, somewhere, is going
+to go wrong with one of these moving parts -- my bet is that someone
+will manage to kill the shared co-process while other instances are in
+the middle of using it. The only real solution is to port our
+application to a sane language, just as fast as we possibly can. For
+now, though, our Rube-Goldberg-ian creation will have to rumble along
+until we hit another hurdle.&lt;/p&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;I suspect this may have had something to do with Windows'
+Dynamic Execution Prevention system. Lisp implementations
+typically set this off because of the dynamic code generation they
+do, but it's only enabled by default on Server editions of
+Windows, so it's easy to miss during development. Sadly I haven't
+had the time to verify the theory.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;As part of the original system, I had implemented a rather
+cunning, if complex, system that allowed the Lisp image to call
+back into the main process to handle database manipulation (our
+language is a 4gl and can't talk to normal databases -- it's on
+loan to us from the 80s). Unfortunately, with the number of calls
+required, performance was slow even with the directly-embedded
+version.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:3"&gt;
+&lt;p&gt;For example, most Lisps check file existence with the &lt;code&gt;_stat()&lt;/code&gt;
+function, which calls &lt;code&gt;CreateFile()&lt;/code&gt; internally. This counts as a
+connection to the pipe, and a subsequent open will fail unless the
+server re-creates the instance. Since most Lisps check file existence
+before opening in order to signal an error for missing files, a normal
+open call can't be used to connect to a named pipe.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:4"&gt;
+&lt;p&gt;Windows has a function to wait for a named pipe to become
+available for connection, but it can't be used to wait on a pipe
+that doesn't exist yet. To get a proper timeout, you have to
+&lt;code&gt;Sleep()&lt;/code&gt; in the case that the pipe doesn't exist, and
+&lt;code&gt;WaitNamedPipe()&lt;/code&gt; when it does; since &lt;code&gt;Sleep()&lt;/code&gt; isn't interrupted
+when the pipe becomes available, you need a timeout that retries
+connections a certain number of times.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</summary><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><updated>2015-10-27T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;Tags: abl, OO, experiments&lt;/p&gt;
 &lt;p&gt;If you've ever looked at books on refactoring code, there's one common
 theme among them: every piece of refactoring advice that has ever been
 given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;

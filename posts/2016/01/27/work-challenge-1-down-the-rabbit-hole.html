@@ -17,7 +17,6 @@
   <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="robots" content="noindex, nofollow" />
 
     <link href="http://mtstickney.github.io/favicon.png" rel="icon">
 
@@ -78,11 +77,12 @@ are obstacles to the main work at hand, and not the work itself.</em></p>
 <h2>The Wasteland</h2>
 <p>Our primary language at work is, to put it politely, underpowered. It
 has no real data structures, synchronous and asynchronous networking
-but without streams or promises, is strictly single-threaded, and has
-a non-existent standard library. Basic tasks like making an HTTP
-request or sending mail via SMTP are untenably difficult, but still
-necessary for our application. Later versions of the language have a
-bridge to .NET code, but we can't rely on it being available.</p>
+but without streams or promises (or lambdas), is strictly
+single-threaded, and has a non-existent standard library. Basic tasks
+like making an HTTP request or sending mail via SMTP are untenably
+difficult, but still necessary for our application. Later versions of
+the language have a bridge to .NET code, but we can't rely on it being
+available on our customer's systems.</p>
 <p>This came to a head with our previous mail client, which had been
 copied off a community wiki some time in the murky past. It couldn't
 talk to any server that used encryption, which is most of them these
@@ -252,6 +252,9 @@ connections a certain number of times.&#160;<a class="footnote-backref" href="#f
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+      </li>
+      <li class="post">
           <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
       </li>
       <li class="post">
@@ -276,7 +279,7 @@ connections a certain number of times.&#160;<a class="footnote-backref" href="#f
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>  </section>
+    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
 
 
 
@@ -311,7 +314,7 @@ connections a certain number of times.&#160;<a class="footnote-backref" href="#f
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2013&ndash;2015  Matthew Stickney &mdash;
+    Copyright &copy;  2013&ndash;2016  Matthew Stickney &mdash;
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 </body>
