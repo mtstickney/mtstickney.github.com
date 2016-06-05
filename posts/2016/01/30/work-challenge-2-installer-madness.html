@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Work Challenge #2: Installer Madness &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">Work Challenge #2: Installer Madness</h1>
+    <p class="meta">
+<time datetime="2016-01-30T00:00:00-05:00" pubdate>Sat 30 January 2016</time>    </p>
+</header>
+
+  <div class="entry-content"><p><em>The second in a <a href="/tag/work-challenge.html">series</a> of technical
+challenges encountered in the course of trying to get work&nbsp;done.</em></p>
+<p>As I mentioned in the previous
+<a href="/blog/work-challenge-1-down-the-rabbit-hole.html">piece</a> in the
+series, the primary language we use at work is often rather
+frustrating to work with. In addition to the language itself, the
+platform infrastructure is also poorly designed, particularly for
+cases like ours where we&#8217;re maintaining a large number of remote
+systems in various environments without the benefit of local
+personnel. Broken or troublesome installers have been an issue for us
+in two areas, where we&#8217;ve had to replace the ones supplied by our&nbsp;vendor.</p>
+<h2>The Sub-Par&nbsp;Standard</h2>
+<p>Before we get into the specific cases where we&#8217;ve had to route around
+the damage, I want to briefly describe the <em>status quo</em> for our
+vendor&#8217;s system. The system we use is divided into components, each of
+which requires a license from the vendor. Lets say you&#8217;re going to
+install the mid-range database component and a client access
+component. You&#8217;d grab the great big installer for your version, run
+it, type in your license keys for both components, and wait for them
+to be installed. Typically you&#8217;d then run an additional service pack
+installer, because the vendor doesn&#8217;t supply service packs as a
+roll-up. The service pack installer will detect the installed
+components and install the service-pack version of those components
+over the&nbsp;top.</p>
+<p>If you want to add a component later, you&#8217;d be tempted to use the
+installer that was installed along with the components (nope, not
+making that up) and which is labeled &#8220;Add Components&#8221; in the Start
+menu group. You&#8217;d be mistaken if you did, because that&#8217;s got a bug
+where it detects itself as a process using a critical file, and won&#8217;t
+proceed. To do that, you need to carefully stop any process using
+files from the vendor an re-run the external installer (you did keep
+that around, right?), after which you&#8217;ll need to run the service pack
+installer again. There&#8217;s no provision for removing components, so if
+you wanted to do that you&#8217;d have to uninstall and&nbsp;reinstall.</p>
+<h2>The&nbsp;Megalith</h2>
+<p>An obvious downside to this kind of installer is that it has to
+contain the data for every component that a user might install (same
+goes for the service pack). This makes the installers pretty huge &#8212;
+about 2Gb for the main installer, and another 1Gb for the service
+pack. Having to download 3Gb of installer onto a machine that may be
+behind the cheapest <span class="caps">DSL</span> line the business owner could find is pretty
+painful, and moving files around the internal network is no picnic
+either. They have multiple stores? Now you get to attend that party
+<em>twice</em>. For large installations, we often mail the customer a flash
+drive that someone on-site can take around to each station and plug&nbsp;in.</p>
+<p>Curiously, it&#8217;s not just the installer itself that&#8217;s bloated. When you
+install the client access component, the install is about 500Mb, and
+contains database-management tools, source code, and binaries for
+completely unrelated components. After some system tracing and
+trial-and-error-by-deleting, I determined that the bits used to
+actually run programs written for this system are only about 14Mb
+(40Mb if you include some optional widget&nbsp;libraries).</p>
+<p>After I&#8217;d figured out what we really needed, I whipped up an installer
+for just those parts. Final size: 6Mb. It runs in a couple of seconds,
+is trivial to distribute, and it can be quickly removed and
+reinstalled if the install gets&nbsp;corrupted.</p>
+<p>Me: 1, vendor:&nbsp;0.</p>
+<h2>The Installer that&nbsp;Didn&#8217;t</h2>
+<p>Our vendor provides a component that includes <span class="caps">ODBC</span> drivers so that
+other systems can access their proprietary database. At some point,
+someone decided that it was irritating to drag around several
+gigabytes worth of installers to a bunch of different client machines,
+so they decided to include a separate installer for the drivers with
+the client&nbsp;component.</p>
+<p>I stumbled across this when I was poking around the system folder one
+day. &#8220;Wow!&#8221; I thought, &#8220;My troubles are over! Easy street, here I
+come!&#8221; I tracked down a knowledgebase article about how to use it,
+which instructed me to map a network drive to the machine with the
+installer, and run it from there. H-uh. &#8220;Ok,&#8221; I thought, &#8220;they&#8217;re just
+trying to avoid telling people how to find and copy the installer
+file. Fair enough.&#8221;  Then I hit the second&nbsp;paragraph:</p>
+<blockquote>
+<p>All the files for the <span class="caps">ODBC</span> drivers will be on the centrally located
+file server. If at any time the file server changes, the relevant
+setup executable above will need to be run from each machine to
+update the location of the <span class="caps">ODBC</span> driver&nbsp;files.</p>
+<p>Existing DataSources will have outdated definitions of the location
+of the <span class="caps">DLL</span> file used by <span class="caps">ODBC</span> and will need to be&nbsp;recreated.</p>
+</blockquote>
+<p>Just to paraphrase: they have a 50Mb installer, which, when run,
+<em>doesn&#8217;t actually install anything</em>. If you poke around enough it
+becomes clear that this is part of some Machiavellian scheme to
+prevent people from talking to their database without a client
+license, but come on. Having your <span class="caps">ODBC</span> drivers go out every time your
+network hiccups or your share names change or your permissions go
+screwy? This is why we can&#8217;t have nice&nbsp;things.</p>
+<p>As with the main installer, I whipped up a 5Mb jobby to install the
+<span class="caps">ODBC</span> drivers in the normal, sane fashion. It&#8217;s smaller than the
+vendor&#8217;s, it actually installs something, and unlike the vendor&#8217;s you
+can install more than one version at a time, in case you need to talk
+to more than one database from a client. You can even install them
+alongside the vendor&#8217;s version without conflict, if you&nbsp;like.</p>
+<p>Me: 2, vendor:&nbsp;0.</p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2016-01-30T00:00:00-05:00" pubdate>Sat 30 January 2016</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+  </span>
+  <span class="categories">
+    <a class="category" href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a class="category" href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a class="category" href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a class="category" href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013&ndash;2016  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>

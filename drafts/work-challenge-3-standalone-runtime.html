@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Work Challenge #2: Installer Madness &mdash; FiddlyBits</title>
+  <title>Work Challenge #3: Standalone Runtime &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
 
@@ -53,16 +53,43 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">Work Challenge #2: Installer Madness</h1>
+      <h1 class="entry-title">Work Challenge #3: Standalone Runtime</h1>
     <p class="meta">
-<time datetime="2016-01-30T00:00:00-05:00" pubdate>Sat 30 January 2016</time>    </p>
+<time datetime="2016-05-08T00:00:00-04:00" pubdate>Sun 08 May 2016</time>    </p>
 </header>
 
-  <div class="entry-content"><p><em>The second in a <a href="/tag/work-challenge.html">series</a> of technical
-challenges encountered in the course of trying to get work done.</em></p>
-<p>As I alloded to in the previous
-<a href="/blog/work-challenge-1-down-the-rabbit-hole.html">piece</a> in the
-series, </p></div>
+  <div class="entry-content"><p><em>The third in a <a href="/tag/work-challenge.html">series</a> of technical
+challenges encountered in the course of trying to get work&nbsp;done.</em></p>
+<p>In the <a href="/blog/work-challenge-2-installer-madness.html">previous part</a>
+of the series, I mentioned there would be more detail here about the
+standalone client installer I covered. As it turns out, one of the
+other weak points of our vendor&#8217;s system is its inability to
+encapsulate the runtime used for programs. Since it doesn&#8217;t do much
+good to install a runtime you can&#8217;t use, I&#8217;m going to cover those
+aspects of it&nbsp;here.</p>
+<h2>Encapsulated&nbsp;Programs</h2>
+<p>As has been mentioned here before, the language we use at work is
+interpreted, and runs code in the form of source or bytecode
+files. The traditional challenge for that sort of language is
+deployment: at some point or other, a developer is going to want to
+deploy an application either as a single binary, or at least without
+requiring the use to install the interpreter separately. Python, for
+example, has this issue, and there are a number of
+<a href="https://wiki.python.org/moin/DistributionUtilities">solutions</a> to
+deal with packaging up all the various pieces into one&nbsp;unit.</p>
+<p>Our vendor, on the other hand, has no such utilities, and unlike
+Python their system is unusually resistant to being
+encapsulated. Gilles Querret (author of one of the only build systems
+for <span class="caps">ABL</span>, <a href="http://jakejustus.github.io/pct/"><span class="caps">PCT</span></a>) has covered a
+similar
+<a href="http://blog.riverside-software.fr/2010/01/openedge-client-deployment-using.html">process</a>
+for deploying client applications, but I wanted to document my work
+here, as it includes some details and caveats that his method&nbsp;doesn&#8217;t.</p>
+<h2>Vendor&nbsp;Tentacles</h2>
+<ul>
+<li>environment&nbsp;variables</li>
+<li>global registry&nbsp;settings</li>
+</ul></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
@@ -70,7 +97,7 @@ series, </p></div>
         Matthew Stickney
     </span>
   </span>
-<time datetime="2016-01-30T00:00:00-05:00" pubdate>Sat 30 January 2016</time>  <span class="categories">
+<time datetime="2016-05-08T00:00:00-04:00" pubdate>Sun 08 May 2016</time>  <span class="categories">
     <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
   </span>
   <span class="categories">
@@ -85,19 +112,19 @@ series, </p></div>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
       <li class="post">
           <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
       </li>
     </ul>
   </section>
@@ -105,14 +132,14 @@ series, </p></div>
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
+    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>  </section>
 
 
 
