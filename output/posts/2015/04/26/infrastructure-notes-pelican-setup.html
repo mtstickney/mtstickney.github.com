@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Infrastructure Notes: Pelican Setup &mdash; FiddlyBits</title>
+  <title>Infrastructure Notes: Pelican Setup &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
 
@@ -52,7 +52,7 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">Infrastructure Notes: Pelican Setup</h1>
+      <h1 class="entry-title">Infrastructure Notes: Pelican Setup</h1>
     <p class="meta">
 <time datetime="2015-04-26T00:00:00-04:00" pubdate>Sun 26 April 2015</time>    </p>
 </header>
@@ -61,110 +61,109 @@
 <p>I have slipped the surly bonds of Octopress<br />
  pulled the trigger<br />
  and converted this sucker to Pelican.<br />
- -- definitely not John Gillespie Magee, Jr.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup></p>
+ &#8212; definitely not John Gillespie Magee, Jr.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup></p>
 </blockquote>
 <p>This blog used to be powered by <a href="http://octopress.org">Octopress</a>, but
-I've just finished converting the whole thing to
+I&#8217;ve just finished converting the whole thing to
 <a href="http://blog.getpelican.com">Pelican</a>, and wanted to make a few notes
-about the switch and the current setup.</p>
+about the switch and the current&nbsp;setup.</p>
 <h2>Updates</h2>
 <ul>
 <li><em>2015-09-01</em>: Deploy script was updated to remove the output files
-before regenerating the site.</li>
+before regenerating the&nbsp;site.</li>
 </ul>
-<h2>Why Switch?</h2>
+<h2>Why&nbsp;Switch?</h2>
 <p>First though, a comment about my reasons for switching: Octopress is a
 solid piece of software, with good out-of-the-box settings for the
 sort of blogging I want to do (and probably for most blogs in
 general). So why the switch? In my case, the two killer issues were
-Ruby and the deployment scenario.</p>
+Ruby and the deployment&nbsp;scenario.</p>
 <p>Getting Ruby to run on Windows is an absolute nightmare (mainly a
 problem with gems). I generally prefer Linux systems, but some of my
 machines are Windows-based and the harder it is to update the site the
-less likely I am to actually do it. I'm also not as familiar with
+less likely I am to actually do it. I&#8217;m also not as familiar with
 Ruby, so the barrier for hacking on Octopress is higher, although I
-doubt I'd have needed to do so.</p>
+doubt I&#8217;d have needed to do&nbsp;so.</p>
 <p>Octopress is designed to run on the github-pages platform, and has
 Rake tasks to support updating and deploying the site. Unfortunately
-it's not completely clear what these are actually doing -- they commit
+it&#8217;s not completely clear what these are actually doing &#8212; they commit
 the contents of a folder to the <code>master</code> or <code>gh-pages</code> branch of a
-repo, which is an unusual operation in git -- which makes it easy to
+repo, which is an unusual operation in git &#8212; which makes it easy to
 make mistakes. I use git every day, and I still managed to commit the
 generated site but not my article source. On top of that, you get
-octopress by forking the author's repo, which makes it tricky to
-update octopress itself.</p>
-<p>Octopress' author has <a href="octopress-3.0">noted</a> the issues with the
+octopress by forking the author&#8217;s repo, which makes it tricky to
+update octopress&nbsp;itself.</p>
+<p>Octopress&#8217; author has <a href="octopress-3.0">noted</a> the issues with the
 deployment process, and has plans to fix them in a future version, but
-that still leaves me with the Ruby issues. "Figure out Octopress" has
-been on my To-Do list for so long that I'm not actually writing (last
+that still leaves me with the Ruby issues. &#8220;Figure out Octopress&#8221; has
+been on my To-Do list for so long that I&#8217;m not actually writing (last
 post was more than a year ago), which in the end is the whole point,
-so after much procrastinating I'm pulling the trigger and switching to
-Pelican.</p>
-<h2>The Setup</h2>
-<p>First, create a virtualenv for the site in question:</p>
-<div class="highlight"><pre><span class="nv">$ </span>mkdir my_site/ <span class="o">&amp;&amp;</span> <span class="nb">cd </span>my_site/
-<span class="nv">$ </span>virtualenv .
-<span class="nv">$ </span><span class="nb">source </span>Scripts/activate
+so after much procrastinating I&#8217;m pulling the trigger and switching to&nbsp;Pelican.</p>
+<h2>The&nbsp;Setup</h2>
+<p>First, create a virtualenv for the site in&nbsp;question:</p>
+<div class="highlight"><pre><span></span>$ mkdir my_site/ <span class="o">&amp;&amp;</span> <span class="nb">cd</span> my_site/
+$ virtualenv .
+$ <span class="nb">source</span> Scripts/activate
 </pre></div>
 
 
-<p>Next, install the pelican components and create the project skeleton:</p>
-<div class="highlight"><pre><span class="nv">$ </span>pip install pelican markdown typogrify
-<span class="nv">$ </span>pelican-quickstart
+<p>Next, install the pelican components and create the project&nbsp;skeleton:</p>
+<div class="highlight"><pre><span></span>$ pip install pelican markdown typogrify
+$ pelican-quickstart
 </pre></div>
 
 
-<p>It's not a great idea to add the virtualenv components to the git
+<p>It&#8217;s not a great idea to add the virtualenv components to the git
 repo, but we do want to track the installed components so setup on a
-new machine is easy. The best way I've found to do that is to save the
-requirements list from pip:</p>
-<div class="highlight"><pre><span class="nv">$ </span>pip -l freeze &gt; requirements.txt
+new machine is easy. The best way I&#8217;ve found to do that is to save the
+requirements list from&nbsp;pip:</p>
+<div class="highlight"><pre><span></span>$ pip -l freeze &gt; requirements.txt
 </pre></div>
 
 
-<p>You'll want to add Pelican's files, the requirements file, and any
-existing content (but not the <code>output/</code> folder just yet):</p>
-<div class="highlight"><pre><span class="nv">$ </span>git add pelicanconf.py <span class="se">\</span>
+<p>You&#8217;ll want to add Pelican&#8217;s files, the requirements file, and any
+existing content (but not the <code>output/</code> folder just&nbsp;yet):</p>
+<div class="highlight"><pre><span></span>$ git add pelicanconf.py <span class="se">\</span>
           publishconf.py <span class="se">\</span>
           Makefile <span class="se">\</span>
           fabfiile.py <span class="se">\</span>
           develop_server.sh <span class="se">\</span>
           requirements.txt <span class="se">\</span>
           content/
-<span class="nv">$ </span>git commit -m <span class="s1">&#39;Add Pelican files.&#39;</span>
+$ git commit -m <span class="s1">&#39;Add Pelican files.&#39;</span>
 </pre></div>
 
 
-<p>I like Octopress' default theme, so I'm using the
+<p>I like Octopress&#8217; default theme, so I&#8217;m using the
 <a href="pelican-octopress">pelican-octopress</a> theme. There is a small
-issue with the github scripts it uses for the sidebar, but I'm hoping
+issue with the github scripts it uses for the sidebar, but I&#8217;m hoping
 to submit a patch for that shortly. This is also the one and only part
-of the site that I haven't figured out how to store in the main repo
-yet (a submodule would probably do it). Installation:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
-<span class="nv">$ </span>pelican-theme -i ../pelican-octopress
+of the site that I haven&#8217;t figured out how to store in the main repo
+yet (a submodule would probably do it).&nbsp;Installation:</p>
+<div class="highlight"><pre><span></span>$ git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
+$ pelican-theme -i ../pelican-octopress
 </pre></div>
 
 
-<h2>Github Pages</h2>
-<p>Getting Pelican's output into the right branch for Github Pages can be
+<h2>Github&nbsp;Pages</h2>
+<p>Getting Pelican&#8217;s output into the right branch for Github Pages can be
 a little tricky to wrangle (this was the most confusing part of
 Octopress for me), but there are several ways to approach the
-problem. I chose to stick with Octopress' <code>source</code> and <code>master</code> (or
+problem. I chose to stick with Octopress&#8217; <code>source</code> and <code>master</code> (or
 <code>gh-pages</code>) branch scheme, where the code for generating the site
 resides in the <code>source</code> branch of the same repo as the site. Using an
-external repo could also work, but I didn't want the clutter.</p>
+external repo could also work, but I didn&#8217;t want the&nbsp;clutter.</p>
 <p>Instead of using an existing script like <code>ghp-import</code> and trying to
 convince it to use <code>master</code> instead of <code>gh-pages</code>, I was able to roll
 my own deployment script quite easily using <code>git subtree</code>.</p>
 <p>The first thing to do is to add the <code>output/</code> directory as a subtree
-from the master branch:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git subtree add --prefix output/ origin master
+from the master&nbsp;branch:</p>
+<div class="highlight"><pre><span></span>$ git subtree add --prefix output/ origin master
 </pre></div>
 
 
 <p>Then we can use a deployment script to generate the site, commit the
-changes, and push the generated content to the master branch:</p>
+changes, and push the generated content to the master&nbsp;branch:</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -181,41 +180,41 @@ changes, and push the generated content to the master branch:</p>
 14
 15
 16
-17</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
+17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
 
 <span class="nv">OUTPUT_DIR</span><span class="o">=</span>output
-<span class="c"># Generate fresh production output</span>
+<span class="c1"># Generate fresh production output</span>
 rm -rf <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span>
 pelican -s publishconf.py
 
-<span class="c"># Just to be safe, make sure we don&#39;t commit already-staged changes</span>
+<span class="c1"># Just to be safe, make sure we don&#39;t commit already-staged changes</span>
 git reset HEAD
 
-<span class="c"># Add and commit the new output</span>
+<span class="c1"># Add and commit the new output</span>
 git add --all <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span>
 <span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date -u <span class="s2">&quot;+%Y-%m-%d %H:%M:%S %Z&quot;</span><span class="k">)</span>
 git commit -m <span class="s2">&quot;Site updated at </span><span class="nv">$DATE</span><span class="s2">&quot;</span>
 
-<span class="c"># Push it to the remote</span>
+<span class="c1"># Push it to the remote</span>
 git subtree push --prefix <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span> origin master
 </pre></div>
 </td></tr></table>
 
-<p>Works like a charm, and I (now) know exactly what it's doing. The only
+<p>Works like a charm, and I (now) know exactly what it&#8217;s doing. The only
 thing missing is <code>git pull</code>ing the new <code>master</code>, but you generally
-won't even have it checked out locally.</p>
-<h2>New Machine Setup</h2>
+won&#8217;t even have it checked out&nbsp;locally.</p>
+<h2>New Machine&nbsp;Setup</h2>
 <p>With all that in place, setup on a new machine is pretty
-straightforward, assuming Python is already installed:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/mtstickney/mtstickney.github.com site
-<span class="nv">$ </span>git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
-<span class="nv">$ </span><span class="nb">cd </span>site
-<span class="nv">$ </span>virtualenv .
-<span class="nv">$ </span><span class="nb">source </span>Scripts/activate
-<span class="nv">$ </span>pip install -r requirements.txt
-<span class="nv">$ </span>pelican-themes -i ../pelican-octopress
-<span class="nv">$ </span>&lt;write write write&gt;
-<span class="nv">$ </span>./deploy.sh
+straightforward, assuming Python is already&nbsp;installed:</p>
+<div class="highlight"><pre><span></span>$ git clone https://github.com/mtstickney/mtstickney.github.com site
+$ git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+$ <span class="nb">cd</span> site
+$ virtualenv .
+$ <span class="nb">source</span> Scripts/activate
+$ pip install -r requirements.txt
+$ pelican-themes -i ../pelican-octopress
+$ &lt;write write write&gt;
+$ ./deploy.sh
 </pre></div>
 
 
@@ -223,7 +222,7 @@ straightforward, assuming Python is already installed:</p>
 <hr />
 <ol>
 <li id="fn:1">
-<p>This is a shameless ripoff of John Gillespie Magee Jr.'s fabulous
+<p>This is a shameless ripoff of John Gillespie Magee Jr.&#8217;s fabulous
   poem
   <a href="http://www.woodiescciclub.com/high-flight.htm">High Flight</a>. You
   should go read it.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
@@ -252,19 +251,19 @@ straightforward, assuming Python is already installed:</p>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
       <li class="post">
           <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
       </li>
     </ul>
   </section>
@@ -272,14 +271,14 @@ straightforward, assuming Python is already installed:</p>
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
+    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>  </section>
 
 
 

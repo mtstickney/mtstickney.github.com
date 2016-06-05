@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Look Ma, No IVs! &mdash; FiddlyBits</title>
+  <title>Look Ma, No IVs! &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
 
@@ -52,7 +52,7 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">Look Ma, No IVs!</h1>
+      <h1 class="entry-title">Look Ma, No IVs!</h1>
     <p class="meta">
 <time datetime="2015-09-01T00:00:00-04:00" pubdate>Tue 01 September 2015</time>    </p>
 </header>
@@ -60,82 +60,81 @@
   <div class="entry-content"><p>Encryption algorithms in some modes require three parameters for
 encryption and decryption: the encryption key, the data (plaintext or
 ciphertext) and an Initialization Vector. Storing IVs is a hassle;
-what follows is a cute trick for doing encryption in AES CBC-mode
+what follows is a cute trick for doing encryption in <span class="caps">AES</span> <span class="caps">CBC</span>-mode
 without explicitly storing or transmitting IVs, and without
-sacrificing data security.</p>
-<h2>Who Needs IVs, Anyway?</h2>
+sacrificing data&nbsp;security.</p>
+<h2>Who Needs IVs,&nbsp;Anyway?</h2>
 <p>First, a brief note on IVs: Initialization Vectors are actually a
-critical piece of strong encryption in CBC mode. Without it, or with a
-poorly chosen IV, the encrypted data is subject to known-ciphertext
-attacks (i.e. it's not
+critical piece of strong encryption in <span class="caps">CBC</span> mode. Without it, or with a
+poorly chosen <span class="caps">IV</span>, the encrypted data is subject to known-ciphertext
+attacks (i.e. it&#8217;s not
 <a href="https://en.wikipedia.org/wiki/Semantic_security">semantically secure</a>). In
-order to function properly, the IV used to encrypt and decrypt data
+order to function properly, the <span class="caps">IV</span> used to encrypt and decrypt data
 needs to be cryptographically random. If your library makes the mistake
-of having one, it can be tempting to use the "don't use an IV" option
-just for convenience. This is a Bad Idea(tm); just say no.</p>
-<h2>Quirks of CBC Mode</h2>
-<p>In CBC mode, each block is encrypted and then <code>XOR</code>ed with the
+of having one, it can be tempting to use the &#8220;don&#8217;t use an <span class="caps">IV</span>&#8221; option
+just for convenience. This is a Bad Idea(tm); just say&nbsp;no.</p>
+<h2>Quirks of <span class="caps">CBC</span>&nbsp;Mode</h2>
+<p>In <span class="caps">CBC</span> mode, each block is encrypted and then <code>XOR</code>ed with the
 preceding output block. That is, <code>out[n] = encrypt(key, (input[n] XOR
 out[n-1]))</code>. The first block, which has no preceding output block, is
-<code>XOR</code>ed with the IV instead: <code>out[0] = encrypt(key, (input[0] XOR
+<code>XOR</code>ed with the <span class="caps">IV</span> instead: <code>out[0] = encrypt(key, (input[0] XOR
 iv))</code>.</p>
 <p>Decryption works the same way, but in reverse: <code>out[n] = decrypt(key,
 input[n]) XOR input[n-1]</code>, and <code>out[0] = decrypt(key, input[0]) XOR
-iv</code>. Note that the decrypted block <code>n</code> doesn't require the <em>decrypted</em>
-block <code>n-1</code>, just the <em>encrypted</em> block <code>n-1</code> that you were handed to
-decrypt.</p>
+iv</code>. Note that the decrypted block <code>n</code> doesn&#8217;t require the <em>decrypted</em>
+block <code>n-1</code>, just the <em>encrypted</em> block <code>n-1</code> that you were handed to&nbsp;decrypt.</p>
 <p>Suppose you have a message with two blocks, <code>p[0]</code> and <code>p[1]</code>, which
-were encrypted with a key <code>k</code> and an IV <code>iv1</code> into a ciphertext (call
+were encrypted with a key <code>k</code> and an <span class="caps">IV</span> <code>iv1</code> into a ciphertext (call
 the ciphertext blocks <code>c[0]</code> and <code>c[1]</code>). Now lets see what happens if
-we try to decrypt that with a completely different IV, <code>iv2</code>: for the
+we try to decrypt that with a completely different <span class="caps">IV</span>, <code>iv2</code>: for the
 first block, we first decrypt the ciphertext block to get <code>p[0] XOR
-iv1</code> and then <code>XOR</code> it with out IV, <code>iv2</code>. Whoops!  Unless <code>iv1</code> and
+iv1</code> and then <code>XOR</code> it with out <span class="caps">IV</span>, <code>iv2</code>. Whoops!  Unless <code>iv1</code> and
 <code>iv2</code> happen to be the same, <code>p[0] XOR iv1 XOR iv2</code> is going to be
-garbage. So much for the first block.</p>
+garbage. So much for the first&nbsp;block.</p>
 <p>But wait! What about the second block? First we decrypt the ciphertext
 block to get <code>p[1] XOR c[0]</code>, and then we <code>XOR</code> with the preceding
 ciphertext block <code>c[0]</code> to get <code>p[1] XOR c[0] XOR c[0]</code>, which most
-certainly <em>does</em> equal our original plaintext block <code>p[0]</code>. We've
-successfully decrypted the data and the IV hasn't even come into the
+certainly <em>does</em> equal our original plaintext block <code>p[0]</code>. We&#8217;ve
+successfully decrypted the data and the <span class="caps">IV</span> hasn&#8217;t even come into the
 picture, and this will also be true for any subsequent ciphertext
 blocks for the same reason. In other words, if we encrypt and decrypt
-with two different IVs, we only lose the first block of data.</p>
-<h2>Spooky IV Action at a Distance</h2>
+with two different IVs, we only lose the first block of&nbsp;data.</p>
+<h2>Spooky <span class="caps">IV</span> Action at a&nbsp;Distance</h2>
 <p>The obvious way to exploit this behavior is to have the encrypting
 party and the decrypting party generate independent cryptographically
 random IVs, and treat the first block of data as sacrificial
-garbage<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>. Since the encrypting side and decrypting side aren't
-using the same IV, they don't need to store or transmit it. The
+garbage<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>. Since the encrypting side and decrypting side aren&#8217;t
+using the same <span class="caps">IV</span>, they don&#8217;t need to store or transmit it. The
 encrypted data will be a block larger (the same as if you were to
-concatenate the IV and the ciphertext), and there is one extra encrypt
-and decrypt operation.</p>
+concatenate the <span class="caps">IV</span> and the ciphertext), and there is one extra encrypt
+and decrypt&nbsp;operation.</p>
 <p>This is a rather cute trick for doing encryption without synchronizing
-IVs (and without resorting to an all-zero IV and sacrificing data
-security), but it's only applicable to CBC-mode, which you probably
-shouldn't be using. CBC-mode doesn't do authentication, which is
+IVs (and without resorting to an all-zero <span class="caps">IV</span> and sacrificing data
+security), but it&#8217;s only applicable to <span class="caps">CBC</span>-mode, which you probably
+shouldn&#8217;t be using. <span class="caps">CBC</span>-mode doesn&#8217;t do authentication, which is
 Bad<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>; you should use an authenticating mode like
-<a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode">GCM</a> or
-<a href="https://en.wikipedia.org/wiki/EAX_mode">EAX</a> instead (or at least use
+<a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"><span class="caps">GCM</span></a> or
+<a href="https://en.wikipedia.org/wiki/EAX_mode"><span class="caps">EAX</span></a> instead (or at least use
 a Message Authentication Code). Better still, make your life easier
 and use a library that avoids insecure modes altogether, like the
 excellent <a href="https://libsodium.org">libsodium</a>. In short: cryptography
-is hard, lets go shopping!</p>
-<h2>Addendum: Credit Where Credit is Due</h2>
-<p>I came up with this scheme while I was exploring the AES encryption in
-our system at work, which features an option where "no initialization
-vector value is used", after a Stack Overflow answer pointed out that
-losing the IV only means losing the first block. However, it's not the
-first time someone's come up with the idea:
+is hard, lets go&nbsp;shopping!</p>
+<h2>Addendum: Credit Where Credit is&nbsp;Due</h2>
+<p>I came up with this scheme while I was exploring the <span class="caps">AES</span> encryption in
+our system at work, which features an option where &#8220;no initialization
+vector value is used&#8221;, after a Stack Overflow answer pointed out that
+losing the <span class="caps">IV</span> only means losing the first block. However, it&#8217;s not the
+first time someone&#8217;s come up with the idea:
 <a href="http://crypto.stackexchange.com/a/7937">this answer</a> refers to the
-same scheme.</p>
+same&nbsp;scheme.</p>
 <div class="footnote">
 <hr />
 <ol>
 <li id="fn:1">
 <p>Fun fact: <code>XOR</code> is entropy-preserving (i.e. the enropy of <code>a XOR
-b</code> is the maximum of <code>a</code> or <code>b</code>'s entropy) so having a random or
-all-zero (or any other) value here doesn't decrease the entropy
-contributed by the IV. CBC-mode relies on this property to work, since
+b</code> is the maximum of <code>a</code> or <code>b</code><span class="quo">&#8216;</span>s entropy) so having a random or
+all-zero (or any other) value here doesn&#8217;t decrease the entropy
+contributed by the <span class="caps">IV</span>. <span class="caps">CBC</span>-mode relies on this property to work, since
 the ciphertext might naturally have any value in a block.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 <li id="fn:2">
@@ -144,8 +143,8 @@ provision for message authentication, encryption ciphers have no way
 to tell the difference between a legitimately encrypted message and
 random garbage (and this is a good thing). It is surprisingly easy to
 produce certain kinds of outputs by modifying the ciphertext, and a
-non-authenticating mode like CBC will happily decrypt it without any
-idea that it's been tampered with.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+non-authenticating mode like <span class="caps">CBC</span> will happily decrypt it without any
+idea that it&#8217;s been tampered with.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div></div>
@@ -171,19 +170,19 @@ idea that it's been tampered with.&#160;<a class="footnote-backref" href="#fnref
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
       <li class="post">
           <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html">Abusing Search Paths for Fun and Profit</a>
+          <a href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html">Infrastructure Notes: Pelican Setup</a>
       </li>
     </ul>
   </section>
@@ -191,14 +190,14 @@ idea that it's been tampered with.&#160;<a class="footnote-backref" href="#fnref
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">Blog</a></li>
+        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
+    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>  </section>
 
 
 

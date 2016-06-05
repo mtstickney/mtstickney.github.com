@@ -1,64 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2016-01-27T00:00:00-05:00</updated><entry><title>Work Challenge #1: Down the Rabbit Hole</title><link href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html" rel="alternate"></link><updated>2016-01-27T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-27:posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html</id><summary type="html">&lt;blockquote&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2016-01-30T00:00:00-05:00</updated><entry><title>Work Challenge #2: Installer Madness</title><link href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html" rel="alternate"></link><published>2016-01-30T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-30:posts/2016/01/30/work-challenge-2-installer-madness.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The second in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;As I mentioned in the previous
+&lt;a href="/blog/work-challenge-1-down-the-rabbit-hole.html"&gt;piece&lt;/a&gt; in the
+series, the primary language we use at work is often rather
+frustrating to work with. In addition to the language itself, the
+platform infrastructure is also poorly designed, particularly for
+cases like ours where we&amp;#8217;re maintaining a large number of remote
+systems in various environments without the benefit of local
+personnel. Broken or troublesome installers have been an issue for us
+in two areas, where we&amp;#8217;ve had to replace the ones supplied by our&amp;nbsp;vendor.&lt;/p&gt;
+&lt;h2&gt;The Sub-Par&amp;nbsp;Standard&lt;/h2&gt;
+&lt;p&gt;Before we get into the specific cases where we&amp;#8217;ve had to route around
+the damage, I want to briefly describe the &lt;em&gt;status quo&lt;/em&gt; for our
+vendor&amp;#8217;s system. The system we use is divided into components, each of
+which requires a license from the vendor. Lets say you&amp;#8217;re going to
+install the mid-range database component and a client access
+component. You&amp;#8217;d grab the great big installer for your version, run
+it, type in your license keys for both components, and wait for them
+to be installed. Typically you&amp;#8217;d then run an additional service pack
+installer, because the vendor doesn&amp;#8217;t supply service packs as a
+roll-up. The service pack installer will detect the installed
+components and install the service-pack version of those components
+over the&amp;nbsp;top.&lt;/p&gt;
+&lt;p&gt;If you want to add a component later, you&amp;#8217;d be tempted to use the
+installer that was installed along with the components (nope, not
+making that up) and which is labeled &amp;#8220;Add Components&amp;#8221; in the Start
+menu group. You&amp;#8217;d be mistaken if you did, because that&amp;#8217;s got a bug
+where it detects itself as a process using a critical file, and won&amp;#8217;t
+proceed. To do that, you need to carefully stop any process using
+files from the vendor an re-run the external installer (you did keep
+that around, right?), after which you&amp;#8217;ll need to run the service pack
+installer again. There&amp;#8217;s no provision for removing components, so if
+you wanted to do that you&amp;#8217;d have to uninstall and&amp;nbsp;reinstall.&lt;/p&gt;
+&lt;h2&gt;The&amp;nbsp;Megalith&lt;/h2&gt;
+&lt;p&gt;An obvious downside to this kind of installer is that it has to
+contain the data for every component that a user might install (same
+goes for the service pack). This makes the installers pretty huge &amp;#8212;
+about 2Gb for the main installer, and another 1Gb for the service
+pack. Having to download 3Gb of installer onto a machine that may be
+behind the cheapest &lt;span class="caps"&gt;DSL&lt;/span&gt; line the business owner could find is pretty
+painful, and moving files around the internal network is no picnic
+either. They have multiple stores? Now you get to attend that party
+&lt;em&gt;twice&lt;/em&gt;. For large installations, we often mail the customer a flash
+drive that someone on-site can take around to each station and plug&amp;nbsp;in.&lt;/p&gt;
+&lt;p&gt;Curiously, it&amp;#8217;s not just the installer itself that&amp;#8217;s bloated. When you
+install the client access component, the install is about 500Mb, and
+contains database-management tools, source code, and binaries for
+completely unrelated components. After some system tracing and
+trial-and-error-by-deleting, I determined that the bits used to
+actually run programs written for this system are only about 14Mb
+(40Mb if you include some optional widget&amp;nbsp;libraries).&lt;/p&gt;
+&lt;p&gt;After I&amp;#8217;d figured out what we really needed, I whipped up an installer
+for just those parts. Final size: 6Mb. It runs in a couple of seconds,
+is trivial to distribute, and it can be quickly removed and
+reinstalled if the install gets&amp;nbsp;corrupted.&lt;/p&gt;
+&lt;p&gt;Me: 1, vendor:&amp;nbsp;0.&lt;/p&gt;
+&lt;h2&gt;The Installer that&amp;nbsp;Didn&amp;#8217;t&lt;/h2&gt;
+&lt;p&gt;Our vendor provides a component that includes &lt;span class="caps"&gt;ODBC&lt;/span&gt; drivers so that
+other systems can access their proprietary database. At some point,
+someone decided that it was irritating to drag around several
+gigabytes worth of installers to a bunch of different client machines,
+so they decided to include a separate installer for the drivers with
+the client&amp;nbsp;component.&lt;/p&gt;
+&lt;p&gt;I stumbled across this when I was poking around the system folder one
+day. &amp;#8220;Wow!&amp;#8221; I thought, &amp;#8220;My troubles are over! Easy street, here I
+come!&amp;#8221; I tracked down a knowledgebase article about how to use it,
+which instructed me to map a network drive to the machine with the
+installer, and run it from there. H-uh. &amp;#8220;Ok,&amp;#8221; I thought, &amp;#8220;they&amp;#8217;re just
+trying to avoid telling people how to find and copy the installer
+file. Fair enough.&amp;#8221;  Then I hit the second&amp;nbsp;paragraph:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;All the files for the &lt;span class="caps"&gt;ODBC&lt;/span&gt; drivers will be on the centrally located
+file server. If at any time the file server changes, the relevant
+setup executable above will need to be run from each machine to
+update the location of the &lt;span class="caps"&gt;ODBC&lt;/span&gt; driver&amp;nbsp;files.&lt;/p&gt;
+&lt;p&gt;Existing DataSources will have outdated definitions of the location
+of the &lt;span class="caps"&gt;DLL&lt;/span&gt; file used by &lt;span class="caps"&gt;ODBC&lt;/span&gt; and will need to be&amp;nbsp;recreated.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Just to paraphrase: they have a 50Mb installer, which, when run,
+&lt;em&gt;doesn&amp;#8217;t actually install anything&lt;/em&gt;. If you poke around enough it
+becomes clear that this is part of some Machiavellian scheme to
+prevent people from talking to their database without a client
+license, but come on. Having your &lt;span class="caps"&gt;ODBC&lt;/span&gt; drivers go out every time your
+network hiccups or your share names change or your permissions go
+screwy? This is why we can&amp;#8217;t have nice&amp;nbsp;things.&lt;/p&gt;
+&lt;p&gt;As with the main installer, I whipped up a 5Mb jobby to install the
+&lt;span class="caps"&gt;ODBC&lt;/span&gt; drivers in the normal, sane fashion. It&amp;#8217;s smaller than the
+vendor&amp;#8217;s, it actually installs something, and unlike the vendor&amp;#8217;s you
+can install more than one version at a time, in case you need to talk
+to more than one database from a client. You can even install them
+alongside the vendor&amp;#8217;s version without conflict, if you&amp;nbsp;like.&lt;/p&gt;
+&lt;p&gt;Me: 2, vendor:&amp;nbsp;0.&lt;/p&gt;</summary><category term="blog"></category><category term="programming"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Work Challenge #1: Down the Rabbit Hole</title><link href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html" rel="alternate"></link><published>2016-01-27T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-27:posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;In the desert&lt;br /&gt;
  I saw a creature, naked, bestial,&lt;br /&gt;
  Who, squatting upon the ground,&lt;br /&gt;
  Held his heart in his hands,&lt;br /&gt;
  And ate of it.&lt;br /&gt;
- I said, "Is it good, friend?"&lt;br /&gt;
- "It is bitter--bitter," he answered;  &lt;/p&gt;
-&lt;p&gt;"But I like it&lt;br /&gt;
- "Because it is bitter,&lt;br /&gt;
- "And because is is my heart."&lt;br /&gt;
--- Stephen Crane, "In the Desert"&lt;/p&gt;
+ I said, &amp;#8220;Is it good, friend?&amp;#8221;&lt;br /&gt;
+ &amp;#8220;It is bitter&amp;#8212;bitter,&amp;#8221; he&amp;nbsp;answered;  &lt;/p&gt;
+&lt;p&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;But I like it&lt;br /&gt;
+ &amp;#8220;Because it is bitter,&lt;br /&gt;
+ &amp;#8220;And because is is my heart.&amp;#8221;&lt;br /&gt;
+&amp;#8212; Stephen Crane, &amp;#8220;In the&amp;nbsp;Desert&amp;#8221;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2&gt;Note on the series&lt;/h2&gt;
-&lt;p&gt;&lt;em&gt;This is the first in a series of interesting challenges I've
+&lt;h2&gt;Note on the&amp;nbsp;series&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;This is the first in a series of interesting challenges I&amp;#8217;ve
 encountered at work. Most of them are issues with the environment, and
-are obstacles to the main work at hand, and not the work itself.&lt;/em&gt;&lt;/p&gt;
-&lt;h2&gt;The Wasteland&lt;/h2&gt;
+are obstacles to the main work at hand, and not the work&amp;nbsp;itself.&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;The&amp;nbsp;Wasteland&lt;/h2&gt;
 &lt;p&gt;Our primary language at work is, to put it politely, underpowered. It
 has no real data structures, synchronous and asynchronous networking
 but without streams or promises (or lambdas), is strictly
 single-threaded, and has a non-existent standard library. Basic tasks
-like making an HTTP request or sending mail via SMTP are untenably
+like making an &lt;span class="caps"&gt;HTTP&lt;/span&gt; request or sending mail via &lt;span class="caps"&gt;SMTP&lt;/span&gt; are untenably
 difficult, but still necessary for our application. Later versions of
-the language have a bridge to .NET code, but we can't rely on it being
-available on our customer's systems.&lt;/p&gt;
+the language have a bridge to .&lt;span class="caps"&gt;NET&lt;/span&gt; code, but we can&amp;#8217;t rely on it being
+available on our customer&amp;#8217;s&amp;nbsp;systems.&lt;/p&gt;
 &lt;p&gt;This came to a head with our previous mail client, which had been
-copied off a community wiki some time in the murky past. It couldn't
+copied off a community wiki some time in the murky past. It couldn&amp;#8217;t
 talk to any server that used encryption, which is most of them these
-days, and it had some protocol issues that caused certain severs --
-like GMail -- to reject the communication as invalid. The existing
+days, and it had some protocol issues that caused certain severs &amp;#8212;
+like GMail &amp;#8212; to reject the communication as invalid. The existing
 code was nearly impossible to modify: all the networking was
 asynchronous, and without data structure all the state was kept in a
 pile of global variables. We needed to roll out new email features,
-which meant replacing this client with something more robust.&lt;/p&gt;
-&lt;p&gt;Since you can't implement a reasonable SMTP client in the primary
-language, and since the .NET bridge wasn't available, I figured it
+which meant replacing this client with something more&amp;nbsp;robust.&lt;/p&gt;
+&lt;p&gt;Since you can&amp;#8217;t implement a reasonable &lt;span class="caps"&gt;SMTP&lt;/span&gt; client in the primary
+language, and since the .&lt;span class="caps"&gt;NET&lt;/span&gt; bridge wasn&amp;#8217;t available, I figured it
 would be useful to embed a more capable language myself. I initially
-planned on the JVM, but after a little research it looked like it
+planned on the &lt;span class="caps"&gt;JVM&lt;/span&gt;, but after a little research it looked like it
 would be much simpler to use
-&lt;a href="https://common-lisp.net/project/ecl/"&gt;ECL&lt;/a&gt; -- Common Lisp is a
-capable language with a model that makes interop easy, and the ECL
-implementation was designed to be embedded in other programs.&lt;/p&gt;
-&lt;h2&gt;If it ain't one thing...&lt;/h2&gt;
-&lt;p&gt;After a fair bit of work, I had a version of ECL that could be loaded
+&lt;a href="https://common-lisp.net/project/ecl/"&gt;&lt;span class="caps"&gt;ECL&lt;/span&gt;&lt;/a&gt; &amp;#8212; Common Lisp is a
+capable language with a model that makes interop easy, and the &lt;span class="caps"&gt;ECL&lt;/span&gt;
+implementation was designed to be embedded in other&amp;nbsp;programs.&lt;/p&gt;
+&lt;h2&gt;If it ain&amp;#8217;t one&amp;nbsp;thing&amp;#8230;&lt;/h2&gt;
+&lt;p&gt;After a fair bit of work, I had a version of &lt;span class="caps"&gt;ECL&lt;/span&gt; that could be loaded
 into our main application, and used to call Lisp code that had been
-loaded in the image. An SMTP library provided non-broken email
+loaded in the image. An &lt;span class="caps"&gt;SMTP&lt;/span&gt; library provided non-broken email
 support, threads appeared to work, and life was good. Rumor had it
-that our language's VM was unfriendly toward embedded code, but
+that our language&amp;#8217;s &lt;span class="caps"&gt;VM&lt;/span&gt; was unfriendly toward embedded code, but
 everything was working well. Then, on the brink of success, the
 unthinkable: our tester reported that our application crashed on
-&lt;em&gt;every machine that wasn't my VM&lt;/em&gt;&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;em&gt;every machine that wasn&amp;#8217;t my &lt;span class="caps"&gt;VM&lt;/span&gt;&lt;/em&gt;&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;Not only had my project catastrophically failed, but now all of the
 email-based features we were trying to roll out were in jeopardy. In a
 desperate attempt to stem the bleeding, I called upon the Unix gods
 and did what any gray-bearded programmer would: moved the Lisp
-implementation into a separate process. Since I couldn't just pass
+implementation into a separate process. Since I couldn&amp;#8217;t just pass
 pointers around anymore, I had to find an wire-format encoding that
 could be used by both the Lisp process and our gimpy language; and
-since I couldn't initialize the process with a blocking call, I'd need
+since I couldn&amp;#8217;t initialize the process with a blocking call, I&amp;#8217;d need
 a way to know when it had started up (or worse, when it failed
 to). Performance would probably also take a hit, so mitigating that
 would be important for fine-grained calls&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
@@ -73,15 +165,14 @@ work with pipes, and I had to work around issues on the Lisp side
 too&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;, but eventually it seemed to be working reliably, and we were
 able to roll out the email features to a few customers without
 problems. There were even a few opportunities for performance
-improvements, and life was good again.&lt;/p&gt;
-&lt;h2&gt;...it's another.&lt;/h2&gt;
-&lt;p&gt;Another unfortunate feature of our primary language is that it's
+improvements, and life was good&amp;nbsp;again.&lt;/p&gt;
+&lt;h2&gt;&amp;#8230;it&amp;#8217;s&amp;nbsp;another.&lt;/h2&gt;
+&lt;p&gt;Another unfortunate feature of our primary language is that it&amp;#8217;s
 extremely chatty when talking to the database, which makes it unusably
 slow over a non-local network connection. Some of our customers have
 installations at several locations that need to share a database; our
 solution in these cases is to run our software on a Terminal Server
-machine that's local to the database, and have each location log in
-remotely.&lt;/p&gt;
+machine that&amp;#8217;s local to the database, and have each location log in&amp;nbsp;remotely.&lt;/p&gt;
 &lt;p&gt;One of these customers was recently given the version of our software
 with the Lisp co-process to solve some email issues they were having,
 and instantly ran out of virtual address space on their server. They
@@ -90,12 +181,12 @@ garbage-collected languages, Lisp implementations often allocate their
 whole heap space on startup. Linux systems handle this with
 overcommit, but on Windows our implementation allocates the memory
 with &lt;code&gt;MEM_COMMIT | MEM_RESERVE&lt;/code&gt;, which consumes the whole chunk of
-address space on allocation.&lt;/p&gt;
-&lt;p&gt;Increasing the system's page file up to 50Gb was sufficient to solve
+address space on&amp;nbsp;allocation.&lt;/p&gt;
+&lt;p&gt;Increasing the system&amp;#8217;s page file up to 50Gb was sufficient to solve
 their immediate problem, but starting 60 large processes is wasteful
 for an application that just uses them for networking services and
 some text processing. The solution was to share a single co-process
-among all the users on the same machine.&lt;/p&gt;
+among all the users on the same&amp;nbsp;machine.&lt;/p&gt;
 &lt;p&gt;The first step was to make the co-process the pipe server, so that
 multiple instances of the main application could connect to it, and
 have the co-process exit if the pipe already existed. That was simple
@@ -106,49 +197,49 @@ function&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="foo
 the first instance of our application starts up, it will launch the
 co-process which will act as a server for all other instances of our
 application. So far so good. However, the co-process is started as the
-user who is currently logged in -- which means that as soon as they
+user who is currently logged in &amp;#8212; which means that as soon as they
 end the remote session, the co-process will be killed, leaving other
-instances of our application stranded.&lt;/p&gt;
+instances of our application&amp;nbsp;stranded.&lt;/p&gt;
 &lt;p&gt;To solve this, we need a non-user service to be responsible for
-launching instances of the co-process, so that they won't be owned by
-logged-in users. On Linux, we'd just start this as a DBus client and
-be done with it, but since Windows doesn't have a reasonable DBus
+launching instances of the co-process, so that they won&amp;#8217;t be owned by
+logged-in users. On Linux, we&amp;#8217;d just start this as a DBus client and
+be done with it, but since Windows doesn&amp;#8217;t have a reasonable DBus
 equivalent, it has to listen on a well-known named pipe for launch
 requests (we can re-use the MsgPack protocol here). A little bit of
 work in &lt;a href="https://golang.org"&gt;Go&lt;/a&gt; solved this admirably, except that
 named pipes in Windows only grant permissions to their creator by
-default -- now &lt;em&gt;nobody&lt;/em&gt; could connect to the server.&lt;/p&gt;
-&lt;h2&gt;And another?&lt;/h2&gt;
-&lt;p&gt;With a little bit of fooling with Go's foreign-function system and a
+default &amp;#8212; now &lt;em&gt;nobody&lt;/em&gt; could connect to the&amp;nbsp;server.&lt;/p&gt;
+&lt;h2&gt;And&amp;nbsp;another?&lt;/h2&gt;
+&lt;p&gt;With a little bit of fooling with Go&amp;#8217;s foreign-function system and a
 few patches to the &lt;a href="https://github.com/natefinch/npipe"&gt;npipe&lt;/a&gt;
 library, I had an implementation that would correctly launch shared
 co-process instances for multiple users without getting terminated at
 logout. Our application could now do basic things like speaking to
 mail servers and processing a config file, all things that should been
-available to begin with.&lt;/p&gt;
-&lt;p&gt;Surely this house of cards won't last. Something, somewhere, is going
-to go wrong with one of these moving parts -- my bet is that someone
+available to begin&amp;nbsp;with.&lt;/p&gt;
+&lt;p&gt;Surely this house of cards won&amp;#8217;t last. Something, somewhere, is going
+to go wrong with one of these moving parts &amp;#8212; my bet is that someone
 will manage to kill the shared co-process while other instances are in
 the middle of using it. The only real solution is to port our
 application to a sane language, just as fast as we possibly can. For
 now, though, our Rube-Goldberg-ian creation will have to rumble along
-until we hit another hurdle.&lt;/p&gt;
+until we hit another&amp;nbsp;hurdle.&lt;/p&gt;
 &lt;div class="footnote"&gt;
 &lt;hr /&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
-&lt;p&gt;I suspect this may have had something to do with Windows'
+&lt;p&gt;I suspect this may have had something to do with Windows&amp;#8217;
 Dynamic Execution Prevention system. Lisp implementations
 typically set this off because of the dynamic code generation they
-do, but it's only enabled by default on Server editions of
-Windows, so it's easy to miss during development. Sadly I haven't
+do, but it&amp;#8217;s only enabled by default on Server editions of
+Windows, so it&amp;#8217;s easy to miss during development. Sadly I haven&amp;#8217;t
 had the time to verify the theory.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
 &lt;p&gt;As part of the original system, I had implemented a rather
 cunning, if complex, system that allowed the Lisp image to call
 back into the main process to handle database manipulation (our
-language is a 4gl and can't talk to normal databases -- it's on
+language is a 4gl and can&amp;#8217;t talk to normal databases &amp;#8212; it&amp;#8217;s on
 loan to us from the 80s). Unfortunately, with the number of calls
 required, performance was slow even with the directly-embedded
 version.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
@@ -159,56 +250,56 @@ function, which calls &lt;code&gt;CreateFile()&lt;/code&gt; internally. This cou
 connection to the pipe, and a subsequent open will fail unless the
 server re-creates the instance. Since most Lisps check file existence
 before opening in order to signal an error for missing files, a normal
-open call can't be used to connect to a named pipe.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+open call can&amp;#8217;t be used to connect to a named pipe.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:4"&gt;
 &lt;p&gt;Windows has a function to wait for a named pipe to become
-available for connection, but it can't be used to wait on a pipe
-that doesn't exist yet. To get a proper timeout, you have to
-&lt;code&gt;Sleep()&lt;/code&gt; in the case that the pipe doesn't exist, and
-&lt;code&gt;WaitNamedPipe()&lt;/code&gt; when it does; since &lt;code&gt;Sleep()&lt;/code&gt; isn't interrupted
+available for connection, but it can&amp;#8217;t be used to wait on a pipe
+that doesn&amp;#8217;t exist yet. To get a proper timeout, you have to
+&lt;code&gt;Sleep()&lt;/code&gt; in the case that the pipe doesn&amp;#8217;t exist, and
+&lt;code&gt;WaitNamedPipe()&lt;/code&gt; when it does; since &lt;code&gt;Sleep()&lt;/code&gt; isn&amp;#8217;t interrupted
 when the pipe becomes available, you need a timeout that retries
 connections a certain number of times.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><updated>2015-10-27T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;Tags: abl, OO, experiments&lt;/p&gt;
-&lt;p&gt;If you've ever looked at books on refactoring code, there's one common
+&lt;/div&gt;</summary><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><published>2015-10-27T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;Tags: abl, &lt;span class="caps"&gt;OO&lt;/span&gt;,&amp;nbsp;experiments&lt;/p&gt;
+&lt;p&gt;If you&amp;#8217;ve ever looked at books on refactoring code, there&amp;#8217;s one common
 theme among them: every piece of refactoring advice that has ever been
 given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
-&lt;p&gt;At work, we use this crummy business-oriented language called ABL. It
+&lt;p&gt;At work, we use this crummy business-oriented language called &lt;span class="caps"&gt;ABL&lt;/span&gt;. It
 actually has objects, despite their
 &lt;a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/"&gt;many shortcomings&lt;/a&gt;&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;,
 but they come at a prohibitive cost for us: they require manual
 memory management, and there are a number of subtle compiler bugs that
-affects code compiled one one version and run on another.&lt;/p&gt;
-&lt;p&gt;So what's a down-and-out developer to do? If you squint hard enough,
-you'll notice that objects are useful for refactoring mostly because
+affects code compiled one one version and run on&amp;nbsp;another.&lt;/p&gt;
+&lt;p&gt;So what&amp;#8217;s a down-and-out developer to do? If you squint hard enough,
+you&amp;#8217;ll notice that objects are useful for refactoring mostly because
 they provide polymorphic methods. Encapsulation is largely handled by
-forward-declaring functions (and ABL doesn't even have the notion of a
+forward-declaring functions (and &lt;span class="caps"&gt;ABL&lt;/span&gt; doesn&amp;#8217;t even have the notion of a
 struct, so no need to worry about those), and while inheritance is
-nice, it's mostly a convenience. Polymorphism allows you to substitute
+nice, it&amp;#8217;s mostly a convenience. Polymorphism allows you to substitute
 implementations without changing the code that uses them, which allows
-hard code dependencies to be broken.&lt;/p&gt;
+hard code dependencies to be&amp;nbsp;broken.&lt;/p&gt;
 &lt;h1&gt;Requirements&lt;/h1&gt;
-&lt;p&gt;I wanted to see if I could provide polymorphism in ABL without the
-drawbacks of objects. There were a few requirements:&lt;/p&gt;
+&lt;p&gt;I wanted to see if I could provide polymorphism in &lt;span class="caps"&gt;ABL&lt;/span&gt; without the
+drawbacks of objects. There were a few&amp;nbsp;requirements:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Implementations must be able to be stored in variables and passed
-   to functions.&lt;/li&gt;
-&lt;li&gt;Implementations shouldn't require explicit create/release calls.&lt;/li&gt;
+   to&amp;nbsp;functions.&lt;/li&gt;
+&lt;li&gt;Implementations shouldn&amp;#8217;t require explicit create/release&amp;nbsp;calls.&lt;/li&gt;
 &lt;li&gt;The system should allow basic mistakes like typos to be caught at
-compile time.&lt;/li&gt;
-&lt;li&gt;It would be nice if it wasn't completely impossible to read.&lt;/li&gt;
+compile&amp;nbsp;time.&lt;/li&gt;
+&lt;li&gt;It would be nice if it wasn&amp;#8217;t completely impossible to&amp;nbsp;read.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h1&gt;The Experiment&lt;/h1&gt;
+&lt;h1&gt;The&amp;nbsp;Experiment&lt;/h1&gt;
 &lt;p&gt;I spent some time this afternoon to attempt an implementation, and
-wound up with the following scheme: I'd focus just on dispatching
+wound up with the following scheme: I&amp;#8217;d focus just on dispatching
 function (method) calls, and use interface and implementation keys to
-look up the concrete procedure in question. ABL does allow procedures
+look up the concrete procedure in question. &lt;span class="caps"&gt;ABL&lt;/span&gt; does allow procedures
 to be dynamically invoked, so by returning a procedure, we can also
-punt parameter passing to the caller.&lt;/p&gt;
-&lt;p&gt;Here's what it looks like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cm"&gt;/* Top-level include for the runtime and type definition. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+punt parameter passing to the&amp;nbsp;caller.&lt;/p&gt;
+&lt;p&gt;Here&amp;#8217;s what it looks&amp;nbsp;like:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/* Top-level include for the runtime and type definition. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 &lt;span class="err"&gt;{&lt;/span&gt;interfaces&lt;span class="o"&gt;.&lt;/span&gt;i&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;NEW&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;NEW&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
 &lt;span class="cm"&gt;/* Declare an interface method (mostly just for compiler support). */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
@@ -222,8 +313,8 @@ greeter&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&
 
 
 &lt;p&gt;To supply an implementation of a method, you create a normal procedure
-and register it with an implementation class:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;{implements.i {&amp;amp;igreeter.sayhello} greeter.english hello.p}
+and register it with an implementation&amp;nbsp;class:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{implements.i {&amp;amp;igreeter.sayhello} greeter.english hello.p}
 {implements.i {&amp;amp;igreeter.sayhello} greeter.spanish hola.p}
 
 /* The methods can be invoked directly....*/
@@ -245,27 +336,26 @@ RUN SayHi({&amp;amp;greeter.spanish}, &amp;quot;Jimmy&amp;quot;).
 &lt;h1&gt;Results&lt;/h1&gt;
 &lt;p&gt;The interfaces (and implementation classes) in this system can be
 stored in variables and passed to procedures, require no memory
-management, and will even show up nicely in logs. Since they're
+management, and will even show up nicely in logs. Since they&amp;#8217;re
 referred to with preprocessor macros, typos in interface or class
 names will be caught at compile time (procedure names and parameter
-lists are not normally checked). It's debatable whether this counts as
-"not impossible to read", but it's at least vaguely decipherable, and
-it's pretty easy to wrap.&lt;/p&gt;
-&lt;p&gt;The current incarnation is pretty basic, and has a number of
-limitations:&lt;/p&gt;
+lists are not normally checked). It&amp;#8217;s debatable whether this counts as
+&amp;#8220;not impossible to read&amp;#8221;, but it&amp;#8217;s at least vaguely decipherable, and
+it&amp;#8217;s pretty easy to&amp;nbsp;wrap.&lt;/p&gt;
+&lt;p&gt;The current incarnation is pretty basic, and has a number of&amp;nbsp;limitations:&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;It only supports procedures (not functions or methods).&lt;/li&gt;
-&lt;li&gt;It only support &lt;em&gt;local&lt;/em&gt; procedures (can't call a procedure in another
-persistent procedure).&lt;/li&gt;
-&lt;li&gt;Procedure parameters aren't checked against the interface for consistency.&lt;/li&gt;
+&lt;li&gt;It only supports procedures (not functions or&amp;nbsp;methods).&lt;/li&gt;
+&lt;li&gt;It only support &lt;em&gt;local&lt;/em&gt; procedures (can&amp;#8217;t call a procedure in another
+persistent&amp;nbsp;procedure).&lt;/li&gt;
+&lt;li&gt;Procedure parameters aren&amp;#8217;t checked against the interface for&amp;nbsp;consistency.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h1&gt;Implementation&lt;/h1&gt;
 &lt;p&gt;The implementation of this scheme is rather strange, mostly because of
-preprocessor contortions, though it's also rather small at about 60
-lines of code.&lt;/p&gt;
+preprocessor contortions, though it&amp;#8217;s also rather small at about 60
+lines of&amp;nbsp;code.&lt;/p&gt;
 &lt;p&gt;The core is a small runtime that is responsible for registering and
-looking up concrete procedures for interface implementations:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;CLASS MethodRuntime:
+looking up concrete procedures for interface&amp;nbsp;implementations:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;CLASS MethodRuntime:
     DEFINE PROTECTED TEMP-TABLE tt_method NO-UNDO
             FIELD klass AS CHARACTER
             FIELD methodName AS CHARACTER
@@ -313,14 +403,14 @@ END.
 
 
 &lt;p&gt;Internally, classes and interfaces are strings: this allow them to be
-created without memory management issues, and means they'll print
-nicely in logfiles. They're stored in a temp-table with an index,
+created without memory management issues, and means they&amp;#8217;ll print
+nicely in logfiles. They&amp;#8217;re stored in a temp-table with an index,
 since we expect method registration to happen less than method calls,
-and we'd like those to be fast if possible.&lt;/p&gt;
+and we&amp;#8217;d like those to be fast if&amp;nbsp;possible.&lt;/p&gt;
 &lt;p&gt;The toplevel &lt;code&gt;interfaces.i&lt;/code&gt; include defines a shared instance of the
 runtime class, and establishes the opaque &lt;code&gt;{&amp;amp;INTERFACE}&lt;/code&gt; type synonym
-for interfaces and implementation classes.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&amp;amp;IF DEFINED(INTERFACES_I_)=0 &amp;amp;THEN
+for interfaces and implementation&amp;nbsp;classes.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;IF DEFINED(INTERFACES_I_)=0 &amp;amp;THEN
 &amp;amp;GLOBAL-DEFINE INTERFACES_I_
 
 &amp;amp;GLOBAL-DEFINE INTERFACE CHARACTER
@@ -336,127 +426,124 @@ MethodRuntime = NEW MethodRuntime().
 
 &lt;p&gt;The &lt;code&gt;define-interface.i&lt;/code&gt; include-macro does very little: it simply
 defines a preprocessor name for the string constant that is the
-interface name.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&amp;amp;GLOBAL-DEFINE {1} &amp;#39;{1}&amp;#39;
+interface&amp;nbsp;name.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;GLOBAL-DEFINE {1} &amp;#39;{1}&amp;#39;
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;The &lt;code&gt;implements.i&lt;/code&gt; include-macro does the same for the implementation
 class, and expands to a call to &lt;code&gt;MethodRuntime:RegisterMethod()&lt;/code&gt;. The
-parent-procedure handle parameter of &lt;code&gt;RegisterMethod&lt;/code&gt; is unused for
-now.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&amp;amp;GLOBAL-DEFINE {2} &amp;#39;{2}&amp;#39;
+parent-procedure handle parameter of &lt;code&gt;RegisterMethod&lt;/code&gt; is unused for&amp;nbsp;now.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;GLOBAL-DEFINE {2} &amp;#39;{2}&amp;#39;
 MethodRuntime:RegisterMethod({1}, {&amp;amp;{2}}, &amp;quot;{3}&amp;quot;, ?).
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;&lt;code&gt;invoke.i&lt;/code&gt; is a simple expansion to all but the parameter list of a
-dynamic procedure call, using the procedure name returned by the
-runtime:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;RUN VALUE(MethodRuntime:MethodProc({1}, {2}))
+dynamic procedure call, using the procedure name returned by the&amp;nbsp;runtime:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;RUN VALUE(MethodRuntime:MethodProc({1}, {2}))
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h1&gt;Conclusion&lt;/h1&gt;
-&lt;p&gt;It is clearly possible to provide polymorphic functions in ABL, with a
-few nice properties, as long as you're willing to accept a slightly
+&lt;p&gt;It is clearly possible to provide polymorphic functions in &lt;span class="caps"&gt;ABL&lt;/span&gt;, with a
+few nice properties, as long as you&amp;#8217;re willing to accept a slightly
 cumbersome syntax and some modest restrictions on the implementations
 of methods. Basic compile-time support is doable, and there is no risk
-of memory leaks without garbage collector support.&lt;/p&gt;
+of memory leaks without garbage collector&amp;nbsp;support.&lt;/p&gt;
 &lt;div class="footnote"&gt;
 &lt;hr /&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
-&lt;p&gt;Michael Feathers'
+&lt;p&gt;Michael Feathers&amp;#8217;
 &lt;a href="http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052"&gt;book&lt;/a&gt;
 actually includes a tiny little section at the end about working
 with C. It consists mainly of the author throwing up his hands and
 suggesting you use a real language.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
-&lt;p&gt;See the "OOABL" sections toward the end. Bear in mind that most
-of the "fixed" issues don't apply to the versions we have in the field.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;See the &amp;#8220;&lt;span class="caps"&gt;OOABL&lt;/span&gt;&amp;#8221; sections toward the end. Bear in mind that most
+of the &amp;#8220;fixed&amp;#8221; issues don&amp;#8217;t apply to the versions we have in the field.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary></entry><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><updated>2015-09-01T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
+&lt;/div&gt;</summary></entry><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><published>2015-09-01T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
 encryption and decryption: the encryption key, the data (plaintext or
 ciphertext) and an Initialization Vector. Storing IVs is a hassle;
-what follows is a cute trick for doing encryption in AES CBC-mode
+what follows is a cute trick for doing encryption in &lt;span class="caps"&gt;AES&lt;/span&gt; &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode
 without explicitly storing or transmitting IVs, and without
-sacrificing data security.&lt;/p&gt;
-&lt;h2&gt;Who Needs IVs, Anyway?&lt;/h2&gt;
+sacrificing data&amp;nbsp;security.&lt;/p&gt;
+&lt;h2&gt;Who Needs IVs,&amp;nbsp;Anyway?&lt;/h2&gt;
 &lt;p&gt;First, a brief note on IVs: Initialization Vectors are actually a
-critical piece of strong encryption in CBC mode. Without it, or with a
-poorly chosen IV, the encrypted data is subject to known-ciphertext
-attacks (i.e. it's not
+critical piece of strong encryption in &lt;span class="caps"&gt;CBC&lt;/span&gt; mode. Without it, or with a
+poorly chosen &lt;span class="caps"&gt;IV&lt;/span&gt;, the encrypted data is subject to known-ciphertext
+attacks (i.e. it&amp;#8217;s not
 &lt;a href="https://en.wikipedia.org/wiki/Semantic_security"&gt;semantically secure&lt;/a&gt;). In
-order to function properly, the IV used to encrypt and decrypt data
+order to function properly, the &lt;span class="caps"&gt;IV&lt;/span&gt; used to encrypt and decrypt data
 needs to be cryptographically random. If your library makes the mistake
-of having one, it can be tempting to use the "don't use an IV" option
-just for convenience. This is a Bad Idea(tm); just say no.&lt;/p&gt;
-&lt;h2&gt;Quirks of CBC Mode&lt;/h2&gt;
-&lt;p&gt;In CBC mode, each block is encrypted and then &lt;code&gt;XOR&lt;/code&gt;ed with the
+of having one, it can be tempting to use the &amp;#8220;don&amp;#8217;t use an &lt;span class="caps"&gt;IV&lt;/span&gt;&amp;#8221; option
+just for convenience. This is a Bad Idea(tm); just say&amp;nbsp;no.&lt;/p&gt;
+&lt;h2&gt;Quirks of &lt;span class="caps"&gt;CBC&lt;/span&gt;&amp;nbsp;Mode&lt;/h2&gt;
+&lt;p&gt;In &lt;span class="caps"&gt;CBC&lt;/span&gt; mode, each block is encrypted and then &lt;code&gt;XOR&lt;/code&gt;ed with the
 preceding output block. That is, &lt;code&gt;out[n] = encrypt(key, (input[n] XOR
 out[n-1]))&lt;/code&gt;. The first block, which has no preceding output block, is
-&lt;code&gt;XOR&lt;/code&gt;ed with the IV instead: &lt;code&gt;out[0] = encrypt(key, (input[0] XOR
+&lt;code&gt;XOR&lt;/code&gt;ed with the &lt;span class="caps"&gt;IV&lt;/span&gt; instead: &lt;code&gt;out[0] = encrypt(key, (input[0] XOR
 iv))&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Decryption works the same way, but in reverse: &lt;code&gt;out[n] = decrypt(key,
 input[n]) XOR input[n-1]&lt;/code&gt;, and &lt;code&gt;out[0] = decrypt(key, input[0]) XOR
-iv&lt;/code&gt;. Note that the decrypted block &lt;code&gt;n&lt;/code&gt; doesn't require the &lt;em&gt;decrypted&lt;/em&gt;
-block &lt;code&gt;n-1&lt;/code&gt;, just the &lt;em&gt;encrypted&lt;/em&gt; block &lt;code&gt;n-1&lt;/code&gt; that you were handed to
-decrypt.&lt;/p&gt;
+iv&lt;/code&gt;. Note that the decrypted block &lt;code&gt;n&lt;/code&gt; doesn&amp;#8217;t require the &lt;em&gt;decrypted&lt;/em&gt;
+block &lt;code&gt;n-1&lt;/code&gt;, just the &lt;em&gt;encrypted&lt;/em&gt; block &lt;code&gt;n-1&lt;/code&gt; that you were handed to&amp;nbsp;decrypt.&lt;/p&gt;
 &lt;p&gt;Suppose you have a message with two blocks, &lt;code&gt;p[0]&lt;/code&gt; and &lt;code&gt;p[1]&lt;/code&gt;, which
-were encrypted with a key &lt;code&gt;k&lt;/code&gt; and an IV &lt;code&gt;iv1&lt;/code&gt; into a ciphertext (call
+were encrypted with a key &lt;code&gt;k&lt;/code&gt; and an &lt;span class="caps"&gt;IV&lt;/span&gt; &lt;code&gt;iv1&lt;/code&gt; into a ciphertext (call
 the ciphertext blocks &lt;code&gt;c[0]&lt;/code&gt; and &lt;code&gt;c[1]&lt;/code&gt;). Now lets see what happens if
-we try to decrypt that with a completely different IV, &lt;code&gt;iv2&lt;/code&gt;: for the
+we try to decrypt that with a completely different &lt;span class="caps"&gt;IV&lt;/span&gt;, &lt;code&gt;iv2&lt;/code&gt;: for the
 first block, we first decrypt the ciphertext block to get &lt;code&gt;p[0] XOR
-iv1&lt;/code&gt; and then &lt;code&gt;XOR&lt;/code&gt; it with out IV, &lt;code&gt;iv2&lt;/code&gt;. Whoops!  Unless &lt;code&gt;iv1&lt;/code&gt; and
+iv1&lt;/code&gt; and then &lt;code&gt;XOR&lt;/code&gt; it with out &lt;span class="caps"&gt;IV&lt;/span&gt;, &lt;code&gt;iv2&lt;/code&gt;. Whoops!  Unless &lt;code&gt;iv1&lt;/code&gt; and
 &lt;code&gt;iv2&lt;/code&gt; happen to be the same, &lt;code&gt;p[0] XOR iv1 XOR iv2&lt;/code&gt; is going to be
-garbage. So much for the first block.&lt;/p&gt;
+garbage. So much for the first&amp;nbsp;block.&lt;/p&gt;
 &lt;p&gt;But wait! What about the second block? First we decrypt the ciphertext
 block to get &lt;code&gt;p[1] XOR c[0]&lt;/code&gt;, and then we &lt;code&gt;XOR&lt;/code&gt; with the preceding
 ciphertext block &lt;code&gt;c[0]&lt;/code&gt; to get &lt;code&gt;p[1] XOR c[0] XOR c[0]&lt;/code&gt;, which most
-certainly &lt;em&gt;does&lt;/em&gt; equal our original plaintext block &lt;code&gt;p[0]&lt;/code&gt;. We've
-successfully decrypted the data and the IV hasn't even come into the
+certainly &lt;em&gt;does&lt;/em&gt; equal our original plaintext block &lt;code&gt;p[0]&lt;/code&gt;. We&amp;#8217;ve
+successfully decrypted the data and the &lt;span class="caps"&gt;IV&lt;/span&gt; hasn&amp;#8217;t even come into the
 picture, and this will also be true for any subsequent ciphertext
 blocks for the same reason. In other words, if we encrypt and decrypt
-with two different IVs, we only lose the first block of data.&lt;/p&gt;
-&lt;h2&gt;Spooky IV Action at a Distance&lt;/h2&gt;
+with two different IVs, we only lose the first block of&amp;nbsp;data.&lt;/p&gt;
+&lt;h2&gt;Spooky &lt;span class="caps"&gt;IV&lt;/span&gt; Action at a&amp;nbsp;Distance&lt;/h2&gt;
 &lt;p&gt;The obvious way to exploit this behavior is to have the encrypting
 party and the decrypting party generate independent cryptographically
 random IVs, and treat the first block of data as sacrificial
-garbage&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;. Since the encrypting side and decrypting side aren't
-using the same IV, they don't need to store or transmit it. The
+garbage&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;. Since the encrypting side and decrypting side aren&amp;#8217;t
+using the same &lt;span class="caps"&gt;IV&lt;/span&gt;, they don&amp;#8217;t need to store or transmit it. The
 encrypted data will be a block larger (the same as if you were to
-concatenate the IV and the ciphertext), and there is one extra encrypt
-and decrypt operation.&lt;/p&gt;
+concatenate the &lt;span class="caps"&gt;IV&lt;/span&gt; and the ciphertext), and there is one extra encrypt
+and decrypt&amp;nbsp;operation.&lt;/p&gt;
 &lt;p&gt;This is a rather cute trick for doing encryption without synchronizing
-IVs (and without resorting to an all-zero IV and sacrificing data
-security), but it's only applicable to CBC-mode, which you probably
-shouldn't be using. CBC-mode doesn't do authentication, which is
+IVs (and without resorting to an all-zero &lt;span class="caps"&gt;IV&lt;/span&gt; and sacrificing data
+security), but it&amp;#8217;s only applicable to &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode, which you probably
+shouldn&amp;#8217;t be using. &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode doesn&amp;#8217;t do authentication, which is
 Bad&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;; you should use an authenticating mode like
-&lt;a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"&gt;GCM&lt;/a&gt; or
-&lt;a href="https://en.wikipedia.org/wiki/EAX_mode"&gt;EAX&lt;/a&gt; instead (or at least use
+&lt;a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"&gt;&lt;span class="caps"&gt;GCM&lt;/span&gt;&lt;/a&gt; or
+&lt;a href="https://en.wikipedia.org/wiki/EAX_mode"&gt;&lt;span class="caps"&gt;EAX&lt;/span&gt;&lt;/a&gt; instead (or at least use
 a Message Authentication Code). Better still, make your life easier
 and use a library that avoids insecure modes altogether, like the
 excellent &lt;a href="https://libsodium.org"&gt;libsodium&lt;/a&gt;. In short: cryptography
-is hard, lets go shopping!&lt;/p&gt;
-&lt;h2&gt;Addendum: Credit Where Credit is Due&lt;/h2&gt;
-&lt;p&gt;I came up with this scheme while I was exploring the AES encryption in
-our system at work, which features an option where "no initialization
-vector value is used", after a Stack Overflow answer pointed out that
-losing the IV only means losing the first block. However, it's not the
-first time someone's come up with the idea:
+is hard, lets go&amp;nbsp;shopping!&lt;/p&gt;
+&lt;h2&gt;Addendum: Credit Where Credit is&amp;nbsp;Due&lt;/h2&gt;
+&lt;p&gt;I came up with this scheme while I was exploring the &lt;span class="caps"&gt;AES&lt;/span&gt; encryption in
+our system at work, which features an option where &amp;#8220;no initialization
+vector value is used&amp;#8221;, after a Stack Overflow answer pointed out that
+losing the &lt;span class="caps"&gt;IV&lt;/span&gt; only means losing the first block. However, it&amp;#8217;s not the
+first time someone&amp;#8217;s come up with the idea:
 &lt;a href="http://crypto.stackexchange.com/a/7937"&gt;this answer&lt;/a&gt; refers to the
-same scheme.&lt;/p&gt;
+same&amp;nbsp;scheme.&lt;/p&gt;
 &lt;div class="footnote"&gt;
 &lt;hr /&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
 &lt;p&gt;Fun fact: &lt;code&gt;XOR&lt;/code&gt; is entropy-preserving (i.e. the enropy of &lt;code&gt;a XOR
-b&lt;/code&gt; is the maximum of &lt;code&gt;a&lt;/code&gt; or &lt;code&gt;b&lt;/code&gt;'s entropy) so having a random or
-all-zero (or any other) value here doesn't decrease the entropy
-contributed by the IV. CBC-mode relies on this property to work, since
+b&lt;/code&gt; is the maximum of &lt;code&gt;a&lt;/code&gt; or &lt;code&gt;b&lt;/code&gt;&lt;span class="quo"&gt;&amp;#8216;&lt;/span&gt;s entropy) so having a random or
+all-zero (or any other) value here doesn&amp;#8217;t decrease the entropy
+contributed by the &lt;span class="caps"&gt;IV&lt;/span&gt;. &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode relies on this property to work, since
 the ciphertext might naturally have any value in a block.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
@@ -465,118 +552,117 @@ provision for message authentication, encryption ciphers have no way
 to tell the difference between a legitimately encrypted message and
 random garbage (and this is a good thing). It is surprisingly easy to
 produce certain kinds of outputs by modifying the ciphertext, and a
-non-authenticating mode like CBC will happily decrypt it without any
-idea that it's been tampered with.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+non-authenticating mode like &lt;span class="caps"&gt;CBC&lt;/span&gt; will happily decrypt it without any
+idea that it&amp;#8217;s been tampered with.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="cryptography"></category><category term="encryption"></category><category term="AES"></category><category term="programming"></category></entry><entry><title>Infrastructure Notes: Pelican Setup</title><link href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html" rel="alternate"></link><updated>2015-04-26T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:posts/2015/04/26/infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
+&lt;/div&gt;</summary><category term="cryptography"></category><category term="encryption"></category><category term="AES"></category><category term="programming"></category></entry><entry><title>Infrastructure Notes: Pelican Setup</title><link href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html" rel="alternate"></link><published>2015-04-26T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:posts/2015/04/26/infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
 &lt;p&gt;I have slipped the surly bonds of Octopress&lt;br /&gt;
  pulled the trigger&lt;br /&gt;
  and converted this sucker to Pelican.&lt;br /&gt;
- -- definitely not John Gillespie Magee, Jr.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+ &amp;#8212; definitely not John Gillespie Magee, Jr.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;This blog used to be powered by &lt;a href="http://octopress.org"&gt;Octopress&lt;/a&gt;, but
-I've just finished converting the whole thing to
+I&amp;#8217;ve just finished converting the whole thing to
 &lt;a href="http://blog.getpelican.com"&gt;Pelican&lt;/a&gt;, and wanted to make a few notes
-about the switch and the current setup.&lt;/p&gt;
+about the switch and the current&amp;nbsp;setup.&lt;/p&gt;
 &lt;h2&gt;Updates&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;em&gt;2015-09-01&lt;/em&gt;: Deploy script was updated to remove the output files
-before regenerating the site.&lt;/li&gt;
+before regenerating the&amp;nbsp;site.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2&gt;Why Switch?&lt;/h2&gt;
+&lt;h2&gt;Why&amp;nbsp;Switch?&lt;/h2&gt;
 &lt;p&gt;First though, a comment about my reasons for switching: Octopress is a
 solid piece of software, with good out-of-the-box settings for the
 sort of blogging I want to do (and probably for most blogs in
 general). So why the switch? In my case, the two killer issues were
-Ruby and the deployment scenario.&lt;/p&gt;
+Ruby and the deployment&amp;nbsp;scenario.&lt;/p&gt;
 &lt;p&gt;Getting Ruby to run on Windows is an absolute nightmare (mainly a
 problem with gems). I generally prefer Linux systems, but some of my
 machines are Windows-based and the harder it is to update the site the
-less likely I am to actually do it. I'm also not as familiar with
+less likely I am to actually do it. I&amp;#8217;m also not as familiar with
 Ruby, so the barrier for hacking on Octopress is higher, although I
-doubt I'd have needed to do so.&lt;/p&gt;
+doubt I&amp;#8217;d have needed to do&amp;nbsp;so.&lt;/p&gt;
 &lt;p&gt;Octopress is designed to run on the github-pages platform, and has
 Rake tasks to support updating and deploying the site. Unfortunately
-it's not completely clear what these are actually doing -- they commit
+it&amp;#8217;s not completely clear what these are actually doing &amp;#8212; they commit
 the contents of a folder to the &lt;code&gt;master&lt;/code&gt; or &lt;code&gt;gh-pages&lt;/code&gt; branch of a
-repo, which is an unusual operation in git -- which makes it easy to
+repo, which is an unusual operation in git &amp;#8212; which makes it easy to
 make mistakes. I use git every day, and I still managed to commit the
 generated site but not my article source. On top of that, you get
-octopress by forking the author's repo, which makes it tricky to
-update octopress itself.&lt;/p&gt;
-&lt;p&gt;Octopress' author has &lt;a href="octopress-3.0"&gt;noted&lt;/a&gt; the issues with the
+octopress by forking the author&amp;#8217;s repo, which makes it tricky to
+update octopress&amp;nbsp;itself.&lt;/p&gt;
+&lt;p&gt;Octopress&amp;#8217; author has &lt;a href="octopress-3.0"&gt;noted&lt;/a&gt; the issues with the
 deployment process, and has plans to fix them in a future version, but
-that still leaves me with the Ruby issues. "Figure out Octopress" has
-been on my To-Do list for so long that I'm not actually writing (last
+that still leaves me with the Ruby issues. &amp;#8220;Figure out Octopress&amp;#8221; has
+been on my To-Do list for so long that I&amp;#8217;m not actually writing (last
 post was more than a year ago), which in the end is the whole point,
-so after much procrastinating I'm pulling the trigger and switching to
-Pelican.&lt;/p&gt;
-&lt;h2&gt;The Setup&lt;/h2&gt;
-&lt;p&gt;First, create a virtualenv for the site in question:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;mkdir my_site/ &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd &lt;/span&gt;my_site/
-&lt;span class="nv"&gt;$ &lt;/span&gt;virtualenv .
-&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;source &lt;/span&gt;Scripts/activate
+so after much procrastinating I&amp;#8217;m pulling the trigger and switching to&amp;nbsp;Pelican.&lt;/p&gt;
+&lt;h2&gt;The&amp;nbsp;Setup&lt;/h2&gt;
+&lt;p&gt;First, create a virtualenv for the site in&amp;nbsp;question:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ mkdir my_site/ &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd&lt;/span&gt; my_site/
+$ virtualenv .
+$ &lt;span class="nb"&gt;source&lt;/span&gt; Scripts/activate
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Next, install the pelican components and create the project skeleton:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip install pelican markdown typogrify
-&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-quickstart
+&lt;p&gt;Next, install the pelican components and create the project&amp;nbsp;skeleton:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pip install pelican markdown typogrify
+$ pelican-quickstart
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;It's not a great idea to add the virtualenv components to the git
+&lt;p&gt;It&amp;#8217;s not a great idea to add the virtualenv components to the git
 repo, but we do want to track the installed components so setup on a
-new machine is easy. The best way I've found to do that is to save the
-requirements list from pip:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;pip -l freeze &amp;gt; requirements.txt
+new machine is easy. The best way I&amp;#8217;ve found to do that is to save the
+requirements list from&amp;nbsp;pip:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pip -l freeze &amp;gt; requirements.txt
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;You'll want to add Pelican's files, the requirements file, and any
-existing content (but not the &lt;code&gt;output/&lt;/code&gt; folder just yet):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git add pelicanconf.py &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;p&gt;You&amp;#8217;ll want to add Pelican&amp;#8217;s files, the requirements file, and any
+existing content (but not the &lt;code&gt;output/&lt;/code&gt; folder just&amp;nbsp;yet):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git add pelicanconf.py &lt;span class="se"&gt;\&lt;/span&gt;
           publishconf.py &lt;span class="se"&gt;\&lt;/span&gt;
           Makefile &lt;span class="se"&gt;\&lt;/span&gt;
           fabfiile.py &lt;span class="se"&gt;\&lt;/span&gt;
           develop_server.sh &lt;span class="se"&gt;\&lt;/span&gt;
           requirements.txt &lt;span class="se"&gt;\&lt;/span&gt;
           content/
-&lt;span class="nv"&gt;$ &lt;/span&gt;git commit -m &lt;span class="s1"&gt;&amp;#39;Add Pelican files.&amp;#39;&lt;/span&gt;
+$ git commit -m &lt;span class="s1"&gt;&amp;#39;Add Pelican files.&amp;#39;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;I like Octopress' default theme, so I'm using the
+&lt;p&gt;I like Octopress&amp;#8217; default theme, so I&amp;#8217;m using the
 &lt;a href="pelican-octopress"&gt;pelican-octopress&lt;/a&gt; theme. There is a small
-issue with the github scripts it uses for the sidebar, but I'm hoping
+issue with the github scripts it uses for the sidebar, but I&amp;#8217;m hoping
 to submit a patch for that shortly. This is also the one and only part
-of the site that I haven't figured out how to store in the main repo
-yet (a submodule would probably do it). Installation:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
-&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-theme -i ../pelican-octopress
+of the site that I haven&amp;#8217;t figured out how to store in the main repo
+yet (a submodule would probably do it).&amp;nbsp;Installation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
+$ pelican-theme -i ../pelican-octopress
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h2&gt;Github Pages&lt;/h2&gt;
-&lt;p&gt;Getting Pelican's output into the right branch for Github Pages can be
+&lt;h2&gt;Github&amp;nbsp;Pages&lt;/h2&gt;
+&lt;p&gt;Getting Pelican&amp;#8217;s output into the right branch for Github Pages can be
 a little tricky to wrangle (this was the most confusing part of
 Octopress for me), but there are several ways to approach the
-problem. I chose to stick with Octopress' &lt;code&gt;source&lt;/code&gt; and &lt;code&gt;master&lt;/code&gt; (or
+problem. I chose to stick with Octopress&amp;#8217; &lt;code&gt;source&lt;/code&gt; and &lt;code&gt;master&lt;/code&gt; (or
 &lt;code&gt;gh-pages&lt;/code&gt;) branch scheme, where the code for generating the site
 resides in the &lt;code&gt;source&lt;/code&gt; branch of the same repo as the site. Using an
-external repo could also work, but I didn't want the clutter.&lt;/p&gt;
+external repo could also work, but I didn&amp;#8217;t want the&amp;nbsp;clutter.&lt;/p&gt;
 &lt;p&gt;Instead of using an existing script like &lt;code&gt;ghp-import&lt;/code&gt; and trying to
 convince it to use &lt;code&gt;master&lt;/code&gt; instead of &lt;code&gt;gh-pages&lt;/code&gt;, I was able to roll
 my own deployment script quite easily using &lt;code&gt;git subtree&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;The first thing to do is to add the &lt;code&gt;output/&lt;/code&gt; directory as a subtree
-from the master branch:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git subtree add --prefix output/ origin master
+from the master&amp;nbsp;branch:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git subtree add --prefix output/ origin master
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Then we can use a deployment script to generate the site, commit the
-changes, and push the generated content to the master branch:&lt;/p&gt;
+changes, and push the generated content to the master&amp;nbsp;branch:&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2
  3
@@ -593,41 +679,41 @@ changes, and push the generated content to the master branch:&lt;/p&gt;
 14
 15
 16
-17&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+17&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/bin/sh&lt;/span&gt;
 
 &lt;span class="nv"&gt;OUTPUT_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;output
-&lt;span class="c"&gt;# Generate fresh production output&lt;/span&gt;
+&lt;span class="c1"&gt;# Generate fresh production output&lt;/span&gt;
 rm -rf &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 pelican -s publishconf.py
 
-&lt;span class="c"&gt;# Just to be safe, make sure we don&amp;#39;t commit already-staged changes&lt;/span&gt;
+&lt;span class="c1"&gt;# Just to be safe, make sure we don&amp;#39;t commit already-staged changes&lt;/span&gt;
 git reset HEAD
 
-&lt;span class="c"&gt;# Add and commit the new output&lt;/span&gt;
+&lt;span class="c1"&gt;# Add and commit the new output&lt;/span&gt;
 git add --all &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 &lt;span class="nv"&gt;DATE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;date -u &lt;span class="s2"&gt;&amp;quot;+%Y-%m-%d %H:%M:%S %Z&amp;quot;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
 git commit -m &lt;span class="s2"&gt;&amp;quot;Site updated at &lt;/span&gt;&lt;span class="nv"&gt;$DATE&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
 
-&lt;span class="c"&gt;# Push it to the remote&lt;/span&gt;
+&lt;span class="c1"&gt;# Push it to the remote&lt;/span&gt;
 git subtree push --prefix &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; origin master
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
-&lt;p&gt;Works like a charm, and I (now) know exactly what it's doing. The only
+&lt;p&gt;Works like a charm, and I (now) know exactly what it&amp;#8217;s doing. The only
 thing missing is &lt;code&gt;git pull&lt;/code&gt;ing the new &lt;code&gt;master&lt;/code&gt;, but you generally
-won't even have it checked out locally.&lt;/p&gt;
-&lt;h2&gt;New Machine Setup&lt;/h2&gt;
+won&amp;#8217;t even have it checked out&amp;nbsp;locally.&lt;/p&gt;
+&lt;h2&gt;New Machine&amp;nbsp;Setup&lt;/h2&gt;
 &lt;p&gt;With all that in place, setup on a new machine is pretty
-straightforward, assuming Python is already installed:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone https://github.com/mtstickney/mtstickney.github.com site
-&lt;span class="nv"&gt;$ &lt;/span&gt;git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
-&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;site
-&lt;span class="nv"&gt;$ &lt;/span&gt;virtualenv .
-&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;source &lt;/span&gt;Scripts/activate
-&lt;span class="nv"&gt;$ &lt;/span&gt;pip install -r requirements.txt
-&lt;span class="nv"&gt;$ &lt;/span&gt;pelican-themes -i ../pelican-octopress
-&lt;span class="nv"&gt;$ &lt;/span&gt;&amp;lt;write write write&amp;gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;./deploy.sh
+straightforward, assuming Python is already&amp;nbsp;installed:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/mtstickney/mtstickney.github.com site
+$ git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+$ &lt;span class="nb"&gt;cd&lt;/span&gt; site
+$ virtualenv .
+$ &lt;span class="nb"&gt;source&lt;/span&gt; Scripts/activate
+$ pip install -r requirements.txt
+$ pelican-themes -i ../pelican-octopress
+$ &amp;lt;write write write&amp;gt;
+$ ./deploy.sh
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -635,34 +721,34 @@ straightforward, assuming Python is already installed:&lt;/p&gt;
 &lt;hr /&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
-&lt;p&gt;This is a shameless ripoff of John Gillespie Magee Jr.'s fabulous
+&lt;p&gt;This is a shameless ripoff of John Gillespie Magee Jr.&amp;#8217;s fabulous
   poem
   &lt;a href="http://www.woodiescciclub.com/high-flight.htm"&gt;High Flight&lt;/a&gt;. You
   should go read it.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="infrastructure note"></category><category term="blog"></category><category term="meta"></category><category term="pelican"></category><category term="github-pages"></category></entry><entry><title>Abusing Search Paths for Fun and Profit</title><link href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html" rel="alternate"></link><updated>2013-02-12T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2013-02-12:posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html</id><summary type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
+&lt;/div&gt;</summary><category term="infrastructure note"></category><category term="blog"></category><category term="meta"></category><category term="pelican"></category><category term="github-pages"></category></entry><entry><title>Abusing Search Paths for Fun and Profit</title><link href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html" rel="alternate"></link><published>2013-02-12T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2013-02-12:posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html</id><summary type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
 engineer it, naturally. I was recently in the position of having to
 automate some functions of an interactive tool provided by my language
 environment. The language docs said the procedure I needed could be
 extracted from a library distributed with the tool, but neglected to
-mention what it's parameters were or what data needed to be passed.&lt;/p&gt;
-&lt;p&gt;The extracted procedure was a bytecode-compiled file, so I couldn't
+mention what it&amp;#8217;s parameters were or what data needed to be&amp;nbsp;passed.&lt;/p&gt;
+&lt;p&gt;The extracted procedure was a bytecode-compiled file, so I couldn&amp;#8217;t
 examine the code, but I found a handy &lt;a href="https://gist.github.com/abevoelker/581127"&gt;script&lt;/a&gt; that
-would extract the parameter information from the bytecode. That wasn't
+would extract the parameter information from the bytecode. That wasn&amp;#8217;t
 enough to use the procedure, but it did give me an idea: if I could
 replace the standard procedure with my own version, I could have it
-report the input it was getting when it was called.&lt;/p&gt;
+report the input it was getting when it was&amp;nbsp;called.&lt;/p&gt;
 &lt;p&gt;I had traced the tool in Process Monitor earlier, and noticed that it
 always searched for raw-source procedure files before bytecode files,
 and for bytecode files before looking in a procedure library. I
 whipped up a quick version of the procedure I wanted to call with the
 right parameters, which would just report its input when run, and
-plopped it next to the procedure library I'd extracted the bytecode
+plopped it next to the procedure library I&amp;#8217;d extracted the bytecode
 file from. I fired up the tool, pointed it at a file, and sure enough
-it ran my procedure, reported the data, and promptly crashed.&lt;/p&gt;
+it ran my procedure, reported the data, and promptly&amp;nbsp;crashed.&lt;/p&gt;
 &lt;p&gt;That gave me enough information to use the real procedure file,
 despite the total lack of documentation. The moral of the story here
 is that language search paths often be used to hook parts of an
-application that would otherwise be hard to reach, whether it's
-bytecode files or DLLs (LD_PRELOAD, anyone?).&lt;/p&gt;</summary><category term="worklog"></category><category term="abl"></category></entry></feed>
+application that would otherwise be hard to reach, whether it&amp;#8217;s
+bytecode files or DLLs (LD_PRELOAD,&amp;nbsp;anyone?).&lt;/p&gt;</summary><category term="worklog"></category><category term="abl"></category></entry></feed>
