@@ -15,6 +15,9 @@ TIMEZONE = 'America/New_York'
 
 DEFAULT_LANG = u'en'
 
+# Use typographical enhancements
+TYPOGRIFY='true'
+
 THEME='pelican-octopress-theme'
 # pelican-octopress configuration
 GITHUB_USER='mtstickney'
