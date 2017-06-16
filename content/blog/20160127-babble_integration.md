@@ -13,7 +13,7 @@ Tags: blog, programming, language interop, abl, windows, work challenge
 >  
 >  "But I like it  
 >  "Because it is bitter,  
->  "And because is is my heart."  
+>  "And because it is my heart."  
 > -- Stephen Crane, "In the Desert"
 
 ## Note on the series
