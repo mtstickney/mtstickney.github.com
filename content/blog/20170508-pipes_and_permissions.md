@@ -1,7 +1,7 @@
 Title: Pipes and Permissions
 Date: 2017-05-08
 Category: blog
-Tags: worklog, systems programming, windows
+Tags: work challenge, systems programming, windows
 
 _The third in a [series](/tag/work-challenge.html) of technical
 challenges encountered in the course of trying to get work done._
