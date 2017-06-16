@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Pipes and Permissions &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">Pipes and Permissions</h1>
+    <p class="meta">
+<time datetime="2017-05-08T00:00:00-04:00" pubdate>Mon 08 May 2017</time>    </p>
+</header>
+
+  <div class="entry-content"><p><em>The third in a <a href="/tag/work-challenge.html">series</a> of technical
+challenges encountered in the course of trying to get work&nbsp;done.</em></p>
+<p>If you have two components of a system implemented as separate
+processes, you need a way for them to communicate. Unless speed is
+critical, you&#8217;re likely to use sockets or pipes for the channel. Named
+pipes are an obvious choice for local communication, and offer an <span class="caps">API</span>
+similar to sockets, but there are some subtle differences to be aware&nbsp;of.</p>
+<h1>The Pipeserver&nbsp;Model</h1>
+<p>If you plan to have more than one client of your <span class="caps">IPC</span> channel, the
+named pipe interface is nearly the same as a traditional socket
+server. You create a named pipe, wait for a connection to it, and then
+you have an open file-like <span class="caps">IPC</span> channel between the component and the
+client. Easy,&nbsp;right?</p>
+<p>Not so fast. Even though there are direct analogues to the socket
+system calls (<code>CreateNamedPipe</code> &lt;=&gt; <code>listen</code>, <code>ConnectNamedPipe</code> &lt;=&gt;
+<code>accept</code>), and even though the documentation throws around terms like
+&#8220;pipe server&#8221; pretty freely, the underlying model of named pipes is
+<em>different</em> than the socket model. The crucial difference is that
+sockets have a separate object responsible for accepting connections,
+and pipes do&nbsp;not.</p>
+<p>When you create a socket server by calling <code>listen</code>, you get a socket
+listening for connections on some port; when you call <code>accept</code> on it
+and a client connects, you receive a <em>new</em> socket that&#8217;s a dedicated
+connection to the client<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>. The original socket remains open,
+listening for&nbsp;connections.</p>
+<p>Pipes, on the other hand, don&#8217;t have the concept of a distinguished
+server<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>. Unlike sockets, when a client connects to a named pipe
+server, the pipe instance that they connect <em>to</em> is the same one
+they&#8217;ll be talking <em>over</em>. You don&#8217;t get a new pipe instance, and if
+all the instances have been used up, there is no pipe for clients to
+connect to (more on this in a bit). This is extra misleading, because
+you can create several instances of the same pipe, and it acts
+<em>exactly like the backlog queue in a server socket</em> (but it&nbsp;isn&#8217;t).</p>
+<h1>The Pipe Permission&nbsp;Model</h1>
+<p>Named pipes also have permissions, like any other object in
+windows. While sockets will allow any client to connect to them, pipes
+allow you specify a range of mandatory and discretionary ACLs (DACLs)
+to restrict what clients may connect or perform other
+operations. Pipes also have a curious feature that allows the server
+program to impersonate the connecting client, so that a server can
+drop privileges to the client&#8217;s level before servicing requests<sup id="fnref:3"><a class="footnote-ref" href="#fn:3" rel="footnote">3</a></sup>.</p>
+<p>Pipes also inherit these permissions, provided that you&#8217;re creating
+new instances of an existing pipe. If you&#8217;ve set a <span class="caps">DACL</span> entry for a
+pipe, and you create a new instance of it, the new instance will also
+have the <span class="caps">DACL</span> applied, even though you created the new instance with
+the default permissions<sup id="fnref:4"><a class="footnote-ref" href="#fn:4" rel="footnote">4</a></sup>.</p>
+<h1>Interactions in the&nbsp;Field</h1>
+<p>Named pipe permissions can sometimes interact with the pipe model in
+surprising (and generally unpleasant) ways. Before I explain why,
+though, a bit of backstory: at one point at work, we had embedded a
+scripting runtime into our application. At the last minute we
+discovered issues with our main language runtime, and moved it into a
+separate process communicating over a pipe, started by the main
+application. Later, due to memory constraints on many-user systems, we
+converted the component to a thread-per-client pipe server running as
+a&nbsp;service.</p>
+<p>Initially, there were no permissions issues:The process was created by
+the same user that was connecting to it, so there was no need to
+modify the ACLs or impersonate the client. When the component was
+converted to a service, we hit our first snag: the default permissions
+for named pipes allow administrators to connect<sup id="fnref:5"><a class="footnote-ref" href="#fn:5" rel="footnote">5</a></sup>, but not
+non-administrative users, so we had to modify the <span class="caps">DACL</span> to allows
+connections from other users, and we had to start impersonating
+clients to avoid privilege&nbsp;escalation.</p>
+<p>After the service-based component had been deployed for while, we
+discovered that on some systems the pipe&#8217;s permissions would
+periodically revert to the defaults, requiring the service to be
+restarted before users could connect. This happened several times a
+day on some systems, and never occurred on&nbsp;others.</p>
+<p>When we finally tracked it down, this is what was happening: the pipe
+library we used (Nate Finch&#8217;s <a href="http://github.com/nfinch/npipe">npipe</a>)
+provides a socket-like interface to a pipe server, but doesn&#8217;t support
+setting DACLs or expose the creation of new pipe instances. To make
+multi-user connections work, we were starting the server and using a
+patched-in method to set a <span class="caps">DACL</span> on the underlying pipe instance. When
+clients connected, the library would create a new pipe instance
+internally &#8212; depending on whether the previous pipe instance had been
+closed, the new instance might inherit the (correct) permissions from
+its parent, or get the (broken) default permissions, which it would
+then pass on to any child&nbsp;instances.</p>
+<p>The fix for this is simple: without modifying the library to better
+support setting DACLs, we changed the application to leave pipe
+instances open until we were sure the library had created the next
+one. Because the previous instance was already open, the next instance
+would inherit the proper permissions (I refer to this arrangment as
+&#8220;heirloom permissions&#8221;). That sounds pretty dodgy in retrospect, but
+it&#8217;s been quite stable in&nbsp;production.</p>
+<h1>The&nbsp;Moral</h1>
+<p>Named pipes aren&#8217;t sockets; don&#8217;t try to pretend that they are. Pipes
+use a different server model than sockets do, and have additional
+permissions issues to consider. If you&#8217;re writing a pipe server, you
+need to recreate the listening pipe after you accept a connection;
+that exposes you to some extra race conditions, and can affect the way
+that pipe permissions are&nbsp;inherited.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>This always reminds me of <code>fork</code>, in that it creates something
+that&#8217;s a distinct clone of it&#8217;s parent in some ways (both sockets
+share the same address and port on the server end). It&#8217;s like a kind
+of algae budding off a new cell: if system calls had sound effects,
+<code>fork</code> and <code>listen</code> would both be accompanied by &#8220;<em>blorp</em>&#8220;.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>The <code>FILE_FLAG_FIRST_PIPE_INSTANCE</code> flag sure makes it seem that
+way, but it&#8217;s only there to avoid a certain privilege-escalating race
+condition (see <a href="http://www.blakewatts.com/namedpipepaper.html">here</a>,
+section 3.1). The flag only prevents you from creating a pipe if one
+with that name already exists; it doesn&#8217;t change the pipe itself.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>This is also subject to a number of race conditions and
+privilege-escalation issues. See the rest of <a href="http://www.blakewatts.com/namedpipepaper.html">this
+article</a>.&#160;<a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:4">
+<p>I&#8217;m not certain if this is always the case, or only if you use
+the default security descriptor by passing <code>NULL</code> to
+<code>CreateNamedPipe</code>.&#160;<a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:5">
+<p>There was an additional complication to early versions of this
+component: before it was converted to a service, our application would
+launch the new process on startup, and if the named pipe already
+existed, the process would exit and the existing one would service
+connections from the application. As a result, the process ran as the
+user account that started the application first, which might or might
+not prevent future clients from connecting. Moral of the story: don&#8217;t
+forget to do multi-user testing if that&#8217;s relevant to your
+application.&#160;<a class="footnote-backref" href="#fnref:5" rev="footnote" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2017-05-08T00:00:00-04:00" pubdate>Mon 08 May 2017</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+  </span>
+  <span class="categories">
+    <a class="category" href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a class="category" href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a class="category" href="http://mtstickney.github.io/tag/windows.html">windows</a>  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013&ndash;2017  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>

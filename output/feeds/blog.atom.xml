@@ -1,5 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2016-01-30T00:00:00-05:00</updated><entry><title>Work Challenge #2: Installer Madness</title><link href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html" rel="alternate"></link><published>2016-01-30T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-30:posts/2016/01/30/work-challenge-2-installer-madness.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The second in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2017-05-08T00:00:00-04:00</updated><entry><title>Pipes and Permissions</title><link href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;If you have two components of a system implemented as separate
+processes, you need a way for them to communicate. Unless speed is
+critical, you&amp;#8217;re likely to use sockets or pipes for the channel. Named
+pipes are an obvious choice for local communication, and offer an &lt;span class="caps"&gt;API&lt;/span&gt;
+similar to sockets, but there are some subtle differences to be aware&amp;nbsp;of.&lt;/p&gt;
+&lt;h1&gt;The Pipeserver&amp;nbsp;Model&lt;/h1&gt;
+&lt;p&gt;If you plan to have more than one client of your &lt;span class="caps"&gt;IPC&lt;/span&gt; channel, the
+named pipe interface is nearly the same as a traditional socket
+server. You create a named pipe, wait for a connection to it, and then
+you have an open file-like &lt;span class="caps"&gt;IPC&lt;/span&gt; channel between the component and the
+client. Easy,&amp;nbsp;right?&lt;/p&gt;
+&lt;p&gt;Not so fast. Even though there are direct analogues to the socket
+system calls (&lt;code&gt;CreateNamedPipe&lt;/code&gt; &amp;lt;=&amp;gt; &lt;code&gt;listen&lt;/code&gt;, &lt;code&gt;ConnectNamedPipe&lt;/code&gt; &amp;lt;=&amp;gt;
+&lt;code&gt;accept&lt;/code&gt;), and even though the documentation throws around terms like
+&amp;#8220;pipe server&amp;#8221; pretty freely, the underlying model of named pipes is
+&lt;em&gt;different&lt;/em&gt; than the socket model. The crucial difference is that
+sockets have a separate object responsible for accepting connections,
+and pipes do&amp;nbsp;not.&lt;/p&gt;
+&lt;p&gt;When you create a socket server by calling &lt;code&gt;listen&lt;/code&gt;, you get a socket
+listening for connections on some port; when you call &lt;code&gt;accept&lt;/code&gt; on it
+and a client connects, you receive a &lt;em&gt;new&lt;/em&gt; socket that&amp;#8217;s a dedicated
+connection to the client&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;. The original socket remains open,
+listening for&amp;nbsp;connections.&lt;/p&gt;
+&lt;p&gt;Pipes, on the other hand, don&amp;#8217;t have the concept of a distinguished
+server&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;. Unlike sockets, when a client connects to a named pipe
+server, the pipe instance that they connect &lt;em&gt;to&lt;/em&gt; is the same one
+they&amp;#8217;ll be talking &lt;em&gt;over&lt;/em&gt;. You don&amp;#8217;t get a new pipe instance, and if
+all the instances have been used up, there is no pipe for clients to
+connect to (more on this in a bit). This is extra misleading, because
+you can create several instances of the same pipe, and it acts
+&lt;em&gt;exactly like the backlog queue in a server socket&lt;/em&gt; (but it&amp;nbsp;isn&amp;#8217;t).&lt;/p&gt;
+&lt;h1&gt;The Pipe Permission&amp;nbsp;Model&lt;/h1&gt;
+&lt;p&gt;Named pipes also have permissions, like any other object in
+windows. While sockets will allow any client to connect to them, pipes
+allow you specify a range of mandatory and discretionary ACLs (DACLs)
+to restrict what clients may connect or perform other
+operations. Pipes also have a curious feature that allows the server
+program to impersonate the connecting client, so that a server can
+drop privileges to the client&amp;#8217;s level before servicing requests&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;Pipes also inherit these permissions, provided that you&amp;#8217;re creating
+new instances of an existing pipe. If you&amp;#8217;ve set a &lt;span class="caps"&gt;DACL&lt;/span&gt; entry for a
+pipe, and you create a new instance of it, the new instance will also
+have the &lt;span class="caps"&gt;DACL&lt;/span&gt; applied, even though you created the new instance with
+the default permissions&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="footnote"&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;h1&gt;Interactions in the&amp;nbsp;Field&lt;/h1&gt;
+&lt;p&gt;Named pipe permissions can sometimes interact with the pipe model in
+surprising (and generally unpleasant) ways. Before I explain why,
+though, a bit of backstory: at one point at work, we had embedded a
+scripting runtime into our application. At the last minute we
+discovered issues with our main language runtime, and moved it into a
+separate process communicating over a pipe, started by the main
+application. Later, due to memory constraints on many-user systems, we
+converted the component to a thread-per-client pipe server running as
+a&amp;nbsp;service.&lt;/p&gt;
+&lt;p&gt;Initially, there were no permissions issues:The process was created by
+the same user that was connecting to it, so there was no need to
+modify the ACLs or impersonate the client. When the component was
+converted to a service, we hit our first snag: the default permissions
+for named pipes allow administrators to connect&lt;sup id="fnref:5"&gt;&lt;a class="footnote-ref" href="#fn:5" rel="footnote"&gt;5&lt;/a&gt;&lt;/sup&gt;, but not
+non-administrative users, so we had to modify the &lt;span class="caps"&gt;DACL&lt;/span&gt; to allows
+connections from other users, and we had to start impersonating
+clients to avoid privilege&amp;nbsp;escalation.&lt;/p&gt;
+&lt;p&gt;After the service-based component had been deployed for while, we
+discovered that on some systems the pipe&amp;#8217;s permissions would
+periodically revert to the defaults, requiring the service to be
+restarted before users could connect. This happened several times a
+day on some systems, and never occurred on&amp;nbsp;others.&lt;/p&gt;
+&lt;p&gt;When we finally tracked it down, this is what was happening: the pipe
+library we used (Nate Finch&amp;#8217;s &lt;a href="http://github.com/nfinch/npipe"&gt;npipe&lt;/a&gt;)
+provides a socket-like interface to a pipe server, but doesn&amp;#8217;t support
+setting DACLs or expose the creation of new pipe instances. To make
+multi-user connections work, we were starting the server and using a
+patched-in method to set a &lt;span class="caps"&gt;DACL&lt;/span&gt; on the underlying pipe instance. When
+clients connected, the library would create a new pipe instance
+internally &amp;#8212; depending on whether the previous pipe instance had been
+closed, the new instance might inherit the (correct) permissions from
+its parent, or get the (broken) default permissions, which it would
+then pass on to any child&amp;nbsp;instances.&lt;/p&gt;
+&lt;p&gt;The fix for this is simple: without modifying the library to better
+support setting DACLs, we changed the application to leave pipe
+instances open until we were sure the library had created the next
+one. Because the previous instance was already open, the next instance
+would inherit the proper permissions (I refer to this arrangment as
+&amp;#8220;heirloom permissions&amp;#8221;). That sounds pretty dodgy in retrospect, but
+it&amp;#8217;s been quite stable in&amp;nbsp;production.&lt;/p&gt;
+&lt;h1&gt;The&amp;nbsp;Moral&lt;/h1&gt;
+&lt;p&gt;Named pipes aren&amp;#8217;t sockets; don&amp;#8217;t try to pretend that they are. Pipes
+use a different server model than sockets do, and have additional
+permissions issues to consider. If you&amp;#8217;re writing a pipe server, you
+need to recreate the listening pipe after you accept a connection;
+that exposes you to some extra race conditions, and can affect the way
+that pipe permissions are&amp;nbsp;inherited.&lt;/p&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;This always reminds me of &lt;code&gt;fork&lt;/code&gt;, in that it creates something
+that&amp;#8217;s a distinct clone of it&amp;#8217;s parent in some ways (both sockets
+share the same address and port on the server end). It&amp;#8217;s like a kind
+of algae budding off a new cell: if system calls had sound effects,
+&lt;code&gt;fork&lt;/code&gt; and &lt;code&gt;listen&lt;/code&gt; would both be accompanied by &amp;#8220;&lt;em&gt;blorp&lt;/em&gt;&amp;#8220;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;The &lt;code&gt;FILE_FLAG_FIRST_PIPE_INSTANCE&lt;/code&gt; flag sure makes it seem that
+way, but it&amp;#8217;s only there to avoid a certain privilege-escalating race
+condition (see &lt;a href="http://www.blakewatts.com/namedpipepaper.html"&gt;here&lt;/a&gt;,
+section 3.1). The flag only prevents you from creating a pipe if one
+with that name already exists; it doesn&amp;#8217;t change the pipe itself.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:3"&gt;
+&lt;p&gt;This is also subject to a number of race conditions and
+privilege-escalation issues. See the rest of &lt;a href="http://www.blakewatts.com/namedpipepaper.html"&gt;this
+article&lt;/a&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:4"&gt;
+&lt;p&gt;I&amp;#8217;m not certain if this is always the case, or only if you use
+the default security descriptor by passing &lt;code&gt;NULL&lt;/code&gt; to
+&lt;code&gt;CreateNamedPipe&lt;/code&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:5"&gt;
+&lt;p&gt;There was an additional complication to early versions of this
+component: before it was converted to a service, our application would
+launch the new process on startup, and if the named pipe already
+existed, the process would exit and the existing one would service
+connections from the application. As a result, the process ran as the
+user account that started the application first, which might or might
+not prevent future clients from connecting. Moral of the story: don&amp;#8217;t
+forget to do multi-user testing if that&amp;#8217;s relevant to your
+application.&amp;#160;&lt;a class="footnote-backref" href="#fnref:5" rev="footnote" title="Jump back to footnote 5 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</summary><category term="worklog"></category><category term="systems programming"></category><category term="windows"></category></entry><entry><title>Work Challenge #2: Installer Madness</title><link href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html" rel="alternate"></link><published>2016-01-30T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-30:posts/2016/01/30/work-challenge-2-installer-madness.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The second in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
 challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;As I mentioned in the previous
 &lt;a href="/blog/work-challenge-1-down-the-rabbit-hole.html"&gt;piece&lt;/a&gt; in the
@@ -101,7 +234,7 @@ alongside the vendor&amp;#8217;s version without conflict, if you&amp;nbsp;like.
  &amp;#8220;It is bitter&amp;#8212;bitter,&amp;#8221; he&amp;nbsp;answered;  &lt;/p&gt;
 &lt;p&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;But I like it&lt;br /&gt;
  &amp;#8220;Because it is bitter,&lt;br /&gt;
- &amp;#8220;And because is is my heart.&amp;#8221;&lt;br /&gt;
+ &amp;#8220;And because it is my heart.&amp;#8221;&lt;br /&gt;
 &amp;#8212; Stephen Crane, &amp;#8220;In the&amp;nbsp;Desert&amp;#8221;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2&gt;Note on the&amp;nbsp;series&lt;/h2&gt;
@@ -262,8 +395,7 @@ when the pipe becomes available, you need a timeout that retries
 connections a certain number of times.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><published>2015-10-27T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;Tags: abl, &lt;span class="caps"&gt;OO&lt;/span&gt;,&amp;nbsp;experiments&lt;/p&gt;
-&lt;p&gt;If you&amp;#8217;ve ever looked at books on refactoring code, there&amp;#8217;s one common
+&lt;/div&gt;</summary><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><published>2015-10-27T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;If you&amp;#8217;ve ever looked at books on refactoring code, there&amp;#8217;s one common
 theme among them: every piece of refactoring advice that has ever been
 given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;At work, we use this crummy business-oriented language called &lt;span class="caps"&gt;ABL&lt;/span&gt;. It
@@ -466,7 +598,7 @@ suggesting you use a real language.&amp;#160;&lt;a class="footnote-backref" href
 of the &amp;#8220;fixed&amp;#8221; issues don&amp;#8217;t apply to the versions we have in the field.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary></entry><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><published>2015-09-01T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
+&lt;/div&gt;</summary><category term="abl"></category><category term="OO"></category><category term="experiments"></category></entry><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><published>2015-09-01T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
 encryption and decryption: the encryption key, the data (plaintext or
 ciphertext) and an Initialization Vector. Storing IVs is a hassle;
 what follows is a cute trick for doing encryption in &lt;span class="caps"&gt;AES&lt;/span&gt; &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode
