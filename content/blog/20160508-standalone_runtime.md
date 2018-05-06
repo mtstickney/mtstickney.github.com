@@ -20,10 +20,10 @@ aspects of it here.
 As has been mentioned here before, the language we use at work is
 interpreted, and runs code in the form of source or bytecode
 files. The traditional challenge for that sort of language is
-deployment: at some point or other, a developer is going to want to
-deploy an application either as a single binary, or at least without
-requiring the use to install the interpreter separately. Python, for
-example, has this issue, and there are a number of
+deployment: at some point or other, you'll want to deploy an
+application either as a single binary, or at least without requiring
+the user to install the interpreter separately. Python, for example,
+has this issue, and there are a number of
 [solutions](https://wiki.python.org/moin/DistributionUtilities) to
 deal with packaging up all the various pieces into one unit.
 
