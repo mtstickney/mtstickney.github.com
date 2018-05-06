@@ -36,7 +36,36 @@ similar
 for deploying client applications, but I wanted to document my work
 here, as it includes some details and caveats that his method doesn't.
 
-## Vendor Tentacles
+## Parts and Pieces
 
-- environment variables
-- global registry settings
+In addition to the files required for the client to run, and
+supplementary information for them (e.g. registry entries for ActiveX
+components that must be registered), there are a number of
+configuration and environment issues that must be handled. The
+Progress client requires supplementary files and environment variables
+for a default startup parameters file (`startup.pf`, set in
+`PROSTARTUP`), a character-encoding conversion map (`convmap.cp`, set
+in `PROCONV`), a license file (`progress.cfg`, set in `PROCFG`), a
+file with printable error messages (`promsgs`, set in `PROMSGS`), and
+a top-level environment variable for the installation (`DLC`). There
+are also a variety of platform setting that are set by default in the
+registry, but that can be overridden with a local configuration file
+(typically `progress.ini`).
+
+Most of these files will never need to be altered by programs, but for
+those that do, it should still be possible. Progress uses hardcoded
+fallback paths for them, so we need to set the environment
+variables to avoid using erroneous paths. The solution to both problems is to use
+a small wrapper program that examines the environment and sets unset
+variables to appropriate wrapper-relative paths. Copies of the default
+installed files are included with the package, but applications can
+use their own local copies by setting the environment variables
+appropriately.
+
+Progress also stores defaults for platform settings in the registry
+under various keys. There is a provision for using configuration files
+instead; rather than implement an automatic solution, programs should
+expect to use a config file with the encapsulated runtime package.
+
+- environment variables/supplementary files
+- global registry settings (progress.ini)
