@@ -121,7 +121,15 @@ training purposes and for the customer's convenience. This sample data
 is usually altered by the user, but it's not required for the
 application to run correctly, and the user could create it themselves
 if needed. It's not really appropriate for a migration, and should be
-populated with a separate script.
+populated with a separate script. Since the sample data won't be
+altered when migrations are applied (at least not in a freshly-built
+database), it's important for the sample data's population script to
+be kept up-to-date with the current application format[^3].
+
+[^3] This is actually a considerable drawback of this policy:
+maintaining a change script with a lot of data is cumbersome, because
+you have to effectively simulate database changes on the static data
+in the script.
 
 ## Format Changes
 
