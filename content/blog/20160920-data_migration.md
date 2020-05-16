@@ -20,13 +20,18 @@ migrations in important ways, so it's important to set some context
 here.
 
 The classic way of managing our database changes has been individual
-change scripts run by support technicians when updating a customer to
+change scripts[^1] run by support technicians when updating a customer to
 a new version. The scripts can only alter the schema, not data, have
 no specified order, and have to be applied individually through a gui
 dialog in our vendor's db management tool. To save technician time and
 reduce errors, we want to replace this with a formal schema-migrations
 process -- a similar facility to make data changes has been quite
 popular with the technicians.
+
+[^1]: These scripts are a proprietary format for describing schema
+changes, not standard SQL change scripts. In addition to limitations
+in the format's capabilities, it is undocumented and can only be
+created by creating two databases and "diffing" them.
 
 Our application is procedural, and doesn't have any sort of
 application model like ActiveRecord (the main application isn't even
@@ -50,9 +55,9 @@ going to need lots of incremental changes made to it. That makes
 incremental-only migrations an appropriate fit -- they're also
 considerably simpler to implement than a system that compares
 snapshots and can accept hints to correct mistakes in the naive
-generated migrations[^1].
+generated migrations[^2].
 
-[^1]: The other major disadvantage of snapshot-comparison migrations
+[^2]: The other major disadvantage of snapshot-comparison migrations
 is that without an application model, the snapshots have to be taken
 from the database, which means you need two copies of it. Our current
 tool works this way, and it's a royal pain to keep everything
