@@ -24,7 +24,6 @@ about the switch and the current setup.
 - _2020-05-16_: Fix broken links, update new-machine setup to use
   fixed theme, and add fake source-commit step because I keep
   forgetting that.
-
 - _2015-09-01_: Deploy script was updated to remove the output files
   before regenerating the site.
 
