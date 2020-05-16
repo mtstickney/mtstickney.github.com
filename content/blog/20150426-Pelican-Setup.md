@@ -20,8 +20,13 @@ I've just finished converting the whole thing to
 about the switch and the current setup.
 
 ## Updates
+
+- _2020-05-16_: Fix broken links, update new-machine setup to use
+  fixed theme, and add fake source-commit step because I keep
+  forgetting that.
+
 - _2015-09-01_: Deploy script was updated to remove the output files
-before regenerating the site.
+  before regenerating the site.
 
 ## Why Switch?
 
@@ -48,7 +53,7 @@ generated site but not my article source. On top of that, you get
 octopress by forking the author's repo, which makes it tricky to
 update octopress itself.
 
-Octopress' author has [noted](octopress-3.0) the issues with the
+Octopress' author has [noted][octopress-3.0] the issues with the
 deployment process, and has plans to fix them in a future version, but
 that still leaves me with the Ruby issues. "Figure out Octopress" has
 been on my To-Do list for so long that I'm not actually writing (last
@@ -56,7 +61,7 @@ post was more than a year ago), which in the end is the whole point,
 so after much procrastinating I'm pulling the trigger and switching to
 Pelican.
 
-[ocotopress-3.0]: http://octopress.org/2015/01/15/octopress-3.0-is-coming/
+[octopress-3.0]: http://octopress.org/2015/01/15/octopress-3.0-is-coming/
 
 ## The Setup
 
@@ -91,7 +96,7 @@ existing content (but not the `output/` folder just yet):
     $ git commit -m 'Add Pelican files.'
 
 I like Octopress' default theme, so I'm using the
-[pelican-octopress](pelican-octopress) theme. There is a small
+[pelican-octopress][pelican-octopress] theme. There is a small
 issue with the github scripts it uses for the sidebar, but I'm hoping
 to submit a patch for that shortly. This is also the one and only part
 of the site that I haven't figured out how to store in the main repo
@@ -152,11 +157,14 @@ With all that in place, setup on a new machine is pretty
 straightforward, assuming Python is already installed:
 
     $ git clone https://github.com/mtstickney/mtstickney.github.com site
-    $ git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+    $ # There is a bug with script loading in the upstream theme, so pull a fixed version.
+    $ # git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+    $ git clone -b script_fixes https://github.com/mtstickney/pelican-octopress-theme.git pelican-octopress
     $ cd site
     $ virtualenv .
     $ source Scripts/activate
     $ pip install -r requirements.txt
     $ pelican-themes -i ../pelican-octopress
     $ <write write write>
+    $ <commit source>
     $ ./deploy.sh
