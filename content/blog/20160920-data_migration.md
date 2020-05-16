@@ -38,7 +38,7 @@ directly.
 
 Our database changes will sometimes require non-SQL code to run. Due
 to restrictions in our primary language and limitations in the SQL
-support in the database, we need to maintain a few table of
+support in the database, we need to maintain a few tables of
 schema-related metadata to be enforced by non-SQL procedures after the
 main migrations are complete. This is much easier and less error-prone
 if db changes can be wrapped in convenience functions. Some data
