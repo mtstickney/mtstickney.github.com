@@ -219,9 +219,11 @@ $ <span class="nb">source</span> Scripts/activate
 $ pip install -r requirements.txt
 $ pelican-themes -i ../pelican-octopress
 $ &lt;write write write&gt;
-$ &lt;optionally commit source&gt;
+$ &lt;commit source&gt;
 $ ./deploy.sh
-$ &lt;commit source&gt; <span class="o">(</span><span class="k">for</span> deployed site update<span class="o">)</span>
+$ &lt;optionally push <span class="o">(</span>to include the deployed site update<span class="o">)</span>&gt;
+$ <span class="c1"># If you&#39;re using the development server, it will need to be restarted.</span>
+$ ./develop_server.sh restart
 </pre></div>
 
 
