@@ -46,9 +46,12 @@ to restrictions in our primary language and limitations in the SQL
 support in the database, we need to maintain a few tables of
 schema-related metadata to be enforced by non-SQL procedures after the
 main migrations are complete. This is much easier and less error-prone
-if db changes can be wrapped in convenience functions. Some data
-changes would also require non-SQL to execute, assuming migrations are
-the appropriate place for them.
+if db changes like table creation can be wrapped in convenience
+functions. These convenience functions also make it easier to handle
+existing schema that needs to be left in place when a migration is
+applied, like tables created before migrations were in use. Some data
+changes would also require non-SQL code to execute, assuming
+migrations are the appropriate place for them.
 
 Our database design is also in pretty rough shape these days, and is
 going to need lots of incremental changes made to it. That makes
