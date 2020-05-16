@@ -701,8 +701,8 @@ about the switch and the current&amp;nbsp;setup.&lt;/p&gt;
 &lt;h2&gt;Updates&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;em&gt;2020-05-16&lt;/em&gt;: Fix broken links, update new-machine setup to use
-  fixed theme, and add fake source-commit step because I keep
-  forgetting&amp;nbsp;that.&lt;/li&gt;
+  fixed theme, and add some extra details about deploying and
+  committing that aren&amp;#8217;t&amp;nbsp;obvious.&lt;/li&gt;
 &lt;li&gt;&lt;em&gt;2015-09-01&lt;/em&gt;: Deploy script was updated to remove the output files
   before regenerating the&amp;nbsp;site.&lt;/li&gt;
 &lt;/ul&gt;
@@ -850,8 +850,9 @@ $ &lt;span class="nb"&gt;source&lt;/span&gt; Scripts/activate
 $ pip install -r requirements.txt
 $ pelican-themes -i ../pelican-octopress
 $ &amp;lt;write write write&amp;gt;
-$ &amp;lt;commit source&amp;gt;
+$ &amp;lt;optionally commit source&amp;gt;
 $ ./deploy.sh
+$ &amp;lt;commit source&amp;gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; deployed site update&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
