@@ -36,6 +36,13 @@ similar
 for deploying client applications, but I wanted to document my work
 here, as it includes some details and caveats that his method doesn't.
 
+The goal of this project is to provide a small, standard,
+self-contained package that can be deployed to include everything you
+need to run an application. The package isn't a customized package
+that needs to be rebuilt for each application, but can be used
+generically. Runtimes of the appropriate version could even be shared
+between applications, reducing disk usage and deployment time.
+
 ## Parts and Pieces
 
 In addition to the files required for the client to run, and
