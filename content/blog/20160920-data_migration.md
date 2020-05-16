@@ -152,7 +152,10 @@ in cases where they do, and developer systems will frequently benefit
 from those fixes. Because the issue may not be present in any given
 database, and because these are mistaken records, the migration should
 be prepared to work in a clean environment, and a revert should be a
-no-op.
+no-op. It is very important to emphasize that this does _not_ apply to
+malformed records _that are used by the application_. In that case the
+value may be fixed in a migration, but it must be reverted to the
+original form to prevent the application from erroring.
 
 The handling of data in database migrations isn't discussed much. The
 documentation for systems like Rails or Django usually point out that
