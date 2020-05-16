@@ -700,8 +700,11 @@ I&amp;#8217;ve just finished converting the whole thing to
 about the switch and the current&amp;nbsp;setup.&lt;/p&gt;
 &lt;h2&gt;Updates&lt;/h2&gt;
 &lt;ul&gt;
+&lt;li&gt;&lt;em&gt;2020-05-16&lt;/em&gt;: Fix broken links, update new-machine setup to use
+  fixed theme, and add fake source-commit step because I keep
+  forgetting&amp;nbsp;that.&lt;/li&gt;
 &lt;li&gt;&lt;em&gt;2015-09-01&lt;/em&gt;: Deploy script was updated to remove the output files
-before regenerating the&amp;nbsp;site.&lt;/li&gt;
+  before regenerating the&amp;nbsp;site.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2&gt;Why&amp;nbsp;Switch?&lt;/h2&gt;
 &lt;p&gt;First though, a comment about my reasons for switching: Octopress is a
@@ -724,7 +727,7 @@ make mistakes. I use git every day, and I still managed to commit the
 generated site but not my article source. On top of that, you get
 octopress by forking the author&amp;#8217;s repo, which makes it tricky to
 update octopress&amp;nbsp;itself.&lt;/p&gt;
-&lt;p&gt;Octopress&amp;#8217; author has &lt;a href="octopress-3.0"&gt;noted&lt;/a&gt; the issues with the
+&lt;p&gt;Octopress&amp;#8217; author has &lt;a href="http://octopress.org/2015/01/15/octopress-3.0-is-coming/"&gt;noted&lt;/a&gt; the issues with the
 deployment process, and has plans to fix them in a future version, but
 that still leaves me with the Ruby issues. &amp;#8220;Figure out Octopress&amp;#8221; has
 been on my To-Do list for so long that I&amp;#8217;m not actually writing (last
@@ -766,7 +769,7 @@ $ git commit -m &lt;span class="s1"&gt;&amp;#39;Add Pelican files.&amp;#39;&lt;/
 
 
 &lt;p&gt;I like Octopress&amp;#8217; default theme, so I&amp;#8217;m using the
-&lt;a href="pelican-octopress"&gt;pelican-octopress&lt;/a&gt; theme. There is a small
+&lt;a href="https://github.com/duilio/pelican-octopress-theme"&gt;pelican-octopress&lt;/a&gt; theme. There is a small
 issue with the github scripts it uses for the sidebar, but I&amp;#8217;m hoping
 to submit a patch for that shortly. This is also the one and only part
 of the site that I haven&amp;#8217;t figured out how to store in the main repo
@@ -838,13 +841,16 @@ won&amp;#8217;t even have it checked out&amp;nbsp;locally.&lt;/p&gt;
 &lt;p&gt;With all that in place, setup on a new machine is pretty
 straightforward, assuming Python is already&amp;nbsp;installed:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/mtstickney/mtstickney.github.com site
-$ git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+$ &lt;span class="c1"&gt;# There is a bug with script loading in the upstream theme, so pull a fixed version.&lt;/span&gt;
+$ &lt;span class="c1"&gt;# git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress&lt;/span&gt;
+$ git clone -b script_fixes https://github.com/mtstickney/pelican-octopress-theme.git pelican-octopress
 $ &lt;span class="nb"&gt;cd&lt;/span&gt; site
 $ virtualenv .
 $ &lt;span class="nb"&gt;source&lt;/span&gt; Scripts/activate
 $ pip install -r requirements.txt
 $ pelican-themes -i ../pelican-octopress
 $ &amp;lt;write write write&amp;gt;
+$ &amp;lt;commit source&amp;gt;
 $ ./deploy.sh
 &lt;/pre&gt;&lt;/div&gt;
 
