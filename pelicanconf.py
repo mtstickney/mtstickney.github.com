@@ -18,7 +18,7 @@ DEFAULT_LANG = u'en'
 # Use typographical enhancements
 TYPOGRIFY='true'
 
-THEME='pelican-octopress-theme'
+THEME='pelican-octopress'
 # pelican-octopress configuration
 GITHUB_USER='mtstickney'
 GITHUB_REPO_COUNT='50'
