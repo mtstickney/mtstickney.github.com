@@ -75,18 +75,18 @@ requirement because of the way our primary language depends on schema
 details. We have a few requirements of migrations:
 
 1. After running migrations on a fresh database, the application
-should be able to run correctly. Any other data that needs to be
-supplied for normal operation has to be enterable by a normal user.
+should be able to run without error. Any other data that needs to be
+supplied for normal operation has to be entered by a normal user.
 2. The same is true for new features: after running migrations for
 that feature, it must be usable with only user-entered additional
 data.
-3. Migrations must not overwrite existing user-entered data in the
-database unless it's part of a planned format change.
+3. Migrations must not overwrite existing user-entered data in
+the database unless it's part of a planned format change.
 
 ## DB Changes
 
 Based on the existing change scripts and data-population procedures we
-have there are a few broad categories of database changes, each of
+have, there are a few broad categories of database changes, each of
 which has different needs to fulfill the goals above.
 
 ### Static Data
@@ -102,9 +102,9 @@ user-enterable, so it needs to be populated in a migration.
 ## Initial System Data
 
 Some records in the database are necessary for the program to run, but
-are meant to be altered by the user: a system settings record is a
-good example. Since these records are required for normal operation,
-they have to be created in a migration, but since we can't overwrite
+are meant to be altered by the user: for example, a system settings
+record. Since these records are required for normal operation, they
+have to be created in a migration, but since we can't overwrite
 modified data, we can't delete them on revert. For the same reason, we
 have to check whether the record already exists when applying a
 migration that creates them.
@@ -140,8 +140,8 @@ clean up problems that may or may not exist. We've occasionally had
 early testing code that has created records with typoed names or
 duplicate records that cause inconsistent behavior. Obviously these
 issues shouldn't make it into production, but it's useful to fix them
-if in cases where they do, and developer systems will frequently
-benefit from them. Because the issue may not be present in any given
+in cases where they do, and developer systems will frequently benefit
+from those fixes. Because the issue may not be present in any given
 database, and because these are mistaken records, the migration should
 be prepared to work in a clean environment, and a revert should be a
 no-op.
