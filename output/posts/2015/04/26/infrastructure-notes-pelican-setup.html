@@ -69,8 +69,11 @@ I&#8217;ve just finished converting the whole thing to
 about the switch and the current&nbsp;setup.</p>
 <h2>Updates</h2>
 <ul>
+<li><em>2020-05-16</em>: Fix broken links, update new-machine setup to use
+  fixed theme, and add fake source-commit step because I keep
+  forgetting&nbsp;that.</li>
 <li><em>2015-09-01</em>: Deploy script was updated to remove the output files
-before regenerating the&nbsp;site.</li>
+  before regenerating the&nbsp;site.</li>
 </ul>
 <h2>Why&nbsp;Switch?</h2>
 <p>First though, a comment about my reasons for switching: Octopress is a
@@ -93,7 +96,7 @@ make mistakes. I use git every day, and I still managed to commit the
 generated site but not my article source. On top of that, you get
 octopress by forking the author&#8217;s repo, which makes it tricky to
 update octopress&nbsp;itself.</p>
-<p>Octopress&#8217; author has <a href="octopress-3.0">noted</a> the issues with the
+<p>Octopress&#8217; author has <a href="http://octopress.org/2015/01/15/octopress-3.0-is-coming/">noted</a> the issues with the
 deployment process, and has plans to fix them in a future version, but
 that still leaves me with the Ruby issues. &#8220;Figure out Octopress&#8221; has
 been on my To-Do list for so long that I&#8217;m not actually writing (last
@@ -135,7 +138,7 @@ $ git commit -m <span class="s1">&#39;Add Pelican files.&#39;</span>
 
 
 <p>I like Octopress&#8217; default theme, so I&#8217;m using the
-<a href="pelican-octopress">pelican-octopress</a> theme. There is a small
+<a href="https://github.com/duilio/pelican-octopress-theme">pelican-octopress</a> theme. There is a small
 issue with the github scripts it uses for the sidebar, but I&#8217;m hoping
 to submit a patch for that shortly. This is also the one and only part
 of the site that I haven&#8217;t figured out how to store in the main repo
@@ -207,13 +210,16 @@ won&#8217;t even have it checked out&nbsp;locally.</p>
 <p>With all that in place, setup on a new machine is pretty
 straightforward, assuming Python is already&nbsp;installed:</p>
 <div class="highlight"><pre><span></span>$ git clone https://github.com/mtstickney/mtstickney.github.com site
-$ git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress
+$ <span class="c1"># There is a bug with script loading in the upstream theme, so pull a fixed version.</span>
+$ <span class="c1"># git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress</span>
+$ git clone -b script_fixes https://github.com/mtstickney/pelican-octopress-theme.git pelican-octopress
 $ <span class="nb">cd</span> site
 $ virtualenv .
 $ <span class="nb">source</span> Scripts/activate
 $ pip install -r requirements.txt
 $ pelican-themes -i ../pelican-octopress
 $ &lt;write write write&gt;
+$ &lt;commit source&gt;
 $ ./deploy.sh
 </pre></div>
 
@@ -278,7 +284,7 @@ $ ./deploy.sh
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
+    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 

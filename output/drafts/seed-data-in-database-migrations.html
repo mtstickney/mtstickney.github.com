@@ -70,7 +70,7 @@ migrations, and most of the advice you can find is related to one of
 those two systems. However, our project differs from their models of
 migrations in important ways, so it&#8217;s important to set some context&nbsp;here.</p>
 <p>The classic way of managing our database changes has been individual
-change scripts run by support technicians when updating a customer to
+change scripts<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup> run by support technicians when updating a customer to
 a new version. The scripts can only alter the schema, not data, have
 no specified order, and have to be applied individually through a gui
 dialog in our vendor&#8217;s db management tool. To save technician time and
@@ -85,18 +85,21 @@ don&#8217;t have to worry about issues with the model code not matching the
 generated migration. We&#8217;ll be writing and executing <span class="caps">SQL</span> statements&nbsp;directly.</p>
 <p>Our database changes will sometimes require non-<span class="caps">SQL</span> code to run. Due
 to restrictions in our primary language and limitations in the <span class="caps">SQL</span>
-support in the database, we need to maintain a few table of
+support in the database, we need to maintain a few tables of
 schema-related metadata to be enforced by non-<span class="caps">SQL</span> procedures after the
 main migrations are complete. This is much easier and less error-prone
-if db changes can be wrapped in convenience functions. Some data
-changes would also require non-<span class="caps">SQL</span> to execute, assuming migrations are
-the appropriate place for&nbsp;them.</p>
+if db changes like table creation can be wrapped in convenience
+functions. These convenience functions also make it easier to handle
+existing schema that needs to be left in place when a migration is
+applied, like tables created before migrations were in use. Some data
+changes would also require non-<span class="caps">SQL</span> code to execute, assuming
+migrations are the appropriate place for&nbsp;them.</p>
 <p>Our database design is also in pretty rough shape these days, and is
 going to need lots of incremental changes made to it. That makes
 incremental-only migrations an appropriate fit &#8212; they&#8217;re also
 considerably simpler to implement than a system that compares
 snapshots and can accept hints to correct mistakes in the naive
-generated migrations<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
+generated migrations<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>.</p>
 <h2>Technical&nbsp;Goals</h2>
 <p>We want to use migrations both to create new production databases
 during a fresh install, and to update an existing database to the
@@ -107,16 +110,16 @@ requirement because of the way our primary language depends on schema
 details. We have a few requirements of&nbsp;migrations:</p>
 <ol>
 <li>After running migrations on a fresh database, the application
-should be able to run correctly. Any other data that needs to be
-supplied for normal operation has to be enterable by a normal&nbsp;user.</li>
+should be able to run without error. Any other data that needs to be
+supplied for normal operation has to be entered by a normal&nbsp;user.</li>
 <li>The same is true for new features: after running migrations for
 that feature, it must be usable with only user-entered additional&nbsp;data.</li>
-<li>Migrations must not overwrite existing user-entered data in the
-database unless it&#8217;s part of a planned format&nbsp;change.</li>
+<li>Migrations must not overwrite existing user-entered data in
+the database unless it&#8217;s part of a planned format&nbsp;change.</li>
 </ol>
 <h2><span class="caps">DB</span>&nbsp;Changes</h2>
 <p>Based on the existing change scripts and data-population procedures we
-have there are a few broad categories of database changes, each of
+have, there are a few broad categories of database changes, each of
 which has different needs to fulfill the goals&nbsp;above.</p>
 <h3>Static&nbsp;Data</h3>
 <p>Static data, if it&#8217;s truly static, should probably be kept in code or
@@ -128,9 +131,9 @@ code. Static data is required for correct operation, and isn&#8217;t
 user-enterable, so it needs to be populated in a&nbsp;migration.</p>
 <h2>Initial System&nbsp;Data</h2>
 <p>Some records in the database are necessary for the program to run, but
-are meant to be altered by the user: a system settings record is a
-good example. Since these records are required for normal operation,
-they have to be created in a migration, but since we can&#8217;t overwrite
+are meant to be altered by the user: for example, a system settings
+record. Since these records are required for normal operation, they
+have to be created in a migration, but since we can&#8217;t overwrite
 modified data, we can&#8217;t delete them on revert. For the same reason, we
 have to check whether the record already exists when applying a
 migration that creates&nbsp;them.</p>
@@ -144,7 +147,14 @@ training purposes and for the customer&#8217;s convenience. This sample data
 is usually altered by the user, but it&#8217;s not required for the
 application to run correctly, and the user could create it themselves
 if needed. It&#8217;s not really appropriate for a migration, and should be
-populated with a separate&nbsp;script.</p>
+populated with a separate script. Since the sample data won&#8217;t be
+altered when migrations are applied (at least not in a freshly-built
+database), it&#8217;s important for the sample data&#8217;s population script to
+be kept up-to-date with the current application&nbsp;format[^3].</p>
+<p>[^3] This is actually a considerable drawback of this policy:
+maintaining a change script with a lot of data is cumbersome, because
+you have to effectively simulate database changes on the static data
+in the&nbsp;script.</p>
 <h2>Format&nbsp;Changes</h2>
 <p>This category consists of changes that affect the &#8220;physical&#8221; storage
 of a single logical entity in the database. For example, converting a
@@ -159,10 +169,14 @@ clean up problems that may or may not exist. We&#8217;ve occasionally had
 early testing code that has created records with typoed names or
 duplicate records that cause inconsistent behavior. Obviously these
 issues shouldn&#8217;t make it into production, but it&#8217;s useful to fix them
-if in cases where they do, and developer systems will frequently
-benefit from them. Because the issue may not be present in any given
+in cases where they do, and developer systems will frequently benefit
+from those fixes. Because the issue may not be present in any given
 database, and because these are mistaken records, the migration should
-be prepared to work in a clean environment, and a revert should be a&nbsp;no-op.</p>
+be prepared to work in a clean environment, and a revert should be a
+no-op. It is very important to emphasize that this does <em>not</em> apply to
+malformed records <em>that are used by the application</em>. In that case the
+value may be fixed in a migration, but it must be reverted to the
+original form to prevent the application from&nbsp;erroring.</p>
 <p>The handling of data in database migrations isn&#8217;t discussed much. The
 documentation for systems like Rails or Django usually point out that
 it&#8217;s possible and provide a trivial example, and developer discussion
@@ -172,12 +186,18 @@ explaining <em>why</em>.</p>
 <hr />
 <ol>
 <li id="fn:1">
+<p>These scripts are a proprietary format for describing schema
+changes, not standard <span class="caps">SQL</span> change scripts. In addition to limitations
+in the format&#8217;s capabilities, it is undocumented and can only be
+created by creating two databases and &#8220;diffing&#8221; them.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
 <p>The other major disadvantage of snapshot-comparison migrations
 is that without an application model, the snapshots have to be taken
 from the database, which means you need two copies of it. Our current
 tool works this way, and it&#8217;s a royal pain to keep everything
 straight. On top of that, we&#8217;re still working on our ability to
-recreate databases from scratch, which makes the process very ad-hoc.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+recreate databases from scratch, which makes the process very ad-hoc.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div></div>
@@ -230,7 +250,7 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
+    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 

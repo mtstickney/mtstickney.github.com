@@ -71,10 +71,10 @@ aspects of it&nbsp;here.</p>
 <p>As has been mentioned here before, the language we use at work is
 interpreted, and runs code in the form of source or bytecode
 files. The traditional challenge for that sort of language is
-deployment: at some point or other, a developer is going to want to
-deploy an application either as a single binary, or at least without
-requiring the use to install the interpreter separately. Python, for
-example, has this issue, and there are a number of
+deployment: at some point or other, you&#8217;ll want to deploy an
+application either as a single binary, or at least without requiring
+the user to install the interpreter separately. Python, for example,
+has this issue, and there are a number of
 <a href="https://wiki.python.org/moin/DistributionUtilities">solutions</a> to
 deal with packaging up all the various pieces into one&nbsp;unit.</p>
 <p>Our vendor, on the other hand, has no such utilities, and unlike
@@ -85,10 +85,41 @@ similar
 <a href="http://blog.riverside-software.fr/2010/01/openedge-client-deployment-using.html">process</a>
 for deploying client applications, but I wanted to document my work
 here, as it includes some details and caveats that his method&nbsp;doesn&#8217;t.</p>
-<h2>Vendor&nbsp;Tentacles</h2>
+<p>The goal of this project is to provide a small, standard,
+self-contained package that can be deployed to include everything you
+need to run an application. The package isn&#8217;t a customized package
+that needs to be rebuilt for each application, but can be used
+generically. Runtimes of the appropriate version could even be shared
+between applications, reducing disk usage and deployment&nbsp;time.</p>
+<h2>Parts and&nbsp;Pieces</h2>
+<p>In addition to the files required for the client to run, and
+supplementary information for them (e.g. registry entries for ActiveX
+components that must be registered), there are a number of
+configuration and environment issues that must be handled. The
+Progress client requires supplementary files and environment variables
+for a default startup parameters file (<code>startup.pf</code>, set in
+<code>PROSTARTUP</code>), a character-encoding conversion map (<code>convmap.cp</code>, set
+in <code>PROCONV</code>), a license file (<code>progress.cfg</code>, set in <code>PROCFG</code>), a
+file with printable error messages (<code>promsgs</code>, set in <code>PROMSGS</code>), and
+a top-level environment variable for the installation (<code>DLC</code>). There
+are also a variety of platform setting that are set by default in the
+registry, but that can be overridden with a local configuration file
+(typically <code>progress.ini</code>).</p>
+<p>Most of these files will never need to be altered by programs, but for
+those that do, it should still be possible. Progress uses hardcoded
+fallback paths for them, so we need to set the environment
+variables to avoid using erroneous paths. The solution to both problems is to use
+a small wrapper program that examines the environment and sets unset
+variables to appropriate wrapper-relative paths. Copies of the default
+installed files are included with the package, but applications can
+use their own local copies by setting the environment variables&nbsp;appropriately.</p>
+<p>Progress also stores defaults for platform settings in the registry
+under various keys. There is a provision for using configuration files
+instead; rather than implement an automatic solution, programs should
+expect to use a config file with the encapsulated runtime&nbsp;package.</p>
 <ul>
-<li>environment&nbsp;variables</li>
-<li>global registry&nbsp;settings</li>
+<li>environment variables/supplementary&nbsp;files</li>
+<li>global registry settings&nbsp;(progress.ini)</li>
 </ul></div>
     <footer>
 <p class="meta">
@@ -139,7 +170,7 @@ here, as it includes some details and caveats that his method&nbsp;doesn&#8217;t
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>  </section>
+    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 
