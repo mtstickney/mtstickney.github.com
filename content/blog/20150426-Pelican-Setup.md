@@ -22,8 +22,8 @@ about the switch and the current setup.
 ## Updates
 
 - _2020-05-16_: Fix broken links, update new-machine setup to use
-  fixed theme, and add fake source-commit step because I keep
-  forgetting that.
+  fixed theme, and add some extra details about deploying and
+  committing that aren't obvious.
 - _2015-09-01_: Deploy script was updated to remove the output files
   before regenerating the site.
 
@@ -165,5 +165,6 @@ straightforward, assuming Python is already installed:
     $ pip install -r requirements.txt
     $ pelican-themes -i ../pelican-octopress
     $ <write write write>
-    $ <commit source>
+    $ <optionally commit source>
     $ ./deploy.sh
+    $ <commit source> (for deployed site update)
