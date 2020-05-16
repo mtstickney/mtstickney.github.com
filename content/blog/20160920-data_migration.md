@@ -1,6 +1,6 @@
 Title: Seed Data in Database Migrations
 Date: 2016-09-20
-Category: Blog
+Category: blog
 Status: draft
 Tags: database, essay
 

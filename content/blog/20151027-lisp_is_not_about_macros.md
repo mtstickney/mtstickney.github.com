@@ -1,6 +1,6 @@
 Title: Lisp is Not About Macros (or No Really, Why Lisp? part I)
 Date: 2015-10-27
-Category: Blog
+Category: blog
 Status: draft
 Tags: lisp, macros
 

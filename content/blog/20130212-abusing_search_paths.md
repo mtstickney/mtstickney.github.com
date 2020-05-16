@@ -1,6 +1,6 @@
 Title: Abusing Search Paths for Fun and Profit
 Date: 2013-02-12
-Category: Blog
+Category: blog
 Tags: worklog, abl
 
 What do you do when you have to use an undocumented function? Reverse

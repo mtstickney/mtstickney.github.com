@@ -1,6 +1,6 @@
 Title: Look Ma, No IVs!
 Date: 2015-09-01
-Category: Blog
+Category: blog
 Tags: cryptography, encryption, AES, programming
 
 Encryption algorithms in some modes require three parameters for

@@ -1,6 +1,6 @@
 Title: Polymorphic Functions in ABL
 Date: 2015-10-27
-Category: Blog
+Category: blog
 Tags: abl, OO, experiments
 
 If you've ever looked at books on refactoring code, there's one common
