@@ -165,6 +165,8 @@ straightforward, assuming Python is already installed:
     $ pip install -r requirements.txt
     $ pelican-themes -i ../pelican-octopress
     $ <write write write>
-    $ <optionally commit source>
+    $ <commit source>
     $ ./deploy.sh
-    $ <commit source> (for deployed site update)
+    $ <optionally push (to include the deployed site update)>
+    $ # If you're using the development server, it will need to be restarted.
+    $ ./develop_server.sh restart
