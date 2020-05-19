@@ -132,7 +132,9 @@ be kept up-to-date with the current application format[^3].
 [^3] This is actually a considerable drawback of this policy:
 maintaining a change script with a lot of data is cumbersome, because
 you have to effectively simulate database changes on the static data
-in the script.
+in the script. It would be much better to do this through the
+application, since that will already have up-to-date code to implement
+the user actions we are trying to simulate.
 
 ## Format Changes
 
