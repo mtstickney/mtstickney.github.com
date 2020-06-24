@@ -13,8 +13,12 @@ from pelicanconf import *
 SITEURL = 'http://mtstickney.github.io'
 RELATIVE_URLS = False
 
+FEED_ATOM = 'feeds/atom.xml'
+FEED_RSS = 'feeds/rss.xml'
 FEED_ALL_ATOM = 'feeds/all.atom.xml'
+FEED_ALL_RSS = 'feeds/all.rss.xml'
 CATEGORY_FEED_ATOM = 'feeds/%s.atom.xml'
+CATEGORY_FEED_RSS = 'feeds/%s.rss.xml'
 
 DELETE_OUTPUT_DIRECTORY = True
 
