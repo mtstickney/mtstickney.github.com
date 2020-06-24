@@ -127,7 +127,7 @@ so you know what you&amp;#8217;re&amp;nbsp;getting.&lt;/p&gt;
 &lt;p&gt;For a default server block, you should expect to get requests for
 hosts other than &lt;code&gt;server_name&lt;/code&gt; as a matter of course. If you really
 need to process the request hostname, &lt;code&gt;$host&lt;/code&gt; is probably your best&amp;nbsp;bet.&lt;/p&gt;</summary><category term="http"></category><category term="web"></category><category term="servers"></category><category term="nginx"></category></entry><entry><title>Linux Local Traffic Delivery</title><link href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html" rel="alternate"></link><published>2020-06-24T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/linux-local-traffic-delivery.html</id><summary type="html">&lt;p&gt;I&amp;#8217;ve recently been setting up a homebrew router, with a small fanless
-linux box and Jim Salter&amp;#8217;s &lt;a href="https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/)"&gt;homebrew router guide&lt;/a&gt; as
+linux box and Jim Salter&amp;#8217;s &lt;a href="https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/"&gt;homebrew router guide&lt;/a&gt; as
 a starting point. In the section where he sets up iptables rules, he
 restricts traffic delivered over the loopback interfacee to traffic
 from the &lt;code&gt;127.0.0.1/8&lt;/code&gt; network; I hadn&amp;#8217;t seen that before, and it
