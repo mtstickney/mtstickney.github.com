@@ -154,7 +154,9 @@ be kept up-to-date with the current application&nbsp;format[^3].</p>
 <p>[^3] This is actually a considerable drawback of this policy:
 maintaining a change script with a lot of data is cumbersome, because
 you have to effectively simulate database changes on the static data
-in the&nbsp;script.</p>
+in the script. It would be much better to do this through the
+application, since that will already have up-to-date code to implement
+the user actions we are trying to&nbsp;simulate.</p>
 <h2>Format&nbsp;Changes</h2>
 <p>This category consists of changes that affect the &#8220;physical&#8221; storage
 of a single logical entity in the database. For example, converting a
@@ -223,6 +225,9 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
+          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
+      </li>
+      <li class="post">
           <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
       </li>
       <li class="post">
@@ -233,9 +238,6 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
       </li>
       <li class="post">
           <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html">Look Ma, No IVs!</a>
       </li>
     </ul>
   </section>
@@ -250,7 +252,7 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+    <a href="http://mtstickney.github.io/tag/http.html">http</a>,    <a href="http://mtstickney.github.io/tag/web.html">web</a>,    <a href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a href="http://mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 
@@ -285,7 +287,7 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2013&ndash;2017  Matthew Stickney &mdash;
+    Copyright &copy;  2013&ndash;2020  Matthew Stickney &mdash;
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 </body>

@@ -1,5 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2017-05-08T00:00:00-04:00</updated><entry><title>Pipes and Permissions</title><link href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2020-06-24T00:00:00-04:00</updated><entry><title>HTTP Request Hostnames</title><link href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html" rel="alternate"></link><published>2020-06-24T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/http-request-hostnames.html</id><summary type="html">&lt;p&gt;How many hostnames can a single &lt;span class="caps"&gt;HTTP&lt;/span&gt; request be associated with? Two,
+or three if you&amp;#8217;re using &lt;span class="caps"&gt;SSL&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The usual place to specify a virtualhost name is the &lt;code&gt;Host&lt;/code&gt; header;
+this is mandatory in &lt;span class="caps"&gt;HTTP&lt;/span&gt; 1.1 requests, so it&amp;#8217;s almost always set
+these&amp;nbsp;days.&lt;/p&gt;
+&lt;p&gt;The second place a virtualhost name might be specified in the &lt;span class="caps"&gt;URL&lt;/span&gt;
+argument to the &lt;span class="caps"&gt;HTTP&lt;/span&gt; verb: &lt;code&gt;GET http://foobar.com/blog/&lt;/code&gt; is a valid
+form for a &lt;code&gt;GET&lt;/code&gt; request (true for other verbs,&amp;nbsp;too).&lt;/p&gt;
+&lt;p&gt;If you&amp;#8217;re serving an &lt;span class="caps"&gt;HTTPS&lt;/span&gt; connection, the &lt;span class="caps"&gt;SSL&lt;/span&gt; protocol can also
+specify a virtualhost name in the Server Name Indicator part of the
+connection handshake (this is necessary in order to allow the server
+to serve the appropriate certificate for the virtualhost). This
+happens prior to, and separately from, any &lt;span class="caps"&gt;HTTP&lt;/span&gt; request made over that&amp;nbsp;connection.&lt;/p&gt;
+&lt;p&gt;Any or all of these hostnames can be used in a single request, and
+there is no requirement (other than common sense) that they match. For
+plain &lt;span class="caps"&gt;HTTP&lt;/span&gt;, nginx will select server blocks using the hostname from
+the verb &lt;span class="caps"&gt;URL&lt;/span&gt; if present, then from the &lt;code&gt;Host&lt;/code&gt; header, then by the
+usual &lt;a href="http://nginx.org/en/docs/http/request_processing.html"&gt;matching algorithm&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The situation with &lt;span class="caps"&gt;HTTPS&lt;/span&gt; connections is surprising: the &lt;span class="caps"&gt;SNI&lt;/span&gt; hostname
+is used to select the certificate that nginx uses, but it is &lt;em&gt;not&lt;/em&gt;
+used to select the server block to handle the request; that takes the
+hostname from the request as usual. Alarmingly, this means an
+exotically-formed request can return site contents for virtual host A
+with host B&amp;#8217;s&amp;nbsp;certificate.&lt;/p&gt;
+&lt;h2&gt;Test&amp;nbsp;Setup&lt;/h2&gt;
+&lt;p&gt;To test, I&amp;#8217;ve added the following blocks to&amp;nbsp;nginx:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Test&lt;/span&gt; &lt;span class="nt"&gt;setup&lt;/span&gt; &lt;span class="nt"&gt;for&lt;/span&gt; &lt;span class="nt"&gt;virtualhost&lt;/span&gt; &lt;span class="nt"&gt;priority&lt;/span&gt; &lt;span class="nt"&gt;checking&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Non-SSL&lt;/span&gt; &lt;span class="nt"&gt;servers&lt;/span&gt;
+    &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="n"&gt;default_server&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is the default server.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8888&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is foo.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8888&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is bar.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Self-signed&lt;/span&gt; &lt;span class="nt"&gt;SSL&lt;/span&gt; &lt;span class="nt"&gt;servers&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+    &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8889&lt;/span&gt; &lt;span class="n"&gt;ssl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;palladium&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;ssl_certificate&lt;/span&gt; &lt;span class="n"&gt;palladium&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cert&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;ssl_certificate_key&lt;/span&gt; &lt;span class="n"&gt;palladium&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;ssl_protocols&lt;/span&gt; &lt;span class="n"&gt;TLSv1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is palladium.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8889&lt;/span&gt; &lt;span class="n"&gt;ssl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;foobar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;ssl_certificate&lt;/span&gt; &lt;span class="n"&gt;foobar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cert&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;ssl_certificate_key&lt;/span&gt; &lt;span class="n"&gt;foobar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;ssl_protocols&lt;/span&gt; &lt;span class="n"&gt;TLSv1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is foobar.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can see the priority of hostnames with some carefully-crafted
+requests (response headers have been trimmed for&amp;nbsp;brevity).&lt;/p&gt;
+&lt;p&gt;Baseline request with &lt;code&gt;Host&lt;/code&gt; header for unknown and known&amp;nbsp;virtualhosts:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; GET / HTTP/1.1&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Host: quux&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; &lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; EOF&lt;/span&gt;
+This is the default server.
+
+$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; GET / HTTP/1.1&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Host: foo&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; &lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; EOF&lt;/span&gt;
+This is foo.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;span class="caps"&gt;URL&lt;/span&gt; hostname takes priority over the &lt;code&gt;Host&lt;/code&gt; header:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; GET http://bar/ HTTP/1.1&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Host: foo&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; &lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; EOF&lt;/span&gt;
+This is bar.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;span class="caps"&gt;SNI&lt;/span&gt; hostname selects the cert, but uses the &lt;span class="caps"&gt;HTTP&lt;/span&gt; hostnames to select a
+server block for the actual&amp;nbsp;request:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ openssl s_client -connect localhost:8889 -servername palladium -quiet &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; GET https://foobar/ HTTP/1.1&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Host: palladium&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; &lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; EOF&lt;/span&gt;
+&lt;span class="nv"&gt;depth&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="nv"&gt;CN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; palladium
+&lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
+This is foobar.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Lessons&lt;/h2&gt;
+&lt;p&gt;Since a request can have several different hostnames associated with
+it, you need to be careful about reconstructing request URLs; this
+usually bites when setting up reverse-proxy headers like
+&lt;code&gt;X-Forwarded-Host&lt;/code&gt; or &lt;code&gt;Forwarded&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For a non-default server block (and remember, in nginx there&amp;#8217;s
+&lt;em&gt;always&lt;/em&gt; a default server block, even if it&amp;#8217;s just the first matching
+one), &lt;code&gt;$http_host&lt;/code&gt; and &lt;code&gt;$ssl_server_name&lt;/code&gt; are &lt;em&gt;not&lt;/em&gt; going to give you
+the right hostname in the face of exotic requests. &lt;code&gt;$host&lt;/code&gt; should (it
+resolves to the hostname in priority order), but given that the proxy
+config is probably static, it might be smarter to use &lt;code&gt;$server_name&lt;/code&gt;
+so you know what you&amp;#8217;re&amp;nbsp;getting.&lt;/p&gt;
+&lt;p&gt;For a default server block, you should expect to get requests for
+hosts other than &lt;code&gt;server_name&lt;/code&gt; as a matter of course. If you really
+need to process the request hostname, &lt;code&gt;$host&lt;/code&gt; is probably your best&amp;nbsp;bet.&lt;/p&gt;</summary><category term="http"></category><category term="web"></category><category term="servers"></category><category term="nginx"></category></entry><entry><title>Pipes and Permissions</title><link href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
 challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;If you have two components of a system implemented as separate
 processes, you need a way for them to communicate. Unless speed is
