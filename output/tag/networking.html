@@ -4,10 +4,8 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Abusing Search Paths for Fun and Profit &mdash; FiddlyBits</title>
+  <title>Tag: networking &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
-
-
 
 
 
@@ -43,80 +41,42 @@
 
 
 <ul class="main-navigation">
-      <li class="active">
+      <li >
         <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
       </li>
 </ul></nav>
   <div id="main">
     <div id="content">
 <div>
-  <article class="hentry" role="article">
-<header>
-      <h1 class="entry-title">Abusing Search Paths for Fun and Profit</h1>
-    <p class="meta">
-<time datetime="2013-02-12T00:00:00-05:00" pubdate>Tue 12 February 2013</time>    </p>
-</header>
+	<article role="article">
+    	<header>
+    		<h1 class="entry-title">Tag: networking</h1>
+    	</header>
 
-  <div class="entry-content"><p>What do you do when you have to use an undocumented function? Reverse
-engineer it, naturally. I was recently in the position of having to
-automate some functions of an interactive tool provided by my language
-environment. The language docs said the procedure I needed could be
-extracted from a library distributed with the tool, but neglected to
-mention what it&#8217;s parameters were or what data needed to be&nbsp;passed.</p>
-<p>The extracted procedure was a bytecode-compiled file, so I couldn&#8217;t
-examine the code, but I found a handy <a href="https://gist.github.com/abevoelker/581127">script</a> that
-would extract the parameter information from the bytecode. That wasn&#8217;t
-enough to use the procedure, but it did give me an idea: if I could
-replace the standard procedure with my own version, I could have it
-report the input it was getting when it was&nbsp;called.</p>
-<p>I had traced the tool in Process Monitor earlier, and noticed that it
-always searched for raw-source procedure files before bytecode files,
-and for bytecode files before looking in a procedure library. I
-whipped up a quick version of the procedure I wanted to call with the
-right parameters, which would just report its input when run, and
-plopped it next to the procedure library I&#8217;d extracted the bytecode
-file from. I fired up the tool, pointed it at a file, and sure enough
-it ran my procedure, reported the data, and promptly&nbsp;crashed.</p>
-<p>That gave me enough information to use the real procedure file,
-despite the total lack of documentation. The moral of the story here
-is that language search paths often be used to hook parts of an
-application that would otherwise be hard to reach, whether it&#8217;s
-bytecode files or DLLs (LD_PRELOAD,&nbsp;anyone?).</p></div>
-    <footer>
-<p class="meta">
-  <span class="byline author vcard">
-    Posted by <span class="fn">
-        Matthew Stickney
-    </span>
-  </span>
-<time datetime="2013-02-12T00:00:00-05:00" pubdate>Tue 12 February 2013</time>  <span class="categories">
-    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
-  </span>
-  <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a class="category" href="http://mtstickney.github.io/tag/abl.html">abl</a>  </span>
-</p><div class="sharing">
-</div>    </footer>
-  </article>
-
+    	<div id="blog-archives">
+            <h2>2020</h2>
+                    <article>
+                        <h1><a href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic&nbsp;Delivery</a></h1>
+                        <time datetime="2020-06-24 00:00:00-04:00" pubdate>
+                            <span class="month">Jun</span>
+                            <span class="day">24</span>
+                            <span class="year">2020</span>
+                        </time>
+                        <footer>
+                            <span class="categories">posted in
+                                <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+                            </span>
+                        </footer>
+                    </article>
+	    </div>
+    </article>
 </div>
 <aside class="sidebar">
   <section>
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
-      </li>
-      <li class="post">
           <a href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
-      </li>
-      <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
     </ul>
   </section>
@@ -166,7 +126,7 @@ bytecode files or DLLs (LD_PRELOAD,&nbsp;anyone?).</p></div>
 </aside>    </div>
   </div>
   <footer role="contentinfo"><p>
-    Copyright &copy;  2013&ndash;2020  Matthew Stickney &mdash;
+    Copyright &copy;  2020  Matthew Stickney &mdash;
   <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
 </p></footer>
 </body>

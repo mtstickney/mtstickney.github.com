@@ -4,7 +4,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Abusing Search Paths for Fun and Profit &mdash; FiddlyBits</title>
+  <title>Linux Local Traffic Delivery &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
 
@@ -52,36 +52,64 @@
 <div>
   <article class="hentry" role="article">
 <header>
-      <h1 class="entry-title">Abusing Search Paths for Fun and Profit</h1>
+      <h1 class="entry-title">Linux Local Traffic Delivery</h1>
     <p class="meta">
-<time datetime="2013-02-12T00:00:00-05:00" pubdate>Tue 12 February 2013</time>    </p>
+<time datetime="2020-06-24T00:00:00-04:00" pubdate>Wed 24 June 2020</time>    </p>
 </header>
 
-  <div class="entry-content"><p>What do you do when you have to use an undocumented function? Reverse
-engineer it, naturally. I was recently in the position of having to
-automate some functions of an interactive tool provided by my language
-environment. The language docs said the procedure I needed could be
-extracted from a library distributed with the tool, but neglected to
-mention what it&#8217;s parameters were or what data needed to be&nbsp;passed.</p>
-<p>The extracted procedure was a bytecode-compiled file, so I couldn&#8217;t
-examine the code, but I found a handy <a href="https://gist.github.com/abevoelker/581127">script</a> that
-would extract the parameter information from the bytecode. That wasn&#8217;t
-enough to use the procedure, but it did give me an idea: if I could
-replace the standard procedure with my own version, I could have it
-report the input it was getting when it was&nbsp;called.</p>
-<p>I had traced the tool in Process Monitor earlier, and noticed that it
-always searched for raw-source procedure files before bytecode files,
-and for bytecode files before looking in a procedure library. I
-whipped up a quick version of the procedure I wanted to call with the
-right parameters, which would just report its input when run, and
-plopped it next to the procedure library I&#8217;d extracted the bytecode
-file from. I fired up the tool, pointed it at a file, and sure enough
-it ran my procedure, reported the data, and promptly&nbsp;crashed.</p>
-<p>That gave me enough information to use the real procedure file,
-despite the total lack of documentation. The moral of the story here
-is that language search paths often be used to hook parts of an
-application that would otherwise be hard to reach, whether it&#8217;s
-bytecode files or DLLs (LD_PRELOAD,&nbsp;anyone?).</p></div>
+  <div class="entry-content"><p>I&#8217;ve recently been setting up a homebrew router, with a small fanless
+linux box and Jim Salter&#8217;s <a href="https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/)">homebrew router guide</a> as
+a starting point. In the section where he sets up iptables rules, he
+restricts traffic delivered over the loopback interfacee to traffic
+from the <code>127.0.0.1/8</code> network; I hadn&#8217;t seen that before, and it
+seemed like sensible thing to do (defense in depth and all&nbsp;that).</p>
+<p>When I got to later stages of the router build, I found that I
+couldn&#8217;t hit any ports open on the router&#8217;s inferfaces while <code>ssh</code>-ed
+into the box. They were accessible from other machines, but not from
+the router itself. Clearly the service was running, and the firewall
+was allowing traffic on that port&#8230;. but only to external&nbsp;hosts.</p>
+<p>I had firewall rules like&nbsp;this:</p>
+<div class="highlight"><pre><span></span>iptables -i lo -s 127.0.0.1/8 -j ACCEPT
+iptables -i wan1 -p tcp -m tcp --dport 22 -j ACCEPT
+iptables -j DROP
+</pre></div>
+
+
+<p>and on the box, <code>ssh &lt;wan1 IP&gt;</code> was timing out. Nmap showed the port
+as filtered as well, but other machines were able to <code>ssh &lt;wan1 IP&gt;</code>
+with no&nbsp;trouble.</p>
+<p>Turns out the problem has to do with how linux delivers network
+traffic to the addresses assigned to the current device. <strong>All traffic
+destined for the current machine get delivered over the loopback
+interface, regardless of the destination address</strong>. Traffic going to
+an address assigned to an external ethernet <span class="caps">NIC</span> are still going to be
+received on <code>lo</code>.</p>
+<h2>Tracking it&nbsp;down</h2>
+<p>I discovered that allowing <em>all</em> traffic from <code>lo</code> fixed the problem,
+but why was traffic destined for an address assigned to <code>wan1</code> being
+received on <code>lo</code>?</p>
+<p>It sounded like a routing thing, but <code>ip route</code> didn&#8217;t show any routes
+that would send <code>&lt;wan IP&gt;</code> to <code>lo</code>. Still, <code>ip route get &lt;wan IP&gt;</code>
+showed <code>local &lt;wan IP&gt; dev lo src &lt;wan IP&gt; uid 1000</code>, so it was
+clearly being routed to <code>lo</code>. I noticed there were no routes for the
+<code>lo</code> at all in <code>ip route</code>, and discovered that there are actually
+several routing tables (<code>ip route</code> only lists entries in the <code>default</code>
+table). <code>ip route list table local</code> shows routes for local addresses,
+but the <code>&lt;wan IP&gt;</code> entry specified the <code>wan1</code> interface.</p>
+<p>I eventually came across <a href="https://unix.stackexchange.com/questions/408300/how-does-linux-handle-routing-a-request-to-its-own-ip/408332#408332">this answer</a> on the
+Unix/Linux Stackexchange, which states that part of linux&#8217; routing
+algorithm is to look for the desination address in the <code>local</code> routing
+table, and to use that route entry, but with the interface replaced by
+<code>lo</code>. I haven&#8217;t been able to find documentation elsewhere to
+corroborate this, although it appears to be&nbsp;accurate.</p>
+<h2>Fool me&nbsp;once&#8230;</h2>
+<p>I just got bitten by the same problem again, when working on
+port-forwards: forwarded ports worked fine from other devices on the
+network, but from the router itself they showed as filtered. I had set
+up all of the forwarding rules to allow traffic from the <span class="caps">WAN</span>
+interface, since the address is dynamic&#8230; except that for traffic
+originating on the router, the source interface is <code>lo</code>, not the
+external <span class="caps">NIC</span>.&nbsp;D&#8217;oh.</p></div>
     <footer>
 <p class="meta">
   <span class="byline author vcard">
@@ -89,11 +117,11 @@ bytecode files or DLLs (LD_PRELOAD,&nbsp;anyone?).</p></div>
         Matthew Stickney
     </span>
   </span>
-<time datetime="2013-02-12T00:00:00-05:00" pubdate>Tue 12 February 2013</time>  <span class="categories">
+<time datetime="2020-06-24T00:00:00-04:00" pubdate>Wed 24 June 2020</time>  <span class="categories">
     <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
   </span>
   <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/worklog.html">worklog</a>,    <a class="category" href="http://mtstickney.github.io/tag/abl.html">abl</a>  </span>
+    <a class="category" href="http://mtstickney.github.io/tag/linux.html">linux</a>,    <a class="category" href="http://mtstickney.github.io/tag/networking.html">networking</a>,    <a class="category" href="http://mtstickney.github.io/tag/iptables.html">iptables</a>  </span>
 </p><div class="sharing">
 </div>    </footer>
   </article>

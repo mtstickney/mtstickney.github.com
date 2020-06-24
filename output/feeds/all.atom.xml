@@ -126,7 +126,59 @@ config is probably static, it might be smarter to use &lt;code&gt;$server_name&l
 so you know what you&amp;#8217;re&amp;nbsp;getting.&lt;/p&gt;
 &lt;p&gt;For a default server block, you should expect to get requests for
 hosts other than &lt;code&gt;server_name&lt;/code&gt; as a matter of course. If you really
-need to process the request hostname, &lt;code&gt;$host&lt;/code&gt; is probably your best&amp;nbsp;bet.&lt;/p&gt;</summary><category term="http"></category><category term="web"></category><category term="servers"></category><category term="nginx"></category></entry><entry><title>Pipes and Permissions</title><link href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+need to process the request hostname, &lt;code&gt;$host&lt;/code&gt; is probably your best&amp;nbsp;bet.&lt;/p&gt;</summary><category term="http"></category><category term="web"></category><category term="servers"></category><category term="nginx"></category></entry><entry><title>Linux Local Traffic Delivery</title><link href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html" rel="alternate"></link><published>2020-06-24T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/linux-local-traffic-delivery.html</id><summary type="html">&lt;p&gt;I&amp;#8217;ve recently been setting up a homebrew router, with a small fanless
+linux box and Jim Salter&amp;#8217;s &lt;a href="https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/)"&gt;homebrew router guide&lt;/a&gt; as
+a starting point. In the section where he sets up iptables rules, he
+restricts traffic delivered over the loopback interfacee to traffic
+from the &lt;code&gt;127.0.0.1/8&lt;/code&gt; network; I hadn&amp;#8217;t seen that before, and it
+seemed like sensible thing to do (defense in depth and all&amp;nbsp;that).&lt;/p&gt;
+&lt;p&gt;When I got to later stages of the router build, I found that I
+couldn&amp;#8217;t hit any ports open on the router&amp;#8217;s inferfaces while &lt;code&gt;ssh&lt;/code&gt;-ed
+into the box. They were accessible from other machines, but not from
+the router itself. Clearly the service was running, and the firewall
+was allowing traffic on that port&amp;#8230;. but only to external&amp;nbsp;hosts.&lt;/p&gt;
+&lt;p&gt;I had firewall rules like&amp;nbsp;this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;iptables -i lo -s 127.0.0.1/8 -j ACCEPT
+iptables -i wan1 -p tcp -m tcp --dport 22 -j ACCEPT
+iptables -j DROP
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and on the box, &lt;code&gt;ssh &amp;lt;wan1 IP&amp;gt;&lt;/code&gt; was timing out. Nmap showed the port
+as filtered as well, but other machines were able to &lt;code&gt;ssh &amp;lt;wan1 IP&amp;gt;&lt;/code&gt;
+with no&amp;nbsp;trouble.&lt;/p&gt;
+&lt;p&gt;Turns out the problem has to do with how linux delivers network
+traffic to the addresses assigned to the current device. &lt;strong&gt;All traffic
+destined for the current machine get delivered over the loopback
+interface, regardless of the destination address&lt;/strong&gt;. Traffic going to
+an address assigned to an external ethernet &lt;span class="caps"&gt;NIC&lt;/span&gt; are still going to be
+received on &lt;code&gt;lo&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Tracking it&amp;nbsp;down&lt;/h2&gt;
+&lt;p&gt;I discovered that allowing &lt;em&gt;all&lt;/em&gt; traffic from &lt;code&gt;lo&lt;/code&gt; fixed the problem,
+but why was traffic destined for an address assigned to &lt;code&gt;wan1&lt;/code&gt; being
+received on &lt;code&gt;lo&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;It sounded like a routing thing, but &lt;code&gt;ip route&lt;/code&gt; didn&amp;#8217;t show any routes
+that would send &lt;code&gt;&amp;lt;wan IP&amp;gt;&lt;/code&gt; to &lt;code&gt;lo&lt;/code&gt;. Still, &lt;code&gt;ip route get &amp;lt;wan IP&amp;gt;&lt;/code&gt;
+showed &lt;code&gt;local &amp;lt;wan IP&amp;gt; dev lo src &amp;lt;wan IP&amp;gt; uid 1000&lt;/code&gt;, so it was
+clearly being routed to &lt;code&gt;lo&lt;/code&gt;. I noticed there were no routes for the
+&lt;code&gt;lo&lt;/code&gt; at all in &lt;code&gt;ip route&lt;/code&gt;, and discovered that there are actually
+several routing tables (&lt;code&gt;ip route&lt;/code&gt; only lists entries in the &lt;code&gt;default&lt;/code&gt;
+table). &lt;code&gt;ip route list table local&lt;/code&gt; shows routes for local addresses,
+but the &lt;code&gt;&amp;lt;wan IP&amp;gt;&lt;/code&gt; entry specified the &lt;code&gt;wan1&lt;/code&gt; interface.&lt;/p&gt;
+&lt;p&gt;I eventually came across &lt;a href="https://unix.stackexchange.com/questions/408300/how-does-linux-handle-routing-a-request-to-its-own-ip/408332#408332"&gt;this answer&lt;/a&gt; on the
+Unix/Linux Stackexchange, which states that part of linux&amp;#8217; routing
+algorithm is to look for the desination address in the &lt;code&gt;local&lt;/code&gt; routing
+table, and to use that route entry, but with the interface replaced by
+&lt;code&gt;lo&lt;/code&gt;. I haven&amp;#8217;t been able to find documentation elsewhere to
+corroborate this, although it appears to be&amp;nbsp;accurate.&lt;/p&gt;
+&lt;h2&gt;Fool me&amp;nbsp;once&amp;#8230;&lt;/h2&gt;
+&lt;p&gt;I just got bitten by the same problem again, when working on
+port-forwards: forwarded ports worked fine from other devices on the
+network, but from the router itself they showed as filtered. I had set
+up all of the forwarding rules to allow traffic from the &lt;span class="caps"&gt;WAN&lt;/span&gt;
+interface, since the address is dynamic&amp;#8230; except that for traffic
+originating on the router, the source interface is &lt;code&gt;lo&lt;/code&gt;, not the
+external &lt;span class="caps"&gt;NIC&lt;/span&gt;.&amp;nbsp;D&amp;#8217;oh.&lt;/p&gt;</summary><category term="linux"></category><category term="networking"></category><category term="iptables"></category></entry><entry><title>Pipes and Permissions</title><link href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
 challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;If you have two components of a system implemented as separate
 processes, you need a way for them to communicate. Unless speed is
