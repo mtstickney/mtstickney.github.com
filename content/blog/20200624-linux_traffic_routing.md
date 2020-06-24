@@ -9,7 +9,7 @@ restricts traffic delivered over the loopback interfacee to traffic
 from the `127.0.0.1/8` network; I hadn't seen that before, and it
 seemed like sensible thing to do (defense in depth and all that).
 
-[homebrew-guide]: https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/)
+[homebrew-guide]: https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/
 
 When I got to later stages of the router build, I found that I
 couldn't hit any ports open on the router's inferfaces while `ssh`-ed
