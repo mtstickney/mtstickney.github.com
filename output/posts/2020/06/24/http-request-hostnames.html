@@ -131,7 +131,11 @@ with host B&#8217;s&nbsp;certificate.</p>
 
 
 <p>You can see the priority of hostnames with some carefully-crafted
-requests (response headers have been trimmed for&nbsp;brevity).</p>
+requests (response headers have been trimmed for brevity). Note that
+technically, <span class="caps">HTTP</span> requests must use <code>\r\n</code> for line-endings; I&#8217;ve left
+out the shell chicanery necessary to do that for readability.
+Fortunately, nginx tolerates plain linefeed line endings, so this
+will work with nginx&nbsp;as-is.</p>
 <p>Baseline request with <code>Host</code> header for unknown and known&nbsp;virtualhosts:</p>
 <div class="highlight"><pre><span></span>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
 <span class="s">&gt; GET / HTTP/1.1</span>

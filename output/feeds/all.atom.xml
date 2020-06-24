@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2020-06-24T17:13:00-04:00</updated><entry><title>HTTP Request Hostnames</title><link href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html" rel="alternate"></link><published>2020-06-24T16:03:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/http-request-hostnames.html</id><summary type="html">&lt;p&gt;How many hostnames can a single &lt;span class="caps"&gt;HTTP&lt;/span&gt; request be associated with? Two,
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2020-06-24T17:37:00-04:00</updated><entry><title>HTTP Request Hostnames</title><link href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html" rel="alternate"></link><published>2020-06-24T17:37:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/http-request-hostnames.html</id><summary type="html">&lt;p&gt;How many hostnames can a single &lt;span class="caps"&gt;HTTP&lt;/span&gt; request be associated with? Two,
 or three if you&amp;#8217;re using &lt;span class="caps"&gt;SSL&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;The usual place to specify a virtualhost name is the &lt;code&gt;Host&lt;/code&gt; header;
 this is mandatory in &lt;span class="caps"&gt;HTTP&lt;/span&gt; 1.1 requests, so it&amp;#8217;s almost always set
@@ -67,7 +67,11 @@ with host B&amp;#8217;s&amp;nbsp;certificate.&lt;/p&gt;
 
 
 &lt;p&gt;You can see the priority of hostnames with some carefully-crafted
-requests (response headers have been trimmed for&amp;nbsp;brevity).&lt;/p&gt;
+requests (response headers have been trimmed for brevity). Note that
+technically, &lt;span class="caps"&gt;HTTP&lt;/span&gt; requests must use &lt;code&gt;\r\n&lt;/code&gt; for line-endings; I&amp;#8217;ve left
+out the shell chicanery necessary to do that for readability.
+Fortunately, nginx tolerates plain linefeed line endings, so this
+will work with nginx&amp;nbsp;as-is.&lt;/p&gt;
 &lt;p&gt;Baseline request with &lt;code&gt;Host&lt;/code&gt; header for unknown and known&amp;nbsp;virtualhosts:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; GET / HTTP/1.1&lt;/span&gt;
