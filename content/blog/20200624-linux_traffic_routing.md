@@ -1,6 +1,7 @@
 Title: Linux Local Traffic Delivery
 Tags: linux, networking, iptables
 Date: 2020-06-24
+Modified: 2020-06-24 17:13
 
 I've recently been setting up a homebrew router, with a small fanless
 linux box and Jim Salter's [homebrew router guide][homebrew-guide] as
