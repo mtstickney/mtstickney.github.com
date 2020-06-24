@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>HTTP Request Hostnames &mdash; FiddlyBits</title>
+  <meta name="author" content="Matthew Stickney">
+
+
+
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+
+  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+
+  <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+
+  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+    <h2>A technical blog about fiddly things.</h2>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+<ul class="main-navigation">
+      <li class="active">
+        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+      </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">HTTP Request Hostnames</h1>
+    <p class="meta">
+<time datetime="2020-06-24T00:00:00-04:00" pubdate>Wed 24 June 2020</time>    </p>
+</header>
+
+  <div class="entry-content"><p>How many hostnames can a single <span class="caps">HTTP</span> request be associated with? Two,
+or three if you&#8217;re using <span class="caps">SSL</span>.</p>
+<p>The usual place to specify a virtualhost name is the <code>Host</code> header;
+this is mandatory in <span class="caps">HTTP</span> 1.1 requests, so it&#8217;s almost always set
+these&nbsp;days.</p>
+<p>The second place a virtualhost name might be specified in the <span class="caps">URL</span>
+argument to the <span class="caps">HTTP</span> verb: <code>GET http://foobar.com/blog/</code> is a valid
+form for a <code>GET</code> request (true for other verbs,&nbsp;too).</p>
+<p>If you&#8217;re serving an <span class="caps">HTTPS</span> connection, the <span class="caps">SSL</span> protocol can also
+specify a virtualhost name in the Server Name Indicator part of the
+connection handshake (this is necessary in order to allow the server
+to serve the appropriate certificate for the virtualhost). This
+happens prior to, and separately from, any <span class="caps">HTTP</span> request made over that&nbsp;connection.</p>
+<p>Any or all of these hostnames can be used in a single request, and
+there is no requirement (other than common sense) that they match. For
+plain <span class="caps">HTTP</span>, nginx will select server blocks using the hostname from
+the verb <span class="caps">URL</span> if present, then from the <code>Host</code> header, then by the
+usual <a href="http://nginx.org/en/docs/http/request_processing.html">matching algorithm</a>.</p>
+<p>The situation with <span class="caps">HTTPS</span> connections is surprising: the <span class="caps">SNI</span> hostname
+is used to select the certificate that nginx uses, but it is <em>not</em>
+used to select the server block to handle the request; that takes the
+hostname from the request as usual. Alarmingly, this means an
+exotically-formed request can return site contents for virtual host A
+with host B&#8217;s&nbsp;certificate.</p>
+<h2>Test&nbsp;Setup</h2>
+<p>To test, I&#8217;ve added the following blocks to&nbsp;nginx:</p>
+<div class="highlight"><pre><span></span>    <span class="err">#</span> <span class="nt">Test</span> <span class="nt">setup</span> <span class="nt">for</span> <span class="nt">virtualhost</span> <span class="nt">priority</span> <span class="nt">checking</span><span class="o">.</span>
+    <span class="err">#</span> <span class="nt">Non-SSL</span> <span class="nt">servers</span>
+    <span class="nt">server</span> <span class="p">{</span>
+        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8888</span> <span class="n">default_server</span><span class="p">;</span>
+        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is the default server.\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nt">server</span> <span class="p">{</span>
+        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8888</span><span class="p">;</span>
+        <span class="n">server_name</span> <span class="n">foo</span><span class="p">;</span>
+
+        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is foo.\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nt">server</span> <span class="p">{</span>
+        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8888</span><span class="p">;</span>
+        <span class="n">server_name</span> <span class="n">bar</span><span class="p">;</span>
+        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is bar.\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="err">#</span> <span class="nt">Self-signed</span> <span class="nt">SSL</span> <span class="nt">servers</span><span class="o">.</span>
+    <span class="nt">server</span> <span class="p">{</span>
+        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8889</span> <span class="n">ssl</span><span class="p">;</span>
+        <span class="n">server_name</span> <span class="n">palladium</span><span class="p">;</span>
+        <span class="n">ssl_certificate</span> <span class="n">palladium</span><span class="o">.</span><span class="n">cert</span><span class="p">;</span>
+        <span class="n">ssl_certificate_key</span> <span class="n">palladium</span><span class="o">.</span><span class="n">key</span><span class="p">;</span>
+        <span class="n">ssl_protocols</span> <span class="n">TLSv1</span><span class="o">.</span><span class="m">2</span><span class="p">;</span>
+        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is palladium.\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nt">server</span> <span class="p">{</span>
+        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8889</span> <span class="n">ssl</span><span class="p">;</span>
+        <span class="n">server_name</span> <span class="n">foobar</span><span class="p">;</span>
+        <span class="n">ssl_certificate</span> <span class="n">foobar</span><span class="o">.</span><span class="n">cert</span><span class="p">;</span>
+        <span class="n">ssl_certificate_key</span> <span class="n">foobar</span><span class="o">.</span><span class="n">key</span><span class="p">;</span>
+        <span class="n">ssl_protocols</span> <span class="n">TLSv1</span><span class="o">.</span><span class="m">2</span><span class="p">;</span>
+        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is foobar.\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+</pre></div>
+
+
+<p>You can see the priority of hostnames with some carefully-crafted
+requests (response headers have been trimmed for&nbsp;brevity).</p>
+<p>Baseline request with <code>Host</code> header for unknown and known&nbsp;virtualhosts:</p>
+<div class="highlight"><pre><span></span>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
+<span class="s">&gt; GET / HTTP/1.1</span>
+<span class="s">&gt; Host: quux</span>
+<span class="s">&gt; Connection: close</span>
+<span class="s">&gt; </span>
+<span class="s">&gt; EOF</span>
+This is the default server.
+
+$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
+<span class="s">&gt; GET / HTTP/1.1</span>
+<span class="s">&gt; Host: foo</span>
+<span class="s">&gt; Connection: close</span>
+<span class="s">&gt; </span>
+<span class="s">&gt; EOF</span>
+This is foo.
+</pre></div>
+
+
+<p>The <span class="caps">URL</span> hostname takes priority over the <code>Host</code> header:</p>
+<div class="highlight"><pre><span></span>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
+<span class="s">&gt; GET http://bar/ HTTP/1.1</span>
+<span class="s">&gt; Host: foo</span>
+<span class="s">&gt; Connection: close</span>
+<span class="s">&gt; </span>
+<span class="s">&gt; EOF</span>
+This is bar.
+</pre></div>
+
+
+<p><span class="caps">SNI</span> hostname selects the cert, but uses the <span class="caps">HTTP</span> hostnames to select a
+server block for the actual&nbsp;request:</p>
+<div class="highlight"><pre><span></span>$ openssl s_client -connect localhost:8889 -servername palladium -quiet <span class="s">&lt;&lt;EOF</span>
+<span class="s">&gt; GET https://foobar/ HTTP/1.1</span>
+<span class="s">&gt; Host: palladium</span>
+<span class="s">&gt; Connection: close</span>
+<span class="s">&gt; </span>
+<span class="s">&gt; EOF</span>
+<span class="nv">depth</span><span class="o">=</span><span class="m">0</span> <span class="nv">CN</span> <span class="o">=</span> palladium
+<span class="o">[</span>...<span class="o">]</span>
+This is foobar.
+</pre></div>
+
+
+<h2>Lessons</h2>
+<p>Since a request can have several different hostnames associated with
+it, you need to be careful about reconstructing request URLs; this
+usually bites when setting up reverse-proxy headers like
+<code>X-Forwarded-Host</code> or <code>Forwarded</code>.</p>
+<p>For a non-default server block (and remember, in nginx there&#8217;s
+<em>always</em> a default server block, even if it&#8217;s just the first matching
+one), <code>$http_host</code> and <code>$ssl_server_name</code> are <em>not</em> going to give you
+the right hostname in the face of exotic requests. <code>$host</code> should (it
+resolves to the hostname in priority order), but given that the proxy
+config is probably static, it might be smarter to use <code>$server_name</code>
+so you know what you&#8217;re&nbsp;getting.</p>
+<p>For a default server block, you should expect to get requests for
+hosts other than <code>server_name</code> as a matter of course. If you really
+need to process the request hostname, <code>$host</code> is probably your best&nbsp;bet.</p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">
+        Matthew Stickney
+    </span>
+  </span>
+<time datetime="2020-06-24T00:00:00-04:00" pubdate>Wed 24 June 2020</time>  <span class="categories">
+    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+  </span>
+  <span class="categories">
+    <a class="category" href="http://mtstickney.github.io/tag/http.html">http</a>,    <a class="category" href="http://mtstickney.github.io/tag/web.html">web</a>,    <a class="category" href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a class="category" href="http://mtstickney.github.io/tag/nginx.html">nginx</a>  </span>
+</p><div class="sharing">
+</div>    </footer>
+  </article>
+
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+      </li>
+      <li class="post">
+          <a href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html">Polymorphic Functions in ABL</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+    <a href="http://mtstickney.github.io/tag/http.html">http</a>,    <a href="http://mtstickney.github.io/tag/web.html">web</a>,    <a href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a href="http://mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+
+
+
+  <section>
+    <h1>GitHub Repos</h1>
+    <ul id="gh_repos">
+      <li class="loading">Status updating...</li>
+    </ul>
+      <a href="https://github.com/mtstickney">@mtstickney</a> on GitHub
+    <script type="text/javascript">
+      $.domReady(function(){
+          if (!window.jXHR){
+              var jxhr = document.createElement('script');
+              jxhr.type = 'text/javascript';
+              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(jxhr, s);
+          }
+
+          github.showRepos({
+              user: 'mtstickney',
+              count: 50,
+              skip_forks: true,
+              target: '#gh_repos'
+          });
+      });
+    </script>
+    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+  </section>
+
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2013&ndash;2020  Matthew Stickney &mdash;
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+</body>
+</html>
