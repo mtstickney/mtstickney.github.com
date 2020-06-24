@@ -1,6 +1,6 @@
 Title: HTTP Request Hostnames
 Date: 2020-06-24
-Modified: 2020-06-24 16:03
+Modified: 2020-06-24 17:37
 Category: blog
 Tags: http, web, servers, nginx
 
@@ -83,7 +83,11 @@ To test, I've added the following blocks to nginx:
 ```
 
 You can see the priority of hostnames with some carefully-crafted
-requests (response headers have been trimmed for brevity).
+requests (response headers have been trimmed for brevity). Note that
+technically, HTTP requests must use `\r\n` for line-endings; I've left
+out the shell chicanery necessary to do that for readability.
+Fortunately, nginx tolerates plain linefeed line endings, so this
+will work with nginx as-is.
 
 Baseline request with `Host` header for unknown and known virtualhosts:
 ```
