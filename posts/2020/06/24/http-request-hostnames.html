@@ -7,9 +7,9 @@
   <title>HTTP Request Hostnames &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
-  <link href="http://mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
         title="FiddlyBits Atom Feed" />
-  <link href="http://mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
         title="FiddlyBits RSS Feed" />
 
 
@@ -22,9 +22,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+    <link href="//mtstickney.github.io/favicon.png" rel="icon">
 
-  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+  <link href="//mtstickney.github.io/theme/css/main.css" media="screen, projection"
         rel="stylesheet" type="text/css">
 
   <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
@@ -32,25 +32,25 @@
   <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
         rel="stylesheet" type="text/css">
 
-  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+  <script src="//mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="//mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="//mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
 </head>
 
 <body>
   <header role="banner"><hgroup>
-  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+  <h1><a href="//mtstickney.github.io/">FiddlyBits</a></h1>
     <h2>A technical blog about fiddly things.</h2>
 </hgroup></header>
   <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="http://mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
-  <li><a href="http://mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
+  <li><a href="//mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
+  <li><a href="//mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
 </ul>
 
 
 <ul class="main-navigation">
       <li class="active">
-        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+        <a href="//mtstickney.github.io/category/blog.html">Blog</a>
       </li>
 </ul></nav>
   <div id="main">
@@ -89,46 +89,45 @@ exotically-formed request can return site contents for virtual host A
 with host B&#8217;s&nbsp;certificate.</p>
 <h2>Test&nbsp;Setup</h2>
 <p>To test, I&#8217;ve added the following blocks to&nbsp;nginx:</p>
-<div class="highlight"><pre><span></span>    <span class="err">#</span> <span class="nt">Test</span> <span class="nt">setup</span> <span class="nt">for</span> <span class="nt">virtualhost</span> <span class="nt">priority</span> <span class="nt">checking</span><span class="o">.</span>
+<div class="highlight"><pre><span></span><code>    <span class="err">#</span> <span class="nt">Test</span> <span class="nt">setup</span> <span class="nt">for</span> <span class="nt">virtualhost</span> <span class="nt">priority</span> <span class="nt">checking</span><span class="o">.</span>
     <span class="err">#</span> <span class="nt">Non-SSL</span> <span class="nt">servers</span>
     <span class="nt">server</span> <span class="p">{</span>
-        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8888</span> <span class="n">default_server</span><span class="p">;</span>
-        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is the default server.\n&#39;</span><span class="p">;</span>
+        <span class="err">listen</span> <span class="err">127.0.0.1:8888</span> <span class="err">default_server</span><span class="p">;</span>
+        <span class="err">return</span> <span class="err">200</span> <span class="err">&#39;This</span> <span class="err">is</span> <span class="err">the</span> <span class="err">default</span> <span class="err">server.\n&#39;</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="nt">server</span> <span class="p">{</span>
-        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8888</span><span class="p">;</span>
-        <span class="n">server_name</span> <span class="n">foo</span><span class="p">;</span>
+        <span class="err">listen</span> <span class="err">127.0.0.1:8888</span><span class="p">;</span>
+        <span class="err">server_name</span> <span class="err">foo</span><span class="p">;</span>
 
-        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is foo.\n&#39;</span><span class="p">;</span>
+        <span class="err">return</span> <span class="err">200</span> <span class="err">&#39;This</span> <span class="err">is</span> <span class="err">foo.\n&#39;</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="nt">server</span> <span class="p">{</span>
-        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8888</span><span class="p">;</span>
-        <span class="n">server_name</span> <span class="n">bar</span><span class="p">;</span>
-        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is bar.\n&#39;</span><span class="p">;</span>
+        <span class="err">listen</span> <span class="err">127.0.0.1:8888</span><span class="p">;</span>
+        <span class="err">server_name</span> <span class="err">bar</span><span class="p">;</span>
+        <span class="err">return</span> <span class="err">200</span> <span class="err">&#39;This</span> <span class="err">is</span> <span class="err">bar.\n&#39;</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="err">#</span> <span class="nt">Self-signed</span> <span class="nt">SSL</span> <span class="nt">servers</span><span class="o">.</span>
     <span class="nt">server</span> <span class="p">{</span>
-        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8889</span> <span class="n">ssl</span><span class="p">;</span>
-        <span class="n">server_name</span> <span class="n">palladium</span><span class="p">;</span>
-        <span class="n">ssl_certificate</span> <span class="n">palladium</span><span class="o">.</span><span class="n">cert</span><span class="p">;</span>
-        <span class="n">ssl_certificate_key</span> <span class="n">palladium</span><span class="o">.</span><span class="n">key</span><span class="p">;</span>
-        <span class="n">ssl_protocols</span> <span class="n">TLSv1</span><span class="o">.</span><span class="m">2</span><span class="p">;</span>
-        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is palladium.\n&#39;</span><span class="p">;</span>
+        <span class="err">listen</span> <span class="err">127.0.0.1:8889</span> <span class="err">ssl</span><span class="p">;</span>
+        <span class="err">server_name</span> <span class="err">palladium</span><span class="p">;</span>
+        <span class="err">ssl_certificate</span> <span class="err">palladium.cert</span><span class="p">;</span>
+        <span class="err">ssl_certificate_key</span> <span class="err">palladium.key</span><span class="p">;</span>
+        <span class="err">ssl_protocols</span> <span class="err">TLSv1.2</span><span class="p">;</span>
+        <span class="err">return</span> <span class="err">200</span> <span class="err">&#39;This</span> <span class="err">is</span> <span class="err">palladium.\n&#39;</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="nt">server</span> <span class="p">{</span>
-        <span class="n">listen</span> <span class="m">127</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">0</span><span class="o">.</span><span class="m">1</span><span class="o">:</span><span class="m">8889</span> <span class="n">ssl</span><span class="p">;</span>
-        <span class="n">server_name</span> <span class="n">foobar</span><span class="p">;</span>
-        <span class="n">ssl_certificate</span> <span class="n">foobar</span><span class="o">.</span><span class="n">cert</span><span class="p">;</span>
-        <span class="n">ssl_certificate_key</span> <span class="n">foobar</span><span class="o">.</span><span class="n">key</span><span class="p">;</span>
-        <span class="n">ssl_protocols</span> <span class="n">TLSv1</span><span class="o">.</span><span class="m">2</span><span class="p">;</span>
-        <span class="n">return</span> <span class="m">200</span> <span class="s1">&#39;This is foobar.\n&#39;</span><span class="p">;</span>
+        <span class="err">listen</span> <span class="err">127.0.0.1:8889</span> <span class="err">ssl</span><span class="p">;</span>
+        <span class="err">server_name</span> <span class="err">foobar</span><span class="p">;</span>
+        <span class="err">ssl_certificate</span> <span class="err">foobar.cert</span><span class="p">;</span>
+        <span class="err">ssl_certificate_key</span> <span class="err">foobar.key</span><span class="p">;</span>
+        <span class="err">ssl_protocols</span> <span class="err">TLSv1.2</span><span class="p">;</span>
+        <span class="err">return</span> <span class="err">200</span> <span class="err">&#39;This</span> <span class="err">is</span> <span class="err">foobar.\n&#39;</span><span class="p">;</span>
     <span class="p">}</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>You can see the priority of hostnames with some carefully-crafted
 requests (response headers have been trimmed for brevity). Note that
@@ -137,7 +136,7 @@ out the shell chicanery necessary to do that for readability.
 Fortunately, nginx tolerates plain linefeed line endings, so this
 will work with nginx&nbsp;as-is.</p>
 <p>Baseline request with <code>Host</code> header for unknown and known&nbsp;virtualhosts:</p>
-<div class="highlight"><pre><span></span>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
+<div class="highlight"><pre><span></span><code>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
 <span class="s">&gt; GET / HTTP/1.1</span>
 <span class="s">&gt; Host: quux</span>
 <span class="s">&gt; Connection: close</span>
@@ -152,23 +151,21 @@ $ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
 <span class="s">&gt; </span>
 <span class="s">&gt; EOF</span>
 This is foo.
-</pre></div>
-
+</code></pre></div>
 
 <p>The <span class="caps">URL</span> hostname takes priority over the <code>Host</code> header:</p>
-<div class="highlight"><pre><span></span>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
+<div class="highlight"><pre><span></span><code>$ nc localhost <span class="m">8888</span> <span class="s">&lt;&lt;EOF</span>
 <span class="s">&gt; GET http://bar/ HTTP/1.1</span>
 <span class="s">&gt; Host: foo</span>
 <span class="s">&gt; Connection: close</span>
 <span class="s">&gt; </span>
 <span class="s">&gt; EOF</span>
 This is bar.
-</pre></div>
-
+</code></pre></div>
 
 <p><span class="caps">SNI</span> hostname selects the cert, but uses the <span class="caps">HTTP</span> hostnames to select a
 server block for the actual&nbsp;request:</p>
-<div class="highlight"><pre><span></span>$ openssl s_client -connect localhost:8889 -servername palladium -quiet <span class="s">&lt;&lt;EOF</span>
+<div class="highlight"><pre><span></span><code>$ openssl s_client -connect localhost:8889 -servername palladium -quiet <span class="s">&lt;&lt;EOF</span>
 <span class="s">&gt; GET https://foobar/ HTTP/1.1</span>
 <span class="s">&gt; Host: palladium</span>
 <span class="s">&gt; Connection: close</span>
@@ -177,8 +174,7 @@ server block for the actual&nbsp;request:</p>
 <span class="nv">depth</span><span class="o">=</span><span class="m">0</span> <span class="nv">CN</span> <span class="o">=</span> palladium
 <span class="o">[</span>...<span class="o">]</span>
 This is foobar.
-</pre></div>
-
+</code></pre></div>
 
 <h2>Lessons</h2>
 <p>Since a request can have several different hostnames associated with
@@ -203,10 +199,10 @@ need to process the request hostname, <code>$host</code> is probably your best&n
     </span>
   </span>
 <time datetime="2020-06-24T00:00:00-04:00" pubdate>Wed 24 June 2020</time>  <span class="categories">
-    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+    <a class='category' href='//mtstickney.github.io/category/blog.html'>blog</a>
   </span>
   <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/http.html">http</a>,    <a class="category" href="http://mtstickney.github.io/tag/web.html">web</a>,    <a class="category" href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a class="category" href="http://mtstickney.github.io/tag/nginx.html">nginx</a>  </span>
+    <a class="category" href="//mtstickney.github.io/tag/http.html">http</a>,    <a class="category" href="//mtstickney.github.io/tag/web.html">web</a>,    <a class="category" href="//mtstickney.github.io/tag/servers.html">servers</a>,    <a class="category" href="//mtstickney.github.io/tag/nginx.html">nginx</a>  </span>
 </p><div class="sharing">
 </div>    </footer>
   </article>
@@ -217,19 +213,19 @@ need to process the request hostname, <code>$host</code> is probably your best&n
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
+          <a href="//mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+          <a href="//mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="//mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
     </ul>
   </section>
@@ -237,14 +233,14 @@ need to process the request hostname, <code>$host</code> is probably your best&n
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+        <li><a href="//mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/http.html">http</a>,    <a href="http://mtstickney.github.io/tag/web.html">web</a>,    <a href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a href="http://mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="http://mtstickney.github.io/tag/linux.html">linux</a>,    <a href="http://mtstickney.github.io/tag/networking.html">networking</a>,    <a href="http://mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+    <a href="//mtstickney.github.io/tag/http.html">http</a>,    <a href="//mtstickney.github.io/tag/web.html">web</a>,    <a href="//mtstickney.github.io/tag/servers.html">servers</a>,    <a href="//mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="//mtstickney.github.io/tag/linux.html">linux</a>,    <a href="//mtstickney.github.io/tag/networking.html">networking</a>,    <a href="//mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="//mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="//mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="//mtstickney.github.io/tag/windows.html">windows</a>,    <a href="//mtstickney.github.io/tag/blog.html">blog</a>,    <a href="//mtstickney.github.io/tag/programming.html">programming</a>,    <a href="//mtstickney.github.io/tag/abl.html">abl</a>,    <a href="//mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="//mtstickney.github.io/tag/oo.html">OO</a>,    <a href="//mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="//mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="//mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="//mtstickney.github.io/tag/aes.html">AES</a>,    <a href="//mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="//mtstickney.github.io/tag/meta.html">meta</a>,    <a href="//mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="//mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="//mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 
@@ -259,7 +255,7 @@ need to process the request hostname, <code>$host</code> is probably your best&n
           if (!window.jXHR){
               var jxhr = document.createElement('script');
               jxhr.type = 'text/javascript';
-              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              jxhr.src = '//mtstickney.github.io/theme/js/jXHR.js';
               var s = document.getElementsByTagName('script')[0];
               s.parentNode.insertBefore(jxhr, s);
           }
@@ -272,7 +268,7 @@ need to process the request hostname, <code>$host</code> is probably your best&n
           });
       });
     </script>
-    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+    <script src="//mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
   </section>
 
 

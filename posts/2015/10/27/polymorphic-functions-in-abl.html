@@ -7,9 +7,9 @@
   <title>Polymorphic Functions in ABL &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
-  <link href="http://mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
         title="FiddlyBits Atom Feed" />
-  <link href="http://mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
         title="FiddlyBits RSS Feed" />
 
 
@@ -22,9 +22,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+    <link href="//mtstickney.github.io/favicon.png" rel="icon">
 
-  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+  <link href="//mtstickney.github.io/theme/css/main.css" media="screen, projection"
         rel="stylesheet" type="text/css">
 
   <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
@@ -32,25 +32,25 @@
   <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
         rel="stylesheet" type="text/css">
 
-  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+  <script src="//mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="//mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="//mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
 </head>
 
 <body>
   <header role="banner"><hgroup>
-  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+  <h1><a href="//mtstickney.github.io/">FiddlyBits</a></h1>
     <h2>A technical blog about fiddly things.</h2>
 </hgroup></header>
   <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="http://mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
-  <li><a href="http://mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
+  <li><a href="//mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
+  <li><a href="//mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
 </ul>
 
 
 <ul class="main-navigation">
       <li class="active">
-        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+        <a href="//mtstickney.github.io/category/blog.html">Blog</a>
       </li>
 </ul></nav>
   <div id="main">
@@ -65,10 +65,10 @@
 
   <div class="entry-content"><p>If you&#8217;ve ever looked at books on refactoring code, there&#8217;s one common
 theme among them: every piece of refactoring advice that has ever been
-given assumes the existence of an object system in your language<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup>.</p>
+given assumes the existence of an object system in your language<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
 <p>At work, we use this crummy business-oriented language called <span class="caps">ABL</span>. It
 actually has objects, despite their
-<a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/">many shortcomings</a><sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>,
+<a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/">many shortcomings</a><sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>,
 but they come at a prohibitive cost for us: they require manual
 memory management, and there are a number of subtle compiler bugs that
 affects code compiled one one version and run on&nbsp;another.</p>
@@ -99,7 +99,7 @@ look up the concrete procedure in question. <span class="caps">ABL</span> does a
 to be dynamically invoked, so by returning a procedure, we can also
 punt parameter passing to the&nbsp;caller.</p>
 <p>Here&#8217;s what it looks&nbsp;like:</p>
-<div class="highlight"><pre><span></span><span class="cm">/* Top-level include for the runtime and type definition. */</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><span class="cm">/* Top-level include for the runtime and type definition. */</span><span class="w"></span>
 <span class="err">{</span>interfaces<span class="o">.</span>i<span class="w"> </span><span class="o">&amp;</span>NEW<span class="o">=</span><span class="s">&quot;NEW&quot;</span><span class="err">}</span><span class="w"></span>
 
 <span class="cm">/* Declare an interface method (mostly just for compiler support). */</span><span class="w"></span>
@@ -109,29 +109,27 @@ punt parameter passing to the&nbsp;caller.</p>
 <span class="cm">interface. */</span><span class="w"></span>
 DEFINE<span class="w"> </span>VAR<span class="w"> </span>greeter<span class="w"> </span>AS<span class="w"> </span><span class="err">{</span><span class="o">&amp;</span>INTERFACE<span class="err">}</span><span class="w"> </span>NO<span class="o">-</span>UNDO<span class="o">.</span><span class="w"></span>
 greeter<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="o">&amp;</span>igreeter<span class="o">.</span>sayhello<span class="err">}</span><span class="o">.</span><span class="w"></span>
-</pre></div>
-
+</code></pre></div>
 
 <p>To supply an implementation of a method, you create a normal procedure
 and register it with an implementation&nbsp;class:</p>
-<div class="highlight"><pre><span></span>{implements.i {&amp;igreeter.sayhello} greeter.english hello.p}
-{implements.i {&amp;igreeter.sayhello} greeter.spanish hola.p}
+<div class="highlight"><pre><span></span><code><span class="err">{</span><span class="n">implements</span><span class="p">.</span><span class="n">i</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">igreeter</span><span class="p">.</span><span class="n">sayhello</span><span class="err">}</span> <span class="n">greeter</span><span class="p">.</span><span class="n">english</span> <span class="n">hello</span><span class="p">.</span><span class="n">p</span><span class="err">}</span>
+<span class="err">{</span><span class="n">implements</span><span class="p">.</span><span class="n">i</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">igreeter</span><span class="p">.</span><span class="n">sayhello</span><span class="err">}</span> <span class="n">greeter</span><span class="p">.</span><span class="n">spanish</span> <span class="n">hola</span><span class="p">.</span><span class="n">p</span><span class="err">}</span>
 
-/* The methods can be invoked directly....*/
-{invoke.i {&amp;igreeter.sayhello} {&amp;greeter.english}} (&quot;Jimmy&quot;).
-{invoke.i {&amp;igreeter.sayhello} {&amp;greeter.spanish}} (&quot;Jimmy&quot;).
+<span class="cm">/* The methods can be invoked directly....*/</span>
+<span class="err">{</span><span class="n">invoke</span><span class="p">.</span><span class="n">i</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">igreeter</span><span class="p">.</span><span class="n">sayhello</span><span class="err">}</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">greeter</span><span class="p">.</span><span class="n">english</span><span class="err">}}</span> <span class="p">(</span><span class="ss">&quot;Jimmy&quot;</span><span class="p">).</span>
+<span class="err">{</span><span class="n">invoke</span><span class="p">.</span><span class="n">i</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">igreeter</span><span class="p">.</span><span class="n">sayhello</span><span class="err">}</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">greeter</span><span class="p">.</span><span class="n">spanish</span><span class="err">}}</span> <span class="p">(</span><span class="ss">&quot;Jimmy&quot;</span><span class="p">).</span>
 
-/* ...or by passing implementation classes around. */
-PROCEDURE SayHi:
-    DEFINE INPUT PARAM klass AS {&amp;INTERFACE} NO-UNDO.
-    DEFINE INPUT PARAM name AS CHARACTER NO-UNDO.
-    {invoke.i {&amp;igreeter.sayhello} klass} (name).
-END.
+<span class="cm">/* ...or by passing implementation classes around. */</span>
+<span class="k">PROCEDURE</span> <span class="n">SayHi</span><span class="p">:</span>
+    <span class="n">DEFINE</span> <span class="k">INPUT</span> <span class="n">PARAM</span> <span class="n">klass</span> <span class="k">AS</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">INTERFACE</span><span class="err">}</span> <span class="k">NO</span><span class="o">-</span><span class="n">UNDO</span><span class="p">.</span>
+    <span class="n">DEFINE</span> <span class="k">INPUT</span> <span class="n">PARAM</span> <span class="n">name</span> <span class="k">AS</span> <span class="nb">CHARACTER</span> <span class="k">NO</span><span class="o">-</span><span class="n">UNDO</span><span class="p">.</span>
+    <span class="err">{</span><span class="n">invoke</span><span class="p">.</span><span class="n">i</span> <span class="err">{</span><span class="o">&amp;</span><span class="n">igreeter</span><span class="p">.</span><span class="n">sayhello</span><span class="err">}</span> <span class="n">klass</span><span class="err">}</span> <span class="p">(</span><span class="n">name</span><span class="p">).</span>
+<span class="k">END</span><span class="p">.</span>
 
-RUN SayHi({&amp;greeter.english}, &quot;Jimmy&quot;).
-RUN SayHi({&amp;greeter.spanish}, &quot;Jimmy&quot;).
-</pre></div>
-
+<span class="n">RUN</span> <span class="n">SayHi</span><span class="p">(</span><span class="err">{</span><span class="o">&amp;</span><span class="n">greeter</span><span class="p">.</span><span class="n">english</span><span class="err">}</span><span class="p">,</span> <span class="ss">&quot;Jimmy&quot;</span><span class="p">).</span>
+<span class="n">RUN</span> <span class="n">SayHi</span><span class="p">(</span><span class="err">{</span><span class="o">&amp;</span><span class="n">greeter</span><span class="p">.</span><span class="n">spanish</span><span class="err">}</span><span class="p">,</span> <span class="ss">&quot;Jimmy&quot;</span><span class="p">).</span>
+</code></pre></div>
 
 <h1>Results</h1>
 <p>The interfaces (and implementation classes) in this system can be
@@ -155,52 +153,51 @@ preprocessor contortions, though it&#8217;s also rather small at about 60
 lines of&nbsp;code.</p>
 <p>The core is a small runtime that is responsible for registering and
 looking up concrete procedures for interface&nbsp;implementations:</p>
-<div class="highlight"><pre><span></span>CLASS MethodRuntime:
-    DEFINE PROTECTED TEMP-TABLE tt_method NO-UNDO
-            FIELD klass AS CHARACTER
-            FIELD methodName AS CHARACTER
-            FIELD procName AS CHARACTER
-            FIELD procHdl AS HANDLE
-            INDEX method_index IS PRIMARY
-                    klass
-                    methodName.
+<div class="highlight"><pre><span></span><code><span class="k">CLASS</span> <span class="n">MethodRuntime</span><span class="p">:</span>
+    <span class="n">DEFINE</span> <span class="n">PROTECTED</span> <span class="n">TEMP</span><span class="o">-</span><span class="k">TABLE</span> <span class="n">tt_method</span> <span class="k">NO</span><span class="o">-</span><span class="n">UNDO</span>
+            <span class="n">FIELD</span> <span class="n">klass</span> <span class="k">AS</span> <span class="nb">CHARACTER</span>
+            <span class="n">FIELD</span> <span class="n">methodName</span> <span class="k">AS</span> <span class="nb">CHARACTER</span>
+            <span class="n">FIELD</span> <span class="n">procName</span> <span class="k">AS</span> <span class="nb">CHARACTER</span>
+            <span class="n">FIELD</span> <span class="n">procHdl</span> <span class="k">AS</span> <span class="n">HANDLE</span>
+            <span class="k">INDEX</span> <span class="n">method_index</span> <span class="k">IS</span> <span class="k">PRIMARY</span>
+                    <span class="n">klass</span>
+                    <span class="n">methodName</span><span class="p">.</span>
 
-    METHOD PUBLIC VOID RegisterMethod(klass AS CHARACTER, methodName AS CHARACTER):
-            FIND FIRST tt_method WHERE tt_method.klass = klass
-                            AND tt_method.methodName = methodName
-                            NO-LOCK NO-ERROR.
-            IF AVAILABLE tt_method THEN DO:
-                    ASSIGN tt_method.procName = procName
-                            tt_method.procHdl = procHdl.
-                    RETURN.
-            END.
+    <span class="k">METHOD</span> <span class="k">PUBLIC</span> <span class="n">VOID</span> <span class="n">RegisterMethod</span><span class="p">(</span><span class="n">klass</span> <span class="k">AS</span> <span class="nb">CHARACTER</span><span class="p">,</span> <span class="n">methodName</span> <span class="k">AS</span> <span class="nb">CHARACTER</span><span class="p">):</span>
+            <span class="n">FIND</span> <span class="k">FIRST</span> <span class="n">tt_method</span> <span class="k">WHERE</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">klass</span> <span class="o">=</span> <span class="n">klass</span>
+                            <span class="k">AND</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">methodName</span> <span class="o">=</span> <span class="n">methodName</span>
+                            <span class="k">NO</span><span class="o">-</span><span class="k">LOCK</span> <span class="k">NO</span><span class="o">-</span><span class="n">ERROR</span><span class="p">.</span>
+            <span class="k">IF</span> <span class="n">AVAILABLE</span> <span class="n">tt_method</span> <span class="k">THEN</span> <span class="k">DO</span><span class="p">:</span>
+                    <span class="n">ASSIGN</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">procName</span> <span class="o">=</span> <span class="n">procName</span>
+                            <span class="n">tt_method</span><span class="p">.</span><span class="n">procHdl</span> <span class="o">=</span> <span class="n">procHdl</span><span class="p">.</span>
+                    <span class="k">RETURN</span><span class="p">.</span>
+            <span class="k">END</span><span class="p">.</span>
 
-            CREATE tt_method.
-            ASSIGN tt_method.klass = klass
-                    tt_method.methodName = methodName
-                    tt_method.procName = procName
-                    tt_method.procHdl = procHdl.
-    END.
+            <span class="k">CREATE</span> <span class="n">tt_method</span><span class="p">.</span>
+            <span class="n">ASSIGN</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">klass</span> <span class="o">=</span> <span class="n">klass</span>
+                    <span class="n">tt_method</span><span class="p">.</span><span class="n">methodName</span> <span class="o">=</span> <span class="n">methodName</span>
+                    <span class="n">tt_method</span><span class="p">.</span><span class="n">procName</span> <span class="o">=</span> <span class="n">procName</span>
+                    <span class="n">tt_method</span><span class="p">.</span><span class="n">procHdl</span> <span class="o">=</span> <span class="n">procHdl</span><span class="p">.</span>
+    <span class="k">END</span><span class="p">.</span>
 
-    METHOD PUBLIC CHARACTER MethodProc(methodName AS CHARACTER,
-                   klass AS CHARACTER):
-            FIND FIRST tt_method WHERE tt_method.klass = klass
-                            AND tt_method.methodName = methodName
-                            NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE tt_method THEN DO:
-                   FIND FIRST tt_method WHERE tt_method.klass = klass
-                                   NO-LOCK NO-ERROR.
-                   IF NOT AVAILABLE tt_method THEN
-                          RETURN ERROR SUBSITUTE(&quot;No such class&#39;&amp;1&#39;&quot;, klass).
-                   ELSE
-                          RETURN ERROR SUBSTITUTE(&quot;Class &#39;&amp;1&#39; has no method &#39;&amp;2&#39;&quot;,
-                                        klass, methodName).
-            END.
-            RETURN tt_method.procName.
-    END.
-END.
-</pre></div>
-
+    <span class="k">METHOD</span> <span class="k">PUBLIC</span> <span class="nb">CHARACTER</span> <span class="n">MethodProc</span><span class="p">(</span><span class="n">methodName</span> <span class="k">AS</span> <span class="nb">CHARACTER</span><span class="p">,</span>
+                   <span class="n">klass</span> <span class="k">AS</span> <span class="nb">CHARACTER</span><span class="p">):</span>
+            <span class="n">FIND</span> <span class="k">FIRST</span> <span class="n">tt_method</span> <span class="k">WHERE</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">klass</span> <span class="o">=</span> <span class="n">klass</span>
+                            <span class="k">AND</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">methodName</span> <span class="o">=</span> <span class="n">methodName</span>
+                            <span class="k">NO</span><span class="o">-</span><span class="k">LOCK</span> <span class="k">NO</span><span class="o">-</span><span class="n">ERROR</span><span class="p">.</span>
+            <span class="k">IF</span> <span class="k">NOT</span> <span class="n">AVAILABLE</span> <span class="n">tt_method</span> <span class="k">THEN</span> <span class="k">DO</span><span class="p">:</span>
+                   <span class="n">FIND</span> <span class="k">FIRST</span> <span class="n">tt_method</span> <span class="k">WHERE</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">klass</span> <span class="o">=</span> <span class="n">klass</span>
+                                   <span class="k">NO</span><span class="o">-</span><span class="k">LOCK</span> <span class="k">NO</span><span class="o">-</span><span class="n">ERROR</span><span class="p">.</span>
+                   <span class="k">IF</span> <span class="k">NOT</span> <span class="n">AVAILABLE</span> <span class="n">tt_method</span> <span class="k">THEN</span>
+                          <span class="k">RETURN</span> <span class="n">ERROR</span> <span class="n">SUBSITUTE</span><span class="p">(</span><span class="ss">&quot;No such class&#39;&amp;1&#39;&quot;</span><span class="p">,</span> <span class="n">klass</span><span class="p">).</span>
+                   <span class="k">ELSE</span>
+                          <span class="k">RETURN</span> <span class="n">ERROR</span> <span class="n">SUBSTITUTE</span><span class="p">(</span><span class="ss">&quot;Class &#39;&amp;1&#39; has no method &#39;&amp;2&#39;&quot;</span><span class="p">,</span>
+                                        <span class="n">klass</span><span class="p">,</span> <span class="n">methodName</span><span class="p">).</span>
+            <span class="k">END</span><span class="p">.</span>
+            <span class="k">RETURN</span> <span class="n">tt_method</span><span class="p">.</span><span class="n">procName</span><span class="p">.</span>
+    <span class="k">END</span><span class="p">.</span>
+<span class="k">END</span><span class="p">.</span>
+</code></pre></div>
 
 <p>Internally, classes and interfaces are strings: this allow them to be
 created without memory management issues, and means they&#8217;ll print
@@ -210,40 +207,36 @@ and we&#8217;d like those to be fast if&nbsp;possible.</p>
 <p>The toplevel <code>interfaces.i</code> include defines a shared instance of the
 runtime class, and establishes the opaque <code>{&amp;INTERFACE}</code> type synonym
 for interfaces and implementation&nbsp;classes.</p>
-<div class="highlight"><pre><span></span>&amp;IF DEFINED(INTERFACES_I_)=0 &amp;THEN
-&amp;GLOBAL-DEFINE INTERFACES_I_
+<div class="highlight"><pre><span></span><code><span class="o">&amp;</span><span class="k">IF</span> <span class="k">DEFINED</span><span class="p">(</span><span class="n">INTERFACES_I_</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span> <span class="o">&amp;</span><span class="k">THEN</span>
+<span class="o">&amp;</span><span class="k">GLOBAL</span><span class="o">-</span><span class="n">DEFINE</span> <span class="n">INTERFACES_I_</span>
 
-&amp;GLOBAL-DEFINE INTERFACE CHARACTER
-DEFINE {&amp;NEW} SHARED VAR MethodRuntime AS CLASS MethodRuntime NO-UNDO.
+<span class="o">&amp;</span><span class="k">GLOBAL</span><span class="o">-</span><span class="n">DEFINE</span> <span class="n">INTERFACE</span> <span class="nb">CHARACTER</span>
+<span class="n">DEFINE</span> <span class="err">{</span><span class="o">&amp;</span><span class="k">NEW</span><span class="err">}</span> <span class="n">SHARED</span> <span class="n">VAR</span> <span class="n">MethodRuntime</span> <span class="k">AS</span> <span class="k">CLASS</span> <span class="n">MethodRuntime</span> <span class="k">NO</span><span class="o">-</span><span class="n">UNDO</span><span class="p">.</span>
 
-&amp;IF &#39;{&amp;NEW}&#39;&lt;&gt;&#39;&#39; &amp;THEN
-MethodRuntime = NEW MethodRuntime().
-&amp;ENDIF
+<span class="o">&amp;</span><span class="k">IF</span> <span class="s1">&#39;{&amp;NEW}&#39;</span><span class="o">&lt;&gt;</span><span class="s1">&#39;&#39;</span> <span class="o">&amp;</span><span class="k">THEN</span>
+<span class="n">MethodRuntime</span> <span class="o">=</span> <span class="k">NEW</span> <span class="n">MethodRuntime</span><span class="p">().</span>
+<span class="o">&amp;</span><span class="n">ENDIF</span>
 
-&amp;ENDIF
-</pre></div>
-
+<span class="o">&amp;</span><span class="n">ENDIF</span>
+</code></pre></div>
 
 <p>The <code>define-interface.i</code> include-macro does very little: it simply
 defines a preprocessor name for the string constant that is the
 interface&nbsp;name.</p>
-<div class="highlight"><pre><span></span>&amp;GLOBAL-DEFINE {1} &#39;{1}&#39;
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">&amp;GLOBAL-DEFINE {1} &#39;{1}&#39;</span>
+</code></pre></div>
 
 <p>The <code>implements.i</code> include-macro does the same for the implementation
 class, and expands to a call to <code>MethodRuntime:RegisterMethod()</code>. The
 parent-procedure handle parameter of <code>RegisterMethod</code> is unused for&nbsp;now.</p>
-<div class="highlight"><pre><span></span>&amp;GLOBAL-DEFINE {2} &#39;{2}&#39;
-MethodRuntime:RegisterMethod({1}, {&amp;{2}}, &quot;{3}&quot;, ?).
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">&amp;GLOBAL-DEFINE {2} &#39;{2}&#39;</span>
+<span class="c">MethodRuntime:RegisterMethod({1}, {&amp;{2}}, &quot;{3}&quot;, ?).</span>
+</code></pre></div>
 
 <p><code>invoke.i</code> is a simple expansion to all but the parameter list of a
 dynamic procedure call, using the procedure name returned by the&nbsp;runtime:</p>
-<div class="highlight"><pre><span></span>RUN VALUE(MethodRuntime:MethodProc({1}, {2}))
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="err">RUN VALUE(MethodRuntime:MethodProc({1}, {2}))</span>
+</code></pre></div>
 
 <h1>Conclusion</h1>
 <p>It is clearly possible to provide polymorphic functions in <span class="caps">ABL</span>, with a
@@ -252,18 +245,18 @@ cumbersome syntax and some modest restrictions on the implementations
 of methods. Basic compile-time support is doable, and there is no risk
 of memory leaks without garbage collector&nbsp;support.</p>
 <div class="footnote">
-<hr />
+<hr>
 <ol>
 <li id="fn:1">
 <p>Michael Feathers&#8217;
 <a href="http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052">book</a>
 actually includes a tiny little section at the end about working
 with C. It consists mainly of the author throwing up his hands and
-suggesting you use a real language.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+suggesting you use a real language.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 <li id="fn:2">
 <p>See the &#8220;<span class="caps">OOABL</span>&#8221; sections toward the end. Bear in mind that most
-of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in the field.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in the field.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div></div>
@@ -275,10 +268,10 @@ of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in t
     </span>
   </span>
 <time datetime="2015-10-27T00:00:00-04:00" pubdate>Tue 27 October 2015</time>  <span class="categories">
-    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+    <a class='category' href='//mtstickney.github.io/category/blog.html'>blog</a>
   </span>
   <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a class="category" href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a class="category" href="http://mtstickney.github.io/tag/experiments.html">experiments</a>  </span>
+    <a class="category" href="//mtstickney.github.io/tag/abl.html">abl</a>,    <a class="category" href="//mtstickney.github.io/tag/oo.html">OO</a>,    <a class="category" href="//mtstickney.github.io/tag/experiments.html">experiments</a>  </span>
 </p><div class="sharing">
 </div>    </footer>
   </article>
@@ -289,19 +282,19 @@ of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in t
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
+          <a href="//mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+          <a href="//mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="//mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
     </ul>
   </section>
@@ -309,14 +302,14 @@ of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in t
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+        <li><a href="//mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/http.html">http</a>,    <a href="http://mtstickney.github.io/tag/web.html">web</a>,    <a href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a href="http://mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="http://mtstickney.github.io/tag/linux.html">linux</a>,    <a href="http://mtstickney.github.io/tag/networking.html">networking</a>,    <a href="http://mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+    <a href="//mtstickney.github.io/tag/http.html">http</a>,    <a href="//mtstickney.github.io/tag/web.html">web</a>,    <a href="//mtstickney.github.io/tag/servers.html">servers</a>,    <a href="//mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="//mtstickney.github.io/tag/linux.html">linux</a>,    <a href="//mtstickney.github.io/tag/networking.html">networking</a>,    <a href="//mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="//mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="//mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="//mtstickney.github.io/tag/windows.html">windows</a>,    <a href="//mtstickney.github.io/tag/blog.html">blog</a>,    <a href="//mtstickney.github.io/tag/programming.html">programming</a>,    <a href="//mtstickney.github.io/tag/abl.html">abl</a>,    <a href="//mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="//mtstickney.github.io/tag/oo.html">OO</a>,    <a href="//mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="//mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="//mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="//mtstickney.github.io/tag/aes.html">AES</a>,    <a href="//mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="//mtstickney.github.io/tag/meta.html">meta</a>,    <a href="//mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="//mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="//mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 
@@ -331,7 +324,7 @@ of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in t
           if (!window.jXHR){
               var jxhr = document.createElement('script');
               jxhr.type = 'text/javascript';
-              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              jxhr.src = '//mtstickney.github.io/theme/js/jXHR.js';
               var s = document.getElementsByTagName('script')[0];
               s.parentNode.insertBefore(jxhr, s);
           }
@@ -344,7 +337,7 @@ of the &#8220;fixed&#8221; issues don&#8217;t apply to the versions we have in t
           });
       });
     </script>
-    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+    <script src="//mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
   </section>
 
 

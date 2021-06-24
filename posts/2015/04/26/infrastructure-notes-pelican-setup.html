@@ -7,9 +7,9 @@
   <title>Infrastructure Notes: Pelican Setup &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
-  <link href="http://mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
         title="FiddlyBits Atom Feed" />
-  <link href="http://mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
         title="FiddlyBits RSS Feed" />
 
 
@@ -22,9 +22,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+    <link href="//mtstickney.github.io/favicon.png" rel="icon">
 
-  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+  <link href="//mtstickney.github.io/theme/css/main.css" media="screen, projection"
         rel="stylesheet" type="text/css">
 
   <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
@@ -32,25 +32,25 @@
   <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
         rel="stylesheet" type="text/css">
 
-  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+  <script src="//mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="//mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="//mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
 </head>
 
 <body>
   <header role="banner"><hgroup>
-  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+  <h1><a href="//mtstickney.github.io/">FiddlyBits</a></h1>
     <h2>A technical blog about fiddly things.</h2>
 </hgroup></header>
   <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="http://mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
-  <li><a href="http://mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
+  <li><a href="//mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
+  <li><a href="//mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
 </ul>
 
 
 <ul class="main-navigation">
       <li class="active">
-        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+        <a href="//mtstickney.github.io/category/blog.html">Blog</a>
       </li>
 </ul></nav>
   <div id="main">
@@ -64,10 +64,10 @@
 </header>
 
   <div class="entry-content"><blockquote>
-<p>I have slipped the surly bonds of Octopress<br />
- pulled the trigger<br />
- and converted this sucker to Pelican.<br />
- &#8212; definitely not John Gillespie Magee, Jr.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup></p>
+<p>I have slipped the surly bonds of Octopress<br>
+ pulled the trigger<br>
+ and converted this sucker to Pelican.<br>
+ &#8212; definitely not John Gillespie Magee, Jr.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup></p>
 </blockquote>
 <p>This blog used to be powered by <a href="http://octopress.org">Octopress</a>, but
 I&#8217;ve just finished converting the whole thing to
@@ -110,29 +110,26 @@ post was more than a year ago), which in the end is the whole point,
 so after much procrastinating I&#8217;m pulling the trigger and switching to&nbsp;Pelican.</p>
 <h2>The&nbsp;Setup</h2>
 <p>First, create a virtualenv for the site in&nbsp;question:</p>
-<div class="highlight"><pre><span></span>$ mkdir my_site/ <span class="o">&amp;&amp;</span> <span class="nb">cd</span> my_site/
+<div class="highlight"><pre><span></span><code>$ mkdir my_site/ <span class="o">&amp;&amp;</span> <span class="nb">cd</span> my_site/
 $ virtualenv .
 $ <span class="nb">source</span> Scripts/activate
-</pre></div>
-
+</code></pre></div>
 
 <p>Next, install the pelican components and create the project&nbsp;skeleton:</p>
-<div class="highlight"><pre><span></span>$ pip install pelican markdown typogrify
+<div class="highlight"><pre><span></span><code>$ pip install pelican markdown typogrify
 $ pelican-quickstart
-</pre></div>
-
+</code></pre></div>
 
 <p>It&#8217;s not a great idea to add the virtualenv components to the git
 repo, but we do want to track the installed components so setup on a
 new machine is easy. The best way I&#8217;ve found to do that is to save the
 requirements list from&nbsp;pip:</p>
-<div class="highlight"><pre><span></span>$ pip -l freeze &gt; requirements.txt
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>$ pip -l freeze &gt; requirements.txt
+</code></pre></div>
 
 <p>You&#8217;ll want to add Pelican&#8217;s files, the requirements file, and any
 existing content (but not the <code>output/</code> folder just&nbsp;yet):</p>
-<div class="highlight"><pre><span></span>$ git add pelicanconf.py <span class="se">\</span>
+<div class="highlight"><pre><span></span><code>$ git add pelicanconf.py <span class="se">\</span>
           publishconf.py <span class="se">\</span>
           Makefile <span class="se">\</span>
           fabfiile.py <span class="se">\</span>
@@ -140,8 +137,7 @@ existing content (but not the <code>output/</code> folder just&nbsp;yet):</p>
           requirements.txt <span class="se">\</span>
           content/
 $ git commit -m <span class="s1">&#39;Add Pelican files.&#39;</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>I like Octopress&#8217; default theme, so I&#8217;m using the
 <a href="https://github.com/duilio/pelican-octopress-theme">pelican-octopress</a> theme. There is a small
@@ -149,10 +145,9 @@ issue with the github scripts it uses for the sidebar, but I&#8217;m hoping
 to submit a patch for that shortly. This is also the one and only part
 of the site that I haven&#8217;t figured out how to store in the main repo
 yet (a submodule would probably do it).&nbsp;Installation:</p>
-<div class="highlight"><pre><span></span>$ git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
+<div class="highlight"><pre><span></span><code>$ git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
 $ pelican-theme -i ../pelican-octopress
-</pre></div>
-
+</code></pre></div>
 
 <h2>Github&nbsp;Pages</h2>
 <p>Getting Pelican&#8217;s output into the right branch for Github Pages can be
@@ -167,9 +162,8 @@ convince it to use <code>master</code> instead of <code>gh-pages</code>, I was a
 my own deployment script quite easily using <code>git subtree</code>.</p>
 <p>The first thing to do is to add the <code>output/</code> directory as a subtree
 from the master&nbsp;branch:</p>
-<div class="highlight"><pre><span></span>$ git subtree add --prefix output/ origin master
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>$ git subtree add --prefix output/ origin master
+</code></pre></div>
 
 <p>Then we can use a deployment script to generate the site, commit the
 changes, and push the generated content to the master&nbsp;branch:</p>
@@ -189,7 +183,7 @@ changes, and push the generated content to the master&nbsp;branch:</p>
 14
 15
 16
-17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="ch">#!/bin/sh</span>
 
 <span class="nv">OUTPUT_DIR</span><span class="o">=</span>output
 <span class="c1"># Generate fresh production output</span>
@@ -206,16 +200,15 @@ git commit -m <span class="s2">&quot;Site updated at </span><span class="nv">$DA
 
 <span class="c1"># Push it to the remote</span>
 git subtree push --prefix <span class="s2">&quot;</span><span class="nv">$OUTPUT_DIR</span><span class="s2">&quot;</span> origin master
-</pre></div>
+</code></pre></div>
 </td></tr></table>
-
 <p>Works like a charm, and I (now) know exactly what it&#8217;s doing. The only
 thing missing is <code>git pull</code>ing the new <code>master</code>, but you generally
 won&#8217;t even have it checked out&nbsp;locally.</p>
 <h2>New Machine&nbsp;Setup</h2>
 <p>With all that in place, setup on a new machine is pretty
 straightforward, assuming Python is already&nbsp;installed:</p>
-<div class="highlight"><pre><span></span>$ git clone https://github.com/mtstickney/mtstickney.github.com site
+<div class="highlight"><pre><span></span><code>$ git clone https://github.com/mtstickney/mtstickney.github.com site
 $ <span class="c1"># There is a bug with script loading in the upstream theme, so pull a fixed version.</span>
 $ <span class="c1"># git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress</span>
 $ git clone -b script_fixes https://github.com/mtstickney/pelican-octopress-theme.git pelican-octopress
@@ -230,17 +223,16 @@ $ ./deploy.sh
 $ &lt;optionally push <span class="o">(</span>to include the deployed site update<span class="o">)</span>&gt;
 $ <span class="c1"># If you&#39;re using the development server, it will need to be restarted.</span>
 $ ./develop_server.sh restart
-</pre></div>
-
+</code></pre></div>
 
 <div class="footnote">
-<hr />
+<hr>
 <ol>
 <li id="fn:1">
 <p>This is a shameless ripoff of John Gillespie Magee Jr.&#8217;s fabulous
   poem
   <a href="http://www.woodiescciclub.com/high-flight.htm">High Flight</a>. You
-  should go read it.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+  should go read it.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div></div>
@@ -252,10 +244,10 @@ $ ./develop_server.sh restart
     </span>
   </span>
 <time datetime="2015-04-26T00:00:00-04:00" pubdate>Sun 26 April 2015</time>  <span class="categories">
-    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+    <a class='category' href='//mtstickney.github.io/category/blog.html'>blog</a>
   </span>
   <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a class="category" href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a class="category" href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a class="category" href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>  </span>
+    <a class="category" href="//mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a class="category" href="//mtstickney.github.io/tag/blog.html">blog</a>,    <a class="category" href="//mtstickney.github.io/tag/meta.html">meta</a>,    <a class="category" href="//mtstickney.github.io/tag/pelican.html">pelican</a>,    <a class="category" href="//mtstickney.github.io/tag/github-pages.html">github-pages</a>  </span>
 </p><div class="sharing">
 </div>    </footer>
   </article>
@@ -266,19 +258,19 @@ $ ./develop_server.sh restart
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
+          <a href="//mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+          <a href="//mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="//mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
     </ul>
   </section>
@@ -286,14 +278,14 @@ $ ./develop_server.sh restart
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+        <li><a href="//mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/http.html">http</a>,    <a href="http://mtstickney.github.io/tag/web.html">web</a>,    <a href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a href="http://mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="http://mtstickney.github.io/tag/linux.html">linux</a>,    <a href="http://mtstickney.github.io/tag/networking.html">networking</a>,    <a href="http://mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+    <a href="//mtstickney.github.io/tag/http.html">http</a>,    <a href="//mtstickney.github.io/tag/web.html">web</a>,    <a href="//mtstickney.github.io/tag/servers.html">servers</a>,    <a href="//mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="//mtstickney.github.io/tag/linux.html">linux</a>,    <a href="//mtstickney.github.io/tag/networking.html">networking</a>,    <a href="//mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="//mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="//mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="//mtstickney.github.io/tag/windows.html">windows</a>,    <a href="//mtstickney.github.io/tag/blog.html">blog</a>,    <a href="//mtstickney.github.io/tag/programming.html">programming</a>,    <a href="//mtstickney.github.io/tag/abl.html">abl</a>,    <a href="//mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="//mtstickney.github.io/tag/oo.html">OO</a>,    <a href="//mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="//mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="//mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="//mtstickney.github.io/tag/aes.html">AES</a>,    <a href="//mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="//mtstickney.github.io/tag/meta.html">meta</a>,    <a href="//mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="//mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="//mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 
@@ -308,7 +300,7 @@ $ ./develop_server.sh restart
           if (!window.jXHR){
               var jxhr = document.createElement('script');
               jxhr.type = 'text/javascript';
-              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              jxhr.src = '//mtstickney.github.io/theme/js/jXHR.js';
               var s = document.getElementsByTagName('script')[0];
               s.parentNode.insertBefore(jxhr, s);
           }
@@ -321,7 +313,7 @@ $ ./develop_server.sh restart
           });
       });
     </script>
-    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+    <script src="//mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
   </section>
 
 

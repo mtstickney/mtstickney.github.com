@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits</title><link href="http://mtstickney.github.io/" rel="alternate"></link><link href="http://mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>http://mtstickney.github.io/</id><updated>2020-06-24T17:37:00-04:00</updated><entry><title>HTTP Request Hostnames</title><link href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html" rel="alternate"></link><published>2020-06-24T17:37:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/http-request-hostnames.html</id><summary type="html">&lt;p&gt;How many hostnames can a single &lt;span class="caps"&gt;HTTP&lt;/span&gt; request be associated with? Two,
+<feed xmlns="http://www.w3.org/2005/Atom"><title>FiddlyBits - blog</title><link href="//mtstickney.github.io/" rel="alternate"></link><link href="//mtstickney.github.io/feeds/blog.atom.xml" rel="self"></link><id>//mtstickney.github.io/</id><updated>2020-06-24T17:37:00-04:00</updated><subtitle>A technical blog about fiddly things.</subtitle><entry><title>HTTP Request Hostnames</title><link href="//mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html" rel="alternate"></link><published>2020-06-24T00:00:00-04:00</published><updated>2020-06-24T17:37:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:/posts/2020/06/24/http-request-hostnames.html</id><summary type="html">&lt;p&gt;How many hostnames can a single &lt;span class="caps"&gt;HTTP&lt;/span&gt; request be associated with? Two,
+or three if you&amp;#8217;re using &lt;span class="caps"&gt;SSL&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The usual place to specify a virtualhost name is the &lt;code&gt;Host&lt;/code&gt; header;
+this is mandatory in &lt;span class="caps"&gt;HTTP&lt;/span&gt; 1.1 requests, so it&amp;#8217;s almost always set
+these&amp;nbsp;days.&lt;/p&gt;
+&lt;p&gt;The second place …&lt;/p&gt;</summary><content type="html">&lt;p&gt;How many hostnames can a single &lt;span class="caps"&gt;HTTP&lt;/span&gt; request be associated with? Two,
 or three if you&amp;#8217;re using &lt;span class="caps"&gt;SSL&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;The usual place to specify a virtualhost name is the &lt;code&gt;Host&lt;/code&gt; header;
 this is mandatory in &lt;span class="caps"&gt;HTTP&lt;/span&gt; 1.1 requests, so it&amp;#8217;s almost always set
@@ -25,46 +30,45 @@ exotically-formed request can return site contents for virtual host A
 with host B&amp;#8217;s&amp;nbsp;certificate.&lt;/p&gt;
 &lt;h2&gt;Test&amp;nbsp;Setup&lt;/h2&gt;
 &lt;p&gt;To test, I&amp;#8217;ve added the following blocks to&amp;nbsp;nginx:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Test&lt;/span&gt; &lt;span class="nt"&gt;setup&lt;/span&gt; &lt;span class="nt"&gt;for&lt;/span&gt; &lt;span class="nt"&gt;virtualhost&lt;/span&gt; &lt;span class="nt"&gt;priority&lt;/span&gt; &lt;span class="nt"&gt;checking&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;    &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Test&lt;/span&gt; &lt;span class="nt"&gt;setup&lt;/span&gt; &lt;span class="nt"&gt;for&lt;/span&gt; &lt;span class="nt"&gt;virtualhost&lt;/span&gt; &lt;span class="nt"&gt;priority&lt;/span&gt; &lt;span class="nt"&gt;checking&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
     &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Non-SSL&lt;/span&gt; &lt;span class="nt"&gt;servers&lt;/span&gt;
     &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="n"&gt;default_server&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is the default server.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;127.0.0.1:8888&lt;/span&gt; &lt;span class="err"&gt;default_server&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;return&lt;/span&gt; &lt;span class="err"&gt;200&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;This&lt;/span&gt; &lt;span class="err"&gt;is&lt;/span&gt; &lt;span class="err"&gt;the&lt;/span&gt; &lt;span class="err"&gt;default&lt;/span&gt; &lt;span class="err"&gt;server.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="p"&gt;}&lt;/span&gt;
 
     &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8888&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;127.0.0.1:8888&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;server_name&lt;/span&gt; &lt;span class="err"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 
-        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is foo.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;return&lt;/span&gt; &lt;span class="err"&gt;200&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;This&lt;/span&gt; &lt;span class="err"&gt;is&lt;/span&gt; &lt;span class="err"&gt;foo.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="p"&gt;}&lt;/span&gt;
 
     &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8888&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is bar.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;127.0.0.1:8888&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;server_name&lt;/span&gt; &lt;span class="err"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;return&lt;/span&gt; &lt;span class="err"&gt;200&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;This&lt;/span&gt; &lt;span class="err"&gt;is&lt;/span&gt; &lt;span class="err"&gt;bar.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="p"&gt;}&lt;/span&gt;
 
     &lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="nt"&gt;Self-signed&lt;/span&gt; &lt;span class="nt"&gt;SSL&lt;/span&gt; &lt;span class="nt"&gt;servers&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
     &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8889&lt;/span&gt; &lt;span class="n"&gt;ssl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;palladium&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;ssl_certificate&lt;/span&gt; &lt;span class="n"&gt;palladium&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cert&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;ssl_certificate_key&lt;/span&gt; &lt;span class="n"&gt;palladium&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;ssl_protocols&lt;/span&gt; &lt;span class="n"&gt;TLSv1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is palladium.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;127.0.0.1:8889&lt;/span&gt; &lt;span class="err"&gt;ssl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;server_name&lt;/span&gt; &lt;span class="err"&gt;palladium&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;ssl_certificate&lt;/span&gt; &lt;span class="err"&gt;palladium.cert&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;ssl_certificate_key&lt;/span&gt; &lt;span class="err"&gt;palladium.key&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;ssl_protocols&lt;/span&gt; &lt;span class="err"&gt;TLSv1.2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;return&lt;/span&gt; &lt;span class="err"&gt;200&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;This&lt;/span&gt; &lt;span class="err"&gt;is&lt;/span&gt; &lt;span class="err"&gt;palladium.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="p"&gt;}&lt;/span&gt;
 
     &lt;span class="nt"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;127&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="m"&gt;8889&lt;/span&gt; &lt;span class="n"&gt;ssl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;server_name&lt;/span&gt; &lt;span class="n"&gt;foobar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;ssl_certificate&lt;/span&gt; &lt;span class="n"&gt;foobar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cert&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;ssl_certificate_key&lt;/span&gt; &lt;span class="n"&gt;foobar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;ssl_protocols&lt;/span&gt; &lt;span class="n"&gt;TLSv1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="n"&gt;return&lt;/span&gt; &lt;span class="m"&gt;200&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;This is foobar.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;127.0.0.1:8889&lt;/span&gt; &lt;span class="err"&gt;ssl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;server_name&lt;/span&gt; &lt;span class="err"&gt;foobar&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;ssl_certificate&lt;/span&gt; &lt;span class="err"&gt;foobar.cert&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;ssl_certificate_key&lt;/span&gt; &lt;span class="err"&gt;foobar.key&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;ssl_protocols&lt;/span&gt; &lt;span class="err"&gt;TLSv1.2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="err"&gt;return&lt;/span&gt; &lt;span class="err"&gt;200&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;This&lt;/span&gt; &lt;span class="err"&gt;is&lt;/span&gt; &lt;span class="err"&gt;foobar.\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;You can see the priority of hostnames with some carefully-crafted
 requests (response headers have been trimmed for brevity). Note that
@@ -73,7 +77,7 @@ out the shell chicanery necessary to do that for readability.
 Fortunately, nginx tolerates plain linefeed line endings, so this
 will work with nginx&amp;nbsp;as-is.&lt;/p&gt;
 &lt;p&gt;Baseline request with &lt;code&gt;Host&lt;/code&gt; header for unknown and known&amp;nbsp;virtualhosts:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; GET / HTTP/1.1&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; Host: quux&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
@@ -88,23 +92,21 @@ $ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&am
 &lt;span class="s"&gt;&amp;gt; &lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; EOF&lt;/span&gt;
 This is foo.
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;The &lt;span class="caps"&gt;URL&lt;/span&gt; hostname takes priority over the &lt;code&gt;Host&lt;/code&gt; header:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ nc localhost &lt;span class="m"&gt;8888&lt;/span&gt; &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; GET http://bar/ HTTP/1.1&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; Host: foo&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; &lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; EOF&lt;/span&gt;
 This is bar.
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;span class="caps"&gt;SNI&lt;/span&gt; hostname selects the cert, but uses the &lt;span class="caps"&gt;HTTP&lt;/span&gt; hostnames to select a
 server block for the actual&amp;nbsp;request:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ openssl s_client -connect localhost:8889 -servername palladium -quiet &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ openssl s_client -connect localhost:8889 -servername palladium -quiet &lt;span class="s"&gt;&amp;lt;&amp;lt;EOF&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; GET https://foobar/ HTTP/1.1&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; Host: palladium&lt;/span&gt;
 &lt;span class="s"&gt;&amp;gt; Connection: close&lt;/span&gt;
@@ -113,8 +115,7 @@ server block for the actual&amp;nbsp;request:&lt;/p&gt;
 &lt;span class="nv"&gt;depth&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="nv"&gt;CN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; palladium
 &lt;span class="o"&gt;[&lt;/span&gt;...&lt;span class="o"&gt;]&lt;/span&gt;
 This is foobar.
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;h2&gt;Lessons&lt;/h2&gt;
 &lt;p&gt;Since a request can have several different hostnames associated with
@@ -130,7 +131,11 @@ config is probably static, it might be smarter to use &lt;code&gt;$server_name&l
 so you know what you&amp;#8217;re&amp;nbsp;getting.&lt;/p&gt;
 &lt;p&gt;For a default server block, you should expect to get requests for
 hosts other than &lt;code&gt;server_name&lt;/code&gt; as a matter of course. If you really
-need to process the request hostname, &lt;code&gt;$host&lt;/code&gt; is probably your best&amp;nbsp;bet.&lt;/p&gt;</summary><category term="http"></category><category term="web"></category><category term="servers"></category><category term="nginx"></category></entry><entry><title>Linux Local Traffic Delivery</title><link href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html" rel="alternate"></link><published>2020-06-24T17:13:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:posts/2020/06/24/linux-local-traffic-delivery.html</id><summary type="html">&lt;p&gt;I&amp;#8217;ve recently been setting up a homebrew router, with a small fanless
+need to process the request hostname, &lt;code&gt;$host&lt;/code&gt; is probably your best&amp;nbsp;bet.&lt;/p&gt;</content><category term="blog"></category><category term="http"></category><category term="web"></category><category term="servers"></category><category term="nginx"></category></entry><entry><title>Linux Local Traffic Delivery</title><link href="//mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html" rel="alternate"></link><published>2020-06-24T00:00:00-04:00</published><updated>2020-06-24T17:13:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2020-06-24:/posts/2020/06/24/linux-local-traffic-delivery.html</id><summary type="html">&lt;p&gt;I&amp;#8217;ve recently been setting up a homebrew router, with a small fanless
+linux box and Jim Salter&amp;#8217;s &lt;a href="https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/"&gt;homebrew router guide&lt;/a&gt; as
+a starting point. In the section where he sets up iptables rules, he
+restricts traffic delivered over the loopback interfacee to traffic
+from the &lt;code&gt;127.0.0 …&lt;/code&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;I&amp;#8217;ve recently been setting up a homebrew router, with a small fanless
 linux box and Jim Salter&amp;#8217;s &lt;a href="https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/"&gt;homebrew router guide&lt;/a&gt; as
 a starting point. In the section where he sets up iptables rules, he
 restricts traffic delivered over the loopback interfacee to traffic
@@ -142,11 +147,10 @@ into the box. They were accessible from other machines, but not from
 the router itself. Clearly the service was running, and the firewall
 was allowing traffic on that port&amp;#8230;. but only to external&amp;nbsp;hosts.&lt;/p&gt;
 &lt;p&gt;I had firewall rules like&amp;nbsp;this:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;iptables -i lo -s 127.0.0.1/8 -j ACCEPT
-iptables -i wan1 -p tcp -m tcp --dport 22 -j ACCEPT
-iptables -j DROP
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;iptables -i lo -s 127.0.0.1/8 -j ACCEPT&lt;/span&gt;
+&lt;span class="err"&gt;iptables -i wan1 -p tcp -m tcp --dport 22 -j ACCEPT&lt;/span&gt;
+&lt;span class="err"&gt;iptables -j DROP&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;and on the box, &lt;code&gt;ssh &amp;lt;wan1 IP&amp;gt;&lt;/code&gt; was timing out. Nmap showed the port
 as filtered as well, but other machines were able to &lt;code&gt;ssh &amp;lt;wan1 IP&amp;gt;&lt;/code&gt;
@@ -182,7 +186,11 @@ network, but from the router itself they showed as filtered. I had set
 up all of the forwarding rules to allow traffic from the &lt;span class="caps"&gt;WAN&lt;/span&gt;
 interface, since the address is dynamic&amp;#8230; except that for traffic
 originating on the router, the source interface is &lt;code&gt;lo&lt;/code&gt;, not the
-external &lt;span class="caps"&gt;NIC&lt;/span&gt;.&amp;nbsp;D&amp;#8217;oh.&lt;/p&gt;</summary><category term="linux"></category><category term="networking"></category><category term="iptables"></category></entry><entry><title>Pipes and Permissions</title><link href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+external &lt;span class="caps"&gt;NIC&lt;/span&gt;.&amp;nbsp;D&amp;#8217;oh.&lt;/p&gt;</content><category term="blog"></category><category term="linux"></category><category term="networking"></category><category term="iptables"></category></entry><entry><title>Pipes and Permissions</title><link href="//mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html" rel="alternate"></link><published>2017-05-08T00:00:00-04:00</published><updated>2017-05-08T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2017-05-08:/posts/2017/05/08/pipes-and-permissions.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;If you have two components of a system implemented as separate
+processes, you need a way for them to communicate. Unless speed is
+critical, you&amp;#8217;re likely to use sockets or pipes …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;em&gt;The third in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
 challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;If you have two components of a system implemented as separate
 processes, you need a way for them to communicate. Unless speed is
@@ -205,10 +213,10 @@ and pipes do&amp;nbsp;not.&lt;/p&gt;
 &lt;p&gt;When you create a socket server by calling &lt;code&gt;listen&lt;/code&gt;, you get a socket
 listening for connections on some port; when you call &lt;code&gt;accept&lt;/code&gt; on it
 and a client connects, you receive a &lt;em&gt;new&lt;/em&gt; socket that&amp;#8217;s a dedicated
-connection to the client&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;. The original socket remains open,
+connection to the client&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;. The original socket remains open,
 listening for&amp;nbsp;connections.&lt;/p&gt;
 &lt;p&gt;Pipes, on the other hand, don&amp;#8217;t have the concept of a distinguished
-server&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;. Unlike sockets, when a client connects to a named pipe
+server&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2"&gt;2&lt;/a&gt;&lt;/sup&gt;. Unlike sockets, when a client connects to a named pipe
 server, the pipe instance that they connect &lt;em&gt;to&lt;/em&gt; is the same one
 they&amp;#8217;ll be talking &lt;em&gt;over&lt;/em&gt;. You don&amp;#8217;t get a new pipe instance, and if
 all the instances have been used up, there is no pipe for clients to
@@ -222,12 +230,12 @@ allow you specify a range of mandatory and discretionary ACLs (DACLs)
 to restrict what clients may connect or perform other
 operations. Pipes also have a curious feature that allows the server
 program to impersonate the connecting client, so that a server can
-drop privileges to the client&amp;#8217;s level before servicing requests&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+drop privileges to the client&amp;#8217;s level before servicing requests&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3"&gt;3&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;Pipes also inherit these permissions, provided that you&amp;#8217;re creating
 new instances of an existing pipe. If you&amp;#8217;ve set a &lt;span class="caps"&gt;DACL&lt;/span&gt; entry for a
 pipe, and you create a new instance of it, the new instance will also
 have the &lt;span class="caps"&gt;DACL&lt;/span&gt; applied, even though you created the new instance with
-the default permissions&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="footnote"&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+the default permissions&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4"&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;h1&gt;Interactions in the&amp;nbsp;Field&lt;/h1&gt;
 &lt;p&gt;Named pipe permissions can sometimes interact with the pipe model in
 surprising (and generally unpleasant) ways. Before I explain why,
@@ -242,7 +250,7 @@ a&amp;nbsp;service.&lt;/p&gt;
 the same user that was connecting to it, so there was no need to
 modify the ACLs or impersonate the client. When the component was
 converted to a service, we hit our first snag: the default permissions
-for named pipes allow administrators to connect&lt;sup id="fnref:5"&gt;&lt;a class="footnote-ref" href="#fn:5" rel="footnote"&gt;5&lt;/a&gt;&lt;/sup&gt;, but not
+for named pipes allow administrators to connect&lt;sup id="fnref:5"&gt;&lt;a class="footnote-ref" href="#fn:5"&gt;5&lt;/a&gt;&lt;/sup&gt;, but not
 non-administrative users, so we had to modify the &lt;span class="caps"&gt;DACL&lt;/span&gt; to allows
 connections from other users, and we had to start impersonating
 clients to avoid privilege&amp;nbsp;escalation.&lt;/p&gt;
@@ -277,31 +285,31 @@ need to recreate the listening pipe after you accept a connection;
 that exposes you to some extra race conditions, and can affect the way
 that pipe permissions are&amp;nbsp;inherited.&lt;/p&gt;
 &lt;div class="footnote"&gt;
-&lt;hr /&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
 &lt;p&gt;This always reminds me of &lt;code&gt;fork&lt;/code&gt;, in that it creates something
 that&amp;#8217;s a distinct clone of it&amp;#8217;s parent in some ways (both sockets
 share the same address and port on the server end). It&amp;#8217;s like a kind
 of algae budding off a new cell: if system calls had sound effects,
-&lt;code&gt;fork&lt;/code&gt; and &lt;code&gt;listen&lt;/code&gt; would both be accompanied by &amp;#8220;&lt;em&gt;blorp&lt;/em&gt;&amp;#8220;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;code&gt;fork&lt;/code&gt; and &lt;code&gt;listen&lt;/code&gt; would both be accompanied by &amp;#8220;&lt;em&gt;blorp&lt;/em&gt;&amp;#8220;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
 &lt;p&gt;The &lt;code&gt;FILE_FLAG_FIRST_PIPE_INSTANCE&lt;/code&gt; flag sure makes it seem that
 way, but it&amp;#8217;s only there to avoid a certain privilege-escalating race
 condition (see &lt;a href="http://www.blakewatts.com/namedpipepaper.html"&gt;here&lt;/a&gt;,
 section 3.1). The flag only prevents you from creating a pipe if one
-with that name already exists; it doesn&amp;#8217;t change the pipe itself.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+with that name already exists; it doesn&amp;#8217;t change the pipe itself.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:3"&gt;
 &lt;p&gt;This is also subject to a number of race conditions and
 privilege-escalation issues. See the rest of &lt;a href="http://www.blakewatts.com/namedpipepaper.html"&gt;this
-article&lt;/a&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+article&lt;/a&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:4"&gt;
 &lt;p&gt;I&amp;#8217;m not certain if this is always the case, or only if you use
 the default security descriptor by passing &lt;code&gt;NULL&lt;/code&gt; to
-&lt;code&gt;CreateNamedPipe&lt;/code&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;code&gt;CreateNamedPipe&lt;/code&gt;.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:5"&gt;
 &lt;p&gt;There was an additional complication to early versions of this
@@ -312,10 +320,16 @@ connections from the application. As a result, the process ran as the
 user account that started the application first, which might or might
 not prevent future clients from connecting. Moral of the story: don&amp;#8217;t
 forget to do multi-user testing if that&amp;#8217;s relevant to your
-application.&amp;#160;&lt;a class="footnote-backref" href="#fnref:5" rev="footnote" title="Jump back to footnote 5 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+application.&amp;#160;&lt;a class="footnote-backref" href="#fnref:5" title="Jump back to footnote 5 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="work challenge"></category><category term="systems programming"></category><category term="windows"></category></entry><entry><title>Work Challenge #2: Installer Madness</title><link href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html" rel="alternate"></link><published>2016-01-30T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-30:posts/2016/01/30/work-challenge-2-installer-madness.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The second in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+&lt;/div&gt;</content><category term="blog"></category><category term="work challenge"></category><category term="systems programming"></category><category term="windows"></category></entry><entry><title>Work Challenge #2: Installer Madness</title><link href="//mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html" rel="alternate"></link><published>2016-01-30T00:00:00-05:00</published><updated>2016-01-30T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-30:/posts/2016/01/30/work-challenge-2-installer-madness.html</id><summary type="html">&lt;p&gt;&lt;em&gt;The second in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
+challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;As I mentioned in the previous
+&lt;a href="/blog/work-challenge-1-down-the-rabbit-hole.html"&gt;piece&lt;/a&gt; in the
+series, the primary language we use at work is often rather
+frustrating to work with. In addition to the language itself, the
+platform …&lt;/p&gt;</summary><content type="html">&lt;p&gt;&lt;em&gt;The second in a &lt;a href="/tag/work-challenge.html"&gt;series&lt;/a&gt; of technical
 challenges encountered in the course of trying to get work&amp;nbsp;done.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;As I mentioned in the previous
 &lt;a href="/blog/work-challenge-1-down-the-rabbit-hole.html"&gt;piece&lt;/a&gt; in the
@@ -407,17 +421,27 @@ vendor&amp;#8217;s, it actually installs something, and unlike the vendor&amp;#8
 can install more than one version at a time, in case you need to talk
 to more than one database from a client. You can even install them
 alongside the vendor&amp;#8217;s version without conflict, if you&amp;nbsp;like.&lt;/p&gt;
-&lt;p&gt;Me: 2, vendor:&amp;nbsp;0.&lt;/p&gt;</summary><category term="blog"></category><category term="programming"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Work Challenge #1: Down the Rabbit Hole</title><link href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html" rel="alternate"></link><published>2016-01-27T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-27:posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html</id><summary type="html">&lt;blockquote&gt;
-&lt;p&gt;In the desert&lt;br /&gt;
- I saw a creature, naked, bestial,&lt;br /&gt;
- Who, squatting upon the ground,&lt;br /&gt;
- Held his heart in his hands,&lt;br /&gt;
- And ate of it.&lt;br /&gt;
- I said, &amp;#8220;Is it good, friend?&amp;#8221;&lt;br /&gt;
+&lt;p&gt;Me: 2, vendor:&amp;nbsp;0.&lt;/p&gt;</content><category term="blog"></category><category term="blog"></category><category term="programming"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Work Challenge #1: Down the Rabbit Hole</title><link href="//mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html" rel="alternate"></link><published>2016-01-27T00:00:00-05:00</published><updated>2016-01-27T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2016-01-27:/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;In the desert&lt;br&gt;
+ I saw a creature, naked, bestial,&lt;br&gt;
+ Who, squatting upon the ground,&lt;br&gt;
+ Held his heart in his hands,&lt;br&gt;
+ And ate of it.&lt;br&gt;
+ I said, &amp;#8220;Is it good, friend?&amp;#8221;&lt;br&gt;
  &amp;#8220;It is bitter&amp;#8212;bitter,&amp;#8221; he&amp;nbsp;answered;  &lt;/p&gt;
-&lt;p&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;But I like it&lt;br /&gt;
- &amp;#8220;Because it is bitter,&lt;br /&gt;
- &amp;#8220;And because it is my heart.&amp;#8221;&lt;br /&gt;
+&lt;p&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;But I like it&lt;br&gt;
+ &amp;#8220;Because it is bitter,&lt;br&gt;
+ &amp;#8220;And because it is my heart …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;blockquote&gt;
+&lt;p&gt;In the desert&lt;br&gt;
+ I saw a creature, naked, bestial,&lt;br&gt;
+ Who, squatting upon the ground,&lt;br&gt;
+ Held his heart in his hands,&lt;br&gt;
+ And ate of it.&lt;br&gt;
+ I said, &amp;#8220;Is it good, friend?&amp;#8221;&lt;br&gt;
+ &amp;#8220;It is bitter&amp;#8212;bitter,&amp;#8221; he&amp;nbsp;answered;  &lt;/p&gt;
+&lt;p&gt;&lt;span class="dquo"&gt;&amp;#8220;&lt;/span&gt;But I like it&lt;br&gt;
+ &amp;#8220;Because it is bitter,&lt;br&gt;
+ &amp;#8220;And because it is my heart.&amp;#8221;&lt;br&gt;
 &amp;#8212; Stephen Crane, &amp;#8220;In the&amp;nbsp;Desert&amp;#8221;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2&gt;Note on the&amp;nbsp;series&lt;/h2&gt;
@@ -458,7 +482,7 @@ support, threads appeared to work, and life was good. Rumor had it
 that our language&amp;#8217;s &lt;span class="caps"&gt;VM&lt;/span&gt; was unfriendly toward embedded code, but
 everything was working well. Then, on the brink of success, the
 unthinkable: our tester reported that our application crashed on
-&lt;em&gt;every machine that wasn&amp;#8217;t my &lt;span class="caps"&gt;VM&lt;/span&gt;&lt;/em&gt;&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;em&gt;every machine that wasn&amp;#8217;t my &lt;span class="caps"&gt;VM&lt;/span&gt;&lt;/em&gt;&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;Not only had my project catastrophically failed, but now all of the
 email-based features we were trying to roll out were in jeopardy. In a
 desperate attempt to stem the bleeding, I called upon the Unix gods
@@ -469,7 +493,7 @@ could be used by both the Lisp process and our gimpy language; and
 since I couldn&amp;#8217;t initialize the process with a blocking call, I&amp;#8217;d need
 a way to know when it had started up (or worse, when it failed
 to). Performance would probably also take a hit, so mitigating that
-would be important for fine-grained calls&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+would be important for fine-grained calls&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2"&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;I settled on a scheme where the two processes would communicate with
 &lt;a href="http://msgpack.org/index.html"&gt;MsgPack&lt;/a&gt; over a named pipe. The main
 process would act as a pipe server, and the Lisp process would connect
@@ -478,7 +502,7 @@ process could block waiting for a connection, and would at least be
 notified if the Lisp process was killed because the pipe would be
 broken. I had to write a wrapper library to allow our main language to
 work with pipes, and I had to work around issues on the Lisp side
-too&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3" rel="footnote"&gt;3&lt;/a&gt;&lt;/sup&gt;, but eventually it seemed to be working reliably, and we were
+too&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3"&gt;3&lt;/a&gt;&lt;/sup&gt;, but eventually it seemed to be working reliably, and we were
 able to roll out the email features to a few customers without
 problems. There were even a few opportunities for performance
 improvements, and life was good&amp;nbsp;again.&lt;/p&gt;
@@ -508,7 +532,7 @@ multiple instances of the main application could connect to it, and
 have the co-process exit if the pipe already existed. That was simple
 enough, but we lost the ability to wait for the co-process to connect,
 so initialization had to get timeout parameters and a special wait
-function&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4" rel="footnote"&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+function&lt;sup id="fnref:4"&gt;&lt;a class="footnote-ref" href="#fn:4"&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;Now we have to deal with the first real problem in this setup: when
 the first instance of our application starts up, it will launch the
 co-process which will act as a server for all other instances of our
@@ -541,7 +565,7 @@ application to a sane language, just as fast as we possibly can. For
 now, though, our Rube-Goldberg-ian creation will have to rumble along
 until we hit another&amp;nbsp;hurdle.&lt;/p&gt;
 &lt;div class="footnote"&gt;
-&lt;hr /&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
 &lt;p&gt;I suspect this may have had something to do with Windows&amp;#8217;
@@ -549,7 +573,7 @@ Dynamic Execution Prevention system. Lisp implementations
 typically set this off because of the dynamic code generation they
 do, but it&amp;#8217;s only enabled by default on Server editions of
 Windows, so it&amp;#8217;s easy to miss during development. Sadly I haven&amp;#8217;t
-had the time to verify the theory.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+had the time to verify the theory.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
 &lt;p&gt;As part of the original system, I had implemented a rather
@@ -558,7 +582,7 @@ back into the main process to handle database manipulation (our
 language is a 4gl and can&amp;#8217;t talk to normal databases &amp;#8212; it&amp;#8217;s on
 loan to us from the 80s). Unfortunately, with the number of calls
 required, performance was slow even with the directly-embedded
-version.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+version.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:3"&gt;
 &lt;p&gt;For example, most Lisps check file existence with the &lt;code&gt;_stat()&lt;/code&gt;
@@ -566,7 +590,7 @@ function, which calls &lt;code&gt;CreateFile()&lt;/code&gt; internally. This cou
 connection to the pipe, and a subsequent open will fail unless the
 server re-creates the instance. Since most Lisps check file existence
 before opening in order to signal an error for missing files, a normal
-open call can&amp;#8217;t be used to connect to a named pipe.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" rev="footnote" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+open call can&amp;#8217;t be used to connect to a named pipe.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:4"&gt;
 &lt;p&gt;Windows has a function to wait for a named pipe to become
@@ -575,15 +599,19 @@ that doesn&amp;#8217;t exist yet. To get a proper timeout, you have to
 &lt;code&gt;Sleep()&lt;/code&gt; in the case that the pipe doesn&amp;#8217;t exist, and
 &lt;code&gt;WaitNamedPipe()&lt;/code&gt; when it does; since &lt;code&gt;Sleep()&lt;/code&gt; isn&amp;#8217;t interrupted
 when the pipe becomes available, you need a timeout that retries
-connections a certain number of times.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" rev="footnote" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+connections a certain number of times.&amp;#160;&lt;a class="footnote-backref" href="#fnref:4" title="Jump back to footnote 4 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="http://mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><published>2015-10-27T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;If you&amp;#8217;ve ever looked at books on refactoring code, there&amp;#8217;s one common
+&lt;/div&gt;</content><category term="blog"></category><category term="blog"></category><category term="programming"></category><category term="language interop"></category><category term="abl"></category><category term="windows"></category><category term="work challenge"></category></entry><entry><title>Polymorphic Functions in ABL</title><link href="//mtstickney.github.io/posts/2015/10/27/polymorphic-functions-in-abl.html" rel="alternate"></link><published>2015-10-27T00:00:00-04:00</published><updated>2015-10-27T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-10-27:/posts/2015/10/27/polymorphic-functions-in-abl.html</id><summary type="html">&lt;p&gt;If you&amp;#8217;ve ever looked at books on refactoring code, there&amp;#8217;s one common
 theme among them: every piece of refactoring advice that has ever been
-given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;At work, we use this crummy business-oriented language called &lt;span class="caps"&gt;ABL&lt;/span&gt;. It
+actually …&lt;/p&gt;</summary><content type="html">&lt;p&gt;If you&amp;#8217;ve ever looked at books on refactoring code, there&amp;#8217;s one common
+theme among them: every piece of refactoring advice that has ever been
+given assumes the existence of an object system in your language&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 &lt;p&gt;At work, we use this crummy business-oriented language called &lt;span class="caps"&gt;ABL&lt;/span&gt;. It
 actually has objects, despite their
-&lt;a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/"&gt;many shortcomings&lt;/a&gt;&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;,
+&lt;a href="https://blog.abevoelker.com/progress_openedge_abl_considered_harmful/"&gt;many shortcomings&lt;/a&gt;&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2"&gt;2&lt;/a&gt;&lt;/sup&gt;,
 but they come at a prohibitive cost for us: they require manual
 memory management, and there are a number of subtle compiler bugs that
 affects code compiled one one version and run on&amp;nbsp;another.&lt;/p&gt;
@@ -614,7 +642,7 @@ look up the concrete procedure in question. &lt;span class="caps"&gt;ABL&lt;/spa
 to be dynamically invoked, so by returning a procedure, we can also
 punt parameter passing to the&amp;nbsp;caller.&lt;/p&gt;
 &lt;p&gt;Here&amp;#8217;s what it looks&amp;nbsp;like:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/* Top-level include for the runtime and type definition. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="cm"&gt;/* Top-level include for the runtime and type definition. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 &lt;span class="err"&gt;{&lt;/span&gt;interfaces&lt;span class="o"&gt;.&lt;/span&gt;i&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;NEW&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;NEW&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 
 &lt;span class="cm"&gt;/* Declare an interface method (mostly just for compiler support). */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
@@ -624,29 +652,27 @@ punt parameter passing to the&amp;nbsp;caller.&lt;/p&gt;
 &lt;span class="cm"&gt;interface. */&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 DEFINE&lt;span class="w"&gt; &lt;/span&gt;VAR&lt;span class="w"&gt; &lt;/span&gt;greeter&lt;span class="w"&gt; &lt;/span&gt;AS&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;INTERFACE&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;NO&lt;span class="o"&gt;-&lt;/span&gt;UNDO&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
 greeter&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;igreeter&lt;span class="o"&gt;.&lt;/span&gt;sayhello&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;To supply an implementation of a method, you create a normal procedure
 and register it with an implementation&amp;nbsp;class:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;{implements.i {&amp;amp;igreeter.sayhello} greeter.english hello.p}
-{implements.i {&amp;amp;igreeter.sayhello} greeter.spanish hola.p}
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="n"&gt;implements&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;igreeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sayhello&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="n"&gt;greeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;english&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="n"&gt;implements&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;igreeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sayhello&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="n"&gt;greeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;spanish&lt;/span&gt; &lt;span class="n"&gt;hola&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;
 
-/* The methods can be invoked directly....*/
-{invoke.i {&amp;amp;igreeter.sayhello} {&amp;amp;greeter.english}} (&amp;quot;Jimmy&amp;quot;).
-{invoke.i {&amp;amp;igreeter.sayhello} {&amp;amp;greeter.spanish}} (&amp;quot;Jimmy&amp;quot;).
+&lt;span class="cm"&gt;/* The methods can be invoked directly....*/&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;igreeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sayhello&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;greeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;english&lt;/span&gt;&lt;span class="err"&gt;}}&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;Jimmy&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;igreeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sayhello&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;greeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;spanish&lt;/span&gt;&lt;span class="err"&gt;}}&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;Jimmy&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
 
-/* ...or by passing implementation classes around. */
-PROCEDURE SayHi:
-    DEFINE INPUT PARAM klass AS {&amp;amp;INTERFACE} NO-UNDO.
-    DEFINE INPUT PARAM name AS CHARACTER NO-UNDO.
-    {invoke.i {&amp;amp;igreeter.sayhello} klass} (name).
-END.
+&lt;span class="cm"&gt;/* ...or by passing implementation classes around. */&lt;/span&gt;
+&lt;span class="k"&gt;PROCEDURE&lt;/span&gt; &lt;span class="n"&gt;SayHi&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;DEFINE&lt;/span&gt; &lt;span class="k"&gt;INPUT&lt;/span&gt; &lt;span class="n"&gt;PARAM&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;INTERFACE&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;UNDO&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+    &lt;span class="n"&gt;DEFINE&lt;/span&gt; &lt;span class="k"&gt;INPUT&lt;/span&gt; &lt;span class="n"&gt;PARAM&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;UNDO&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+    &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;igreeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sayhello&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+&lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
 
-RUN SayHi({&amp;amp;greeter.english}, &amp;quot;Jimmy&amp;quot;).
-RUN SayHi({&amp;amp;greeter.spanish}, &amp;quot;Jimmy&amp;quot;).
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class="n"&gt;RUN&lt;/span&gt; &lt;span class="n"&gt;SayHi&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;greeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;english&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;Jimmy&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+&lt;span class="n"&gt;RUN&lt;/span&gt; &lt;span class="n"&gt;SayHi&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;greeter&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;spanish&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;Jimmy&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;h1&gt;Results&lt;/h1&gt;
 &lt;p&gt;The interfaces (and implementation classes) in this system can be
@@ -670,52 +696,51 @@ preprocessor contortions, though it&amp;#8217;s also rather small at about 60
 lines of&amp;nbsp;code.&lt;/p&gt;
 &lt;p&gt;The core is a small runtime that is responsible for registering and
 looking up concrete procedures for interface&amp;nbsp;implementations:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;CLASS MethodRuntime:
-    DEFINE PROTECTED TEMP-TABLE tt_method NO-UNDO
-            FIELD klass AS CHARACTER
-            FIELD methodName AS CHARACTER
-            FIELD procName AS CHARACTER
-            FIELD procHdl AS HANDLE
-            INDEX method_index IS PRIMARY
-                    klass
-                    methodName.
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;CLASS&lt;/span&gt; &lt;span class="n"&gt;MethodRuntime&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;DEFINE&lt;/span&gt; &lt;span class="n"&gt;PROTECTED&lt;/span&gt; &lt;span class="n"&gt;TEMP&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;UNDO&lt;/span&gt;
+            &lt;span class="n"&gt;FIELD&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;
+            &lt;span class="n"&gt;FIELD&lt;/span&gt; &lt;span class="n"&gt;methodName&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;
+            &lt;span class="n"&gt;FIELD&lt;/span&gt; &lt;span class="n"&gt;procName&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;
+            &lt;span class="n"&gt;FIELD&lt;/span&gt; &lt;span class="n"&gt;procHdl&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;HANDLE&lt;/span&gt;
+            &lt;span class="k"&gt;INDEX&lt;/span&gt; &lt;span class="n"&gt;method_index&lt;/span&gt; &lt;span class="k"&gt;IS&lt;/span&gt; &lt;span class="k"&gt;PRIMARY&lt;/span&gt;
+                    &lt;span class="n"&gt;klass&lt;/span&gt;
+                    &lt;span class="n"&gt;methodName&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
 
-    METHOD PUBLIC VOID RegisterMethod(klass AS CHARACTER, methodName AS CHARACTER):
-            FIND FIRST tt_method WHERE tt_method.klass = klass
-                            AND tt_method.methodName = methodName
-                            NO-LOCK NO-ERROR.
-            IF AVAILABLE tt_method THEN DO:
-                    ASSIGN tt_method.procName = procName
-                            tt_method.procHdl = procHdl.
-                    RETURN.
-            END.
+    &lt;span class="k"&gt;METHOD&lt;/span&gt; &lt;span class="k"&gt;PUBLIC&lt;/span&gt; &lt;span class="n"&gt;VOID&lt;/span&gt; &lt;span class="n"&gt;RegisterMethod&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;methodName&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="n"&gt;FIND&lt;/span&gt; &lt;span class="k"&gt;FIRST&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt;
+                            &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;methodName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;methodName&lt;/span&gt;
+                            &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;LOCK&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+            &lt;span class="k"&gt;IF&lt;/span&gt; &lt;span class="n"&gt;AVAILABLE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;DO&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                    &lt;span class="n"&gt;ASSIGN&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;procName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;procName&lt;/span&gt;
+                            &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;procHdl&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;procHdl&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+                    &lt;span class="k"&gt;RETURN&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+            &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
 
-            CREATE tt_method.
-            ASSIGN tt_method.klass = klass
-                    tt_method.methodName = methodName
-                    tt_method.procName = procName
-                    tt_method.procHdl = procHdl.
-    END.
+            &lt;span class="k"&gt;CREATE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+            &lt;span class="n"&gt;ASSIGN&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt;
+                    &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;methodName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;methodName&lt;/span&gt;
+                    &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;procName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;procName&lt;/span&gt;
+                    &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;procHdl&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;procHdl&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+    &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
 
-    METHOD PUBLIC CHARACTER MethodProc(methodName AS CHARACTER,
-                   klass AS CHARACTER):
-            FIND FIRST tt_method WHERE tt_method.klass = klass
-                            AND tt_method.methodName = methodName
-                            NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE tt_method THEN DO:
-                   FIND FIRST tt_method WHERE tt_method.klass = klass
-                                   NO-LOCK NO-ERROR.
-                   IF NOT AVAILABLE tt_method THEN
-                          RETURN ERROR SUBSITUTE(&amp;quot;No such class&amp;#39;&amp;amp;1&amp;#39;&amp;quot;, klass).
-                   ELSE
-                          RETURN ERROR SUBSTITUTE(&amp;quot;Class &amp;#39;&amp;amp;1&amp;#39; has no method &amp;#39;&amp;amp;2&amp;#39;&amp;quot;,
-                                        klass, methodName).
-            END.
-            RETURN tt_method.procName.
-    END.
-END.
-&lt;/pre&gt;&lt;/div&gt;
-
+    &lt;span class="k"&gt;METHOD&lt;/span&gt; &lt;span class="k"&gt;PUBLIC&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt; &lt;span class="n"&gt;MethodProc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;methodName&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                   &lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="n"&gt;FIND&lt;/span&gt; &lt;span class="k"&gt;FIRST&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt;
+                            &lt;span class="k"&gt;AND&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;methodName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;methodName&lt;/span&gt;
+                            &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;LOCK&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+            &lt;span class="k"&gt;IF&lt;/span&gt; &lt;span class="k"&gt;NOT&lt;/span&gt; &lt;span class="n"&gt;AVAILABLE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt; &lt;span class="k"&gt;DO&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                   &lt;span class="n"&gt;FIND&lt;/span&gt; &lt;span class="k"&gt;FIRST&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;klass&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt;
+                                   &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;LOCK&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ERROR&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+                   &lt;span class="k"&gt;IF&lt;/span&gt; &lt;span class="k"&gt;NOT&lt;/span&gt; &lt;span class="n"&gt;AVAILABLE&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt; &lt;span class="k"&gt;THEN&lt;/span&gt;
+                          &lt;span class="k"&gt;RETURN&lt;/span&gt; &lt;span class="n"&gt;ERROR&lt;/span&gt; &lt;span class="n"&gt;SUBSITUTE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;No such class&amp;#39;&amp;amp;1&amp;#39;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;klass&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+                   &lt;span class="k"&gt;ELSE&lt;/span&gt;
+                          &lt;span class="k"&gt;RETURN&lt;/span&gt; &lt;span class="n"&gt;ERROR&lt;/span&gt; &lt;span class="n"&gt;SUBSTITUTE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;Class &amp;#39;&amp;amp;1&amp;#39; has no method &amp;#39;&amp;amp;2&amp;#39;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                        &lt;span class="n"&gt;klass&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;methodName&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+            &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+            &lt;span class="k"&gt;RETURN&lt;/span&gt; &lt;span class="n"&gt;tt_method&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;procName&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+    &lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;span class="k"&gt;END&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;Internally, classes and interfaces are strings: this allow them to be
 created without memory management issues, and means they&amp;#8217;ll print
@@ -725,40 +750,36 @@ and we&amp;#8217;d like those to be fast if&amp;nbsp;possible.&lt;/p&gt;
 &lt;p&gt;The toplevel &lt;code&gt;interfaces.i&lt;/code&gt; include defines a shared instance of the
 runtime class, and establishes the opaque &lt;code&gt;{&amp;amp;INTERFACE}&lt;/code&gt; type synonym
 for interfaces and implementation&amp;nbsp;classes.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;IF DEFINED(INTERFACES_I_)=0 &amp;amp;THEN
-&amp;amp;GLOBAL-DEFINE INTERFACES_I_
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;IF&lt;/span&gt; &lt;span class="k"&gt;DEFINED&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;INTERFACES_I_&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;THEN&lt;/span&gt;
+&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;GLOBAL&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;DEFINE&lt;/span&gt; &lt;span class="n"&gt;INTERFACES_I_&lt;/span&gt;
 
-&amp;amp;GLOBAL-DEFINE INTERFACE CHARACTER
-DEFINE {&amp;amp;NEW} SHARED VAR MethodRuntime AS CLASS MethodRuntime NO-UNDO.
+&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;GLOBAL&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;DEFINE&lt;/span&gt; &lt;span class="n"&gt;INTERFACE&lt;/span&gt; &lt;span class="nb"&gt;CHARACTER&lt;/span&gt;
+&lt;span class="n"&gt;DEFINE&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;NEW&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt; &lt;span class="n"&gt;SHARED&lt;/span&gt; &lt;span class="n"&gt;VAR&lt;/span&gt; &lt;span class="n"&gt;MethodRuntime&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="k"&gt;CLASS&lt;/span&gt; &lt;span class="n"&gt;MethodRuntime&lt;/span&gt; &lt;span class="k"&gt;NO&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;UNDO&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
 
-&amp;amp;IF &amp;#39;{&amp;amp;NEW}&amp;#39;&amp;lt;&amp;gt;&amp;#39;&amp;#39; &amp;amp;THEN
-MethodRuntime = NEW MethodRuntime().
-&amp;amp;ENDIF
+&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;IF&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;{&amp;amp;NEW}&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="k"&gt;THEN&lt;/span&gt;
+&lt;span class="n"&gt;MethodRuntime&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;NEW&lt;/span&gt; &lt;span class="n"&gt;MethodRuntime&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;
+&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;ENDIF&lt;/span&gt;
 
-&amp;amp;ENDIF
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;ENDIF&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;The &lt;code&gt;define-interface.i&lt;/code&gt; include-macro does very little: it simply
 defines a preprocessor name for the string constant that is the
 interface&amp;nbsp;name.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;GLOBAL-DEFINE {1} &amp;#39;{1}&amp;#39;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;&amp;amp;GLOBAL-DEFINE {1} &amp;#39;{1}&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;The &lt;code&gt;implements.i&lt;/code&gt; include-macro does the same for the implementation
 class, and expands to a call to &lt;code&gt;MethodRuntime:RegisterMethod()&lt;/code&gt;. The
 parent-procedure handle parameter of &lt;code&gt;RegisterMethod&lt;/code&gt; is unused for&amp;nbsp;now.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;amp;GLOBAL-DEFINE {2} &amp;#39;{2}&amp;#39;
-MethodRuntime:RegisterMethod({1}, {&amp;amp;{2}}, &amp;quot;{3}&amp;quot;, ?).
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;&amp;amp;GLOBAL-DEFINE {2} &amp;#39;{2}&amp;#39;&lt;/span&gt;
+&lt;span class="c"&gt;MethodRuntime:RegisterMethod({1}, {&amp;amp;{2}}, &amp;quot;{3}&amp;quot;, ?).&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;code&gt;invoke.i&lt;/code&gt; is a simple expansion to all but the parameter list of a
 dynamic procedure call, using the procedure name returned by the&amp;nbsp;runtime:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;RUN VALUE(MethodRuntime:MethodProc({1}, {2}))
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;RUN VALUE(MethodRuntime:MethodProc({1}, {2}))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;h1&gt;Conclusion&lt;/h1&gt;
 &lt;p&gt;It is clearly possible to provide polymorphic functions in &lt;span class="caps"&gt;ABL&lt;/span&gt;, with a
@@ -767,21 +788,25 @@ cumbersome syntax and some modest restrictions on the implementations
 of methods. Basic compile-time support is doable, and there is no risk
 of memory leaks without garbage collector&amp;nbsp;support.&lt;/p&gt;
 &lt;div class="footnote"&gt;
-&lt;hr /&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
 &lt;p&gt;Michael Feathers&amp;#8217;
 &lt;a href="http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052"&gt;book&lt;/a&gt;
 actually includes a tiny little section at the end about working
 with C. It consists mainly of the author throwing up his hands and
-suggesting you use a real language.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+suggesting you use a real language.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
 &lt;p&gt;See the &amp;#8220;&lt;span class="caps"&gt;OOABL&lt;/span&gt;&amp;#8221; sections toward the end. Bear in mind that most
-of the &amp;#8220;fixed&amp;#8221; issues don&amp;#8217;t apply to the versions we have in the field.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+of the &amp;#8220;fixed&amp;#8221; issues don&amp;#8217;t apply to the versions we have in the field.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="abl"></category><category term="OO"></category><category term="experiments"></category></entry><entry><title>Look Ma, No IVs!</title><link href="http://mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><published>2015-09-01T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
+&lt;/div&gt;</content><category term="blog"></category><category term="abl"></category><category term="OO"></category><category term="experiments"></category></entry><entry><title>Look Ma, No IVs!</title><link href="//mtstickney.github.io/posts/2015/09/01/look-ma-no-ivs.html" rel="alternate"></link><published>2015-09-01T00:00:00-04:00</published><updated>2015-09-01T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-09-01:/posts/2015/09/01/look-ma-no-ivs.html</id><summary type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
+encryption and decryption: the encryption key, the data (plaintext or
+ciphertext) and an Initialization Vector. Storing IVs is a hassle;
+what follows is a cute trick for doing encryption in &lt;span class="caps"&gt;AES&lt;/span&gt; &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode
+without explicitly storing or transmitting IVs, and without …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Encryption algorithms in some modes require three parameters for
 encryption and decryption: the encryption key, the data (plaintext or
 ciphertext) and an Initialization Vector. Storing IVs is a hassle;
 what follows is a cute trick for doing encryption in &lt;span class="caps"&gt;AES&lt;/span&gt; &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode
@@ -827,7 +852,7 @@ with two different IVs, we only lose the first block of&amp;nbsp;data.&lt;/p&gt;
 &lt;p&gt;The obvious way to exploit this behavior is to have the encrypting
 party and the decrypting party generate independent cryptographically
 random IVs, and treat the first block of data as sacrificial
-garbage&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;. Since the encrypting side and decrypting side aren&amp;#8217;t
+garbage&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;. Since the encrypting side and decrypting side aren&amp;#8217;t
 using the same &lt;span class="caps"&gt;IV&lt;/span&gt;, they don&amp;#8217;t need to store or transmit it. The
 encrypted data will be a block larger (the same as if you were to
 concatenate the &lt;span class="caps"&gt;IV&lt;/span&gt; and the ciphertext), and there is one extra encrypt
@@ -836,7 +861,7 @@ and decrypt&amp;nbsp;operation.&lt;/p&gt;
 IVs (and without resorting to an all-zero &lt;span class="caps"&gt;IV&lt;/span&gt; and sacrificing data
 security), but it&amp;#8217;s only applicable to &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode, which you probably
 shouldn&amp;#8217;t be using. &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode doesn&amp;#8217;t do authentication, which is
-Bad&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2" rel="footnote"&gt;2&lt;/a&gt;&lt;/sup&gt;; you should use an authenticating mode like
+Bad&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2"&gt;2&lt;/a&gt;&lt;/sup&gt;; you should use an authenticating mode like
 &lt;a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"&gt;&lt;span class="caps"&gt;GCM&lt;/span&gt;&lt;/a&gt; or
 &lt;a href="https://en.wikipedia.org/wiki/EAX_mode"&gt;&lt;span class="caps"&gt;EAX&lt;/span&gt;&lt;/a&gt; instead (or at least use
 a Message Authentication Code). Better still, make your life easier
@@ -852,14 +877,14 @@ first time someone&amp;#8217;s come up with the idea:
 &lt;a href="http://crypto.stackexchange.com/a/7937"&gt;this answer&lt;/a&gt; refers to the
 same&amp;nbsp;scheme.&lt;/p&gt;
 &lt;div class="footnote"&gt;
-&lt;hr /&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
 &lt;p&gt;Fun fact: &lt;code&gt;XOR&lt;/code&gt; is entropy-preserving (i.e. the enropy of &lt;code&gt;a XOR
 b&lt;/code&gt; is the maximum of &lt;code&gt;a&lt;/code&gt; or &lt;code&gt;b&lt;/code&gt;&lt;span class="quo"&gt;&amp;#8216;&lt;/span&gt;s entropy) so having a random or
 all-zero (or any other) value here doesn&amp;#8217;t decrease the entropy
 contributed by the &lt;span class="caps"&gt;IV&lt;/span&gt;. &lt;span class="caps"&gt;CBC&lt;/span&gt;-mode relies on this property to work, since
-the ciphertext might naturally have any value in a block.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+the ciphertext might naturally have any value in a block.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li id="fn:2"&gt;
 &lt;p&gt;This is surprising to many people, but without a special
@@ -868,14 +893,22 @@ to tell the difference between a legitimately encrypted message and
 random garbage (and this is a good thing). It is surprisingly easy to
 produce certain kinds of outputs by modifying the ciphertext, and a
 non-authenticating mode like &lt;span class="caps"&gt;CBC&lt;/span&gt; will happily decrypt it without any
-idea that it&amp;#8217;s been tampered with.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+idea that it&amp;#8217;s been tampered with.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="cryptography"></category><category term="encryption"></category><category term="AES"></category><category term="programming"></category></entry><entry><title>Infrastructure Notes: Pelican Setup</title><link href="http://mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html" rel="alternate"></link><published>2015-04-26T00:00:00-04:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:posts/2015/04/26/infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
-&lt;p&gt;I have slipped the surly bonds of Octopress&lt;br /&gt;
- pulled the trigger&lt;br /&gt;
- and converted this sucker to Pelican.&lt;br /&gt;
- &amp;#8212; definitely not John Gillespie Magee, Jr.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1" rel="footnote"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/div&gt;</content><category term="blog"></category><category term="cryptography"></category><category term="encryption"></category><category term="AES"></category><category term="programming"></category></entry><entry><title>Infrastructure Notes: Pelican Setup</title><link href="//mtstickney.github.io/posts/2015/04/26/infrastructure-notes-pelican-setup.html" rel="alternate"></link><published>2015-04-26T00:00:00-04:00</published><updated>2015-04-26T00:00:00-04:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2015-04-26:/posts/2015/04/26/infrastructure-notes-pelican-setup.html</id><summary type="html">&lt;blockquote&gt;
+&lt;p&gt;I have slipped the surly bonds of Octopress&lt;br&gt;
+ pulled the trigger&lt;br&gt;
+ and converted this sucker to Pelican.&lt;br&gt;
+ &amp;#8212; definitely not John Gillespie Magee, Jr.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This blog used to be powered by &lt;a href="http://octopress.org"&gt;Octopress&lt;/a&gt;, but
+I&amp;#8217;ve just finished converting the whole thing to
+&lt;a href="http://blog.getpelican.com"&gt;Pelican&lt;/a&gt;, and wanted to make a few notes …&lt;/p&gt;</summary><content type="html">&lt;blockquote&gt;
+&lt;p&gt;I have slipped the surly bonds of Octopress&lt;br&gt;
+ pulled the trigger&lt;br&gt;
+ and converted this sucker to Pelican.&lt;br&gt;
+ &amp;#8212; definitely not John Gillespie Magee, Jr.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;This blog used to be powered by &lt;a href="http://octopress.org"&gt;Octopress&lt;/a&gt;, but
 I&amp;#8217;ve just finished converting the whole thing to
@@ -918,29 +951,26 @@ post was more than a year ago), which in the end is the whole point,
 so after much procrastinating I&amp;#8217;m pulling the trigger and switching to&amp;nbsp;Pelican.&lt;/p&gt;
 &lt;h2&gt;The&amp;nbsp;Setup&lt;/h2&gt;
 &lt;p&gt;First, create a virtualenv for the site in&amp;nbsp;question:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ mkdir my_site/ &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd&lt;/span&gt; my_site/
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ mkdir my_site/ &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd&lt;/span&gt; my_site/
 $ virtualenv .
 $ &lt;span class="nb"&gt;source&lt;/span&gt; Scripts/activate
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;Next, install the pelican components and create the project&amp;nbsp;skeleton:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pip install pelican markdown typogrify
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ pip install pelican markdown typogrify
 $ pelican-quickstart
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;It&amp;#8217;s not a great idea to add the virtualenv components to the git
 repo, but we do want to track the installed components so setup on a
 new machine is easy. The best way I&amp;#8217;ve found to do that is to save the
 requirements list from&amp;nbsp;pip:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ pip -l freeze &amp;gt; requirements.txt
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ pip -l freeze &amp;gt; requirements.txt
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;You&amp;#8217;ll want to add Pelican&amp;#8217;s files, the requirements file, and any
 existing content (but not the &lt;code&gt;output/&lt;/code&gt; folder just&amp;nbsp;yet):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git add pelicanconf.py &lt;span class="se"&gt;\&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ git add pelicanconf.py &lt;span class="se"&gt;\&lt;/span&gt;
           publishconf.py &lt;span class="se"&gt;\&lt;/span&gt;
           Makefile &lt;span class="se"&gt;\&lt;/span&gt;
           fabfiile.py &lt;span class="se"&gt;\&lt;/span&gt;
@@ -948,8 +978,7 @@ existing content (but not the &lt;code&gt;output/&lt;/code&gt; folder just&amp;n
           requirements.txt &lt;span class="se"&gt;\&lt;/span&gt;
           content/
 $ git commit -m &lt;span class="s1"&gt;&amp;#39;Add Pelican files.&amp;#39;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;I like Octopress&amp;#8217; default theme, so I&amp;#8217;m using the
 &lt;a href="https://github.com/duilio/pelican-octopress-theme"&gt;pelican-octopress&lt;/a&gt; theme. There is a small
@@ -957,10 +986,9 @@ issue with the github scripts it uses for the sidebar, but I&amp;#8217;m hoping
 to submit a patch for that shortly. This is also the one and only part
 of the site that I haven&amp;#8217;t figured out how to store in the main repo
 yet (a submodule would probably do it).&amp;nbsp;Installation:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ git clone https://github.com/duilio/pelican-octopress-theme.git ../pelican-octopress
 $ pelican-theme -i ../pelican-octopress
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;h2&gt;Github&amp;nbsp;Pages&lt;/h2&gt;
 &lt;p&gt;Getting Pelican&amp;#8217;s output into the right branch for Github Pages can be
@@ -975,9 +1003,8 @@ convince it to use &lt;code&gt;master&lt;/code&gt; instead of &lt;code&gt;gh-pag
 my own deployment script quite easily using &lt;code&gt;git subtree&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;The first thing to do is to add the &lt;code&gt;output/&lt;/code&gt; directory as a subtree
 from the master&amp;nbsp;branch:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git subtree add --prefix output/ origin master
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ git subtree add --prefix output/ origin master
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;Then we can use a deployment script to generate the site, commit the
 changes, and push the generated content to the master&amp;nbsp;branch:&lt;/p&gt;
@@ -997,7 +1024,7 @@ changes, and push the generated content to the master&amp;nbsp;branch:&lt;/p&gt;
 14
 15
 16
-17&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/bin/sh&lt;/span&gt;
+17&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="ch"&gt;#!/bin/sh&lt;/span&gt;
 
 &lt;span class="nv"&gt;OUTPUT_DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;output
 &lt;span class="c1"&gt;# Generate fresh production output&lt;/span&gt;
@@ -1014,16 +1041,15 @@ git commit -m &lt;span class="s2"&gt;&amp;quot;Site updated at &lt;/span&gt;&lt;
 
 &lt;span class="c1"&gt;# Push it to the remote&lt;/span&gt;
 git subtree push --prefix &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$OUTPUT_DIR&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; origin master
-&lt;/pre&gt;&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-
 &lt;p&gt;Works like a charm, and I (now) know exactly what it&amp;#8217;s doing. The only
 thing missing is &lt;code&gt;git pull&lt;/code&gt;ing the new &lt;code&gt;master&lt;/code&gt;, but you generally
 won&amp;#8217;t even have it checked out&amp;nbsp;locally.&lt;/p&gt;
 &lt;h2&gt;New Machine&amp;nbsp;Setup&lt;/h2&gt;
 &lt;p&gt;With all that in place, setup on a new machine is pretty
 straightforward, assuming Python is already&amp;nbsp;installed:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone https://github.com/mtstickney/mtstickney.github.com site
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ git clone https://github.com/mtstickney/mtstickney.github.com site
 $ &lt;span class="c1"&gt;# There is a bug with script loading in the upstream theme, so pull a fixed version.&lt;/span&gt;
 $ &lt;span class="c1"&gt;# git clone https://github.com/duilio/pelican-octopress-theme.git pelican-octopress&lt;/span&gt;
 $ git clone -b script_fixes https://github.com/mtstickney/pelican-octopress-theme.git pelican-octopress
@@ -1038,20 +1064,23 @@ $ ./deploy.sh
 $ &amp;lt;optionally push &lt;span class="o"&gt;(&lt;/span&gt;to include the deployed site update&lt;span class="o"&gt;)&lt;/span&gt;&amp;gt;
 $ &lt;span class="c1"&gt;# If you&amp;#39;re using the development server, it will need to be restarted.&lt;/span&gt;
 $ ./develop_server.sh restart
-&lt;/pre&gt;&lt;/div&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;div class="footnote"&gt;
-&lt;hr /&gt;
+&lt;hr&gt;
 &lt;ol&gt;
 &lt;li id="fn:1"&gt;
 &lt;p&gt;This is a shameless ripoff of John Gillespie Magee Jr.&amp;#8217;s fabulous
   poem
   &lt;a href="http://www.woodiescciclub.com/high-flight.htm"&gt;High Flight&lt;/a&gt;. You
-  should go read it.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+  should go read it.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;</summary><category term="infrastructure note"></category><category term="blog"></category><category term="meta"></category><category term="pelican"></category><category term="github-pages"></category></entry><entry><title>Abusing Search Paths for Fun and Profit</title><link href="http://mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html" rel="alternate"></link><published>2013-02-12T00:00:00-05:00</published><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2013-02-12:posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html</id><summary type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
+&lt;/div&gt;</content><category term="blog"></category><category term="infrastructure note"></category><category term="blog"></category><category term="meta"></category><category term="pelican"></category><category term="github-pages"></category></entry><entry><title>Abusing Search Paths for Fun and Profit</title><link href="//mtstickney.github.io/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html" rel="alternate"></link><published>2013-02-12T00:00:00-05:00</published><updated>2013-02-12T00:00:00-05:00</updated><author><name>Matthew Stickney</name></author><id>tag:mtstickney.github.io,2013-02-12:/posts/2013/02/12/abusing-search-paths-for-fun-and-profit.html</id><summary type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
+engineer it, naturally. I was recently in the position of having to
+automate some functions of an interactive tool provided by my language
+environment. The language docs said the procedure I needed could be
+extracted from a …&lt;/p&gt;</summary><content type="html">&lt;p&gt;What do you do when you have to use an undocumented function? Reverse
 engineer it, naturally. I was recently in the position of having to
 automate some functions of an interactive tool provided by my language
 environment. The language docs said the procedure I needed could be
@@ -1075,4 +1104,4 @@ it ran my procedure, reported the data, and promptly&amp;nbsp;crashed.&lt;/p&gt;
 despite the total lack of documentation. The moral of the story here
 is that language search paths often be used to hook parts of an
 application that would otherwise be hard to reach, whether it&amp;#8217;s
-bytecode files or DLLs (LD_PRELOAD,&amp;nbsp;anyone?).&lt;/p&gt;</summary><category term="worklog"></category><category term="abl"></category></entry></feed>
+bytecode files or DLLs (LD_PRELOAD,&amp;nbsp;anyone?).&lt;/p&gt;</content><category term="blog"></category><category term="worklog"></category><category term="abl"></category></entry></feed>

@@ -7,9 +7,9 @@
   <title>Seed Data in Database Migrations &mdash; FiddlyBits</title>
   <meta name="author" content="Matthew Stickney">
 
-  <link href="http://mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/atom.xml" type="application/atom+xml" rel="alternate"
         title="FiddlyBits Atom Feed" />
-  <link href="http://mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
+  <link href="//mtstickney.github.io/feeds/rss.xml" type="application/rss+xml" rel="alternate"
         title="FiddlyBits RSS Feed" />
 
 
@@ -23,9 +23,9 @@
 
     <meta name="robots" content="noindex, nofollow" />
 
-    <link href="http://mtstickney.github.io/favicon.png" rel="icon">
+    <link href="//mtstickney.github.io/favicon.png" rel="icon">
 
-  <link href="http://mtstickney.github.io/theme/css/main.css" media="screen, projection"
+  <link href="//mtstickney.github.io/theme/css/main.css" media="screen, projection"
         rel="stylesheet" type="text/css">
 
   <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
@@ -33,25 +33,25 @@
   <link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
         rel="stylesheet" type="text/css">
 
-  <script src="http://mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/ender.js"></script>
-  <script src="http://mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
+  <script src="//mtstickney.github.io/theme/js/modernizr-2.0.js"></script>
+  <script src="//mtstickney.github.io/theme/js/ender.js"></script>
+  <script src="//mtstickney.github.io/theme/js/octopress.js" type="text/javascript"></script>
 </head>
 
 <body>
   <header role="banner"><hgroup>
-  <h1><a href="http://mtstickney.github.io/">FiddlyBits</a></h1>
+  <h1><a href="//mtstickney.github.io/">FiddlyBits</a></h1>
     <h2>A technical blog about fiddly things.</h2>
 </hgroup></header>
   <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="http://mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
-  <li><a href="http://mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
+  <li><a href="//mtstickney.github.io/feeds/atom.xml" rel="subscribe-atom">Atom</a></li>
+  <li><a href="//mtstickney.github.io/feeds/rss.xml" rel="subscribe-rss">RSS</a></li>
 </ul>
 
 
 <ul class="main-navigation">
       <li class="active">
-        <a href="http://mtstickney.github.io/category/blog.html">Blog</a>
+        <a href="//mtstickney.github.io/category/blog.html">Blog</a>
       </li>
 </ul></nav>
   <div id="main">
@@ -76,7 +76,7 @@ migrations, and most of the advice you can find is related to one of
 those two systems. However, our project differs from their models of
 migrations in important ways, so it&#8217;s important to set some context&nbsp;here.</p>
 <p>The classic way of managing our database changes has been individual
-change scripts<sup id="fnref:1"><a class="footnote-ref" href="#fn:1" rel="footnote">1</a></sup> run by support technicians when updating a customer to
+change scripts<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> run by support technicians when updating a customer to
 a new version. The scripts can only alter the schema, not data, have
 no specified order, and have to be applied individually through a gui
 dialog in our vendor&#8217;s db management tool. To save technician time and
@@ -105,7 +105,7 @@ going to need lots of incremental changes made to it. That makes
 incremental-only migrations an appropriate fit &#8212; they&#8217;re also
 considerably simpler to implement than a system that compares
 snapshots and can accept hints to correct mistakes in the naive
-generated migrations<sup id="fnref:2"><a class="footnote-ref" href="#fn:2" rel="footnote">2</a></sup>.</p>
+generated migrations<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>.</p>
 <h2>Technical&nbsp;Goals</h2>
 <p>We want to use migrations both to create new production databases
 during a fresh install, and to update an existing database to the
@@ -191,13 +191,13 @@ it&#8217;s possible and provide a trivial example, and developer discussion
 usually starts and ends with &#8220;don&#8217;t do that, ever,&#8221; but without
 explaining <em>why</em>.</p>
 <div class="footnote">
-<hr />
+<hr>
 <ol>
 <li id="fn:1">
 <p>These scripts are a proprietary format for describing schema
 changes, not standard <span class="caps">SQL</span> change scripts. In addition to limitations
 in the format&#8217;s capabilities, it is undocumented and can only be
-created by creating two databases and &#8220;diffing&#8221; them.&#160;<a class="footnote-backref" href="#fnref:1" rev="footnote" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+created by creating two databases and &#8220;diffing&#8221; them.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 <li id="fn:2">
 <p>The other major disadvantage of snapshot-comparison migrations
@@ -205,7 +205,7 @@ is that without an application model, the snapshots have to be taken
 from the database, which means you need two copies of it. Our current
 tool works this way, and it&#8217;s a royal pain to keep everything
 straight. On top of that, we&#8217;re still working on our ability to
-recreate databases from scratch, which makes the process very ad-hoc.&#160;<a class="footnote-backref" href="#fnref:2" rev="footnote" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+recreate databases from scratch, which makes the process very ad-hoc.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div></div>
@@ -217,10 +217,10 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
     </span>
   </span>
 <time datetime="2016-09-20T00:00:00-04:00" pubdate>Tue 20 September 2016</time>  <span class="categories">
-    <a class='category' href='http://mtstickney.github.io/category/blog.html'>blog</a>
+    <a class='category' href='//mtstickney.github.io/category/blog.html'>blog</a>
   </span>
   <span class="categories">
-    <a class="category" href="http://mtstickney.github.io/tag/database.html">database</a>,    <a class="category" href="http://mtstickney.github.io/tag/essay.html">essay</a>  </span>
+    <a class="category" href="//mtstickney.github.io/tag/database.html">database</a>,    <a class="category" href="//mtstickney.github.io/tag/essay.html">essay</a>  </span>
 </p><div class="sharing">
 </div>    </footer>
   </article>
@@ -231,19 +231,19 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
     <h1>Recent Posts</h1>
     <ul id="recent_posts">
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/http-request-hostnames.html">HTTP Request Hostnames</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
+          <a href="//mtstickney.github.io/posts/2020/06/24/linux-local-traffic-delivery.html">Linux Local Traffic Delivery</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
+          <a href="//mtstickney.github.io/posts/2017/05/08/pipes-and-permissions.html">Pipes and Permissions</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
+          <a href="//mtstickney.github.io/posts/2016/01/30/work-challenge-2-installer-madness.html">Work Challenge #2: Installer Madness</a>
       </li>
       <li class="post">
-          <a href="http://mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
+          <a href="//mtstickney.github.io/posts/2016/01/27/work-challenge-1-down-the-rabbit-hole.html">Work Challenge #1: Down the Rabbit Hole</a>
       </li>
     </ul>
   </section>
@@ -251,14 +251,14 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
       
     <h1>Categories</h1>
     <ul id="recent_posts">
-        <li><a href="http://mtstickney.github.io/category/blog.html">blog</a></li>
+        <li><a href="//mtstickney.github.io/category/blog.html">blog</a></li>
     </ul>
   </section>
  
 
   <section>
   <h1>Tags</h1>
-    <a href="http://mtstickney.github.io/tag/http.html">http</a>,    <a href="http://mtstickney.github.io/tag/web.html">web</a>,    <a href="http://mtstickney.github.io/tag/servers.html">servers</a>,    <a href="http://mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="http://mtstickney.github.io/tag/linux.html">linux</a>,    <a href="http://mtstickney.github.io/tag/networking.html">networking</a>,    <a href="http://mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="http://mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="http://mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="http://mtstickney.github.io/tag/windows.html">windows</a>,    <a href="http://mtstickney.github.io/tag/blog.html">blog</a>,    <a href="http://mtstickney.github.io/tag/programming.html">programming</a>,    <a href="http://mtstickney.github.io/tag/abl.html">abl</a>,    <a href="http://mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="http://mtstickney.github.io/tag/oo.html">OO</a>,    <a href="http://mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="http://mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="http://mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="http://mtstickney.github.io/tag/aes.html">AES</a>,    <a href="http://mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="http://mtstickney.github.io/tag/meta.html">meta</a>,    <a href="http://mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="http://mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="http://mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
+    <a href="//mtstickney.github.io/tag/http.html">http</a>,    <a href="//mtstickney.github.io/tag/web.html">web</a>,    <a href="//mtstickney.github.io/tag/servers.html">servers</a>,    <a href="//mtstickney.github.io/tag/nginx.html">nginx</a>,    <a href="//mtstickney.github.io/tag/linux.html">linux</a>,    <a href="//mtstickney.github.io/tag/networking.html">networking</a>,    <a href="//mtstickney.github.io/tag/iptables.html">iptables</a>,    <a href="//mtstickney.github.io/tag/work-challenge.html">work challenge</a>,    <a href="//mtstickney.github.io/tag/systems-programming.html">systems programming</a>,    <a href="//mtstickney.github.io/tag/windows.html">windows</a>,    <a href="//mtstickney.github.io/tag/blog.html">blog</a>,    <a href="//mtstickney.github.io/tag/programming.html">programming</a>,    <a href="//mtstickney.github.io/tag/abl.html">abl</a>,    <a href="//mtstickney.github.io/tag/language-interop.html">language interop</a>,    <a href="//mtstickney.github.io/tag/oo.html">OO</a>,    <a href="//mtstickney.github.io/tag/experiments.html">experiments</a>,    <a href="//mtstickney.github.io/tag/cryptography.html">cryptography</a>,    <a href="//mtstickney.github.io/tag/encryption.html">encryption</a>,    <a href="//mtstickney.github.io/tag/aes.html">AES</a>,    <a href="//mtstickney.github.io/tag/infrastructure-note.html">infrastructure note</a>,    <a href="//mtstickney.github.io/tag/meta.html">meta</a>,    <a href="//mtstickney.github.io/tag/pelican.html">pelican</a>,    <a href="//mtstickney.github.io/tag/github-pages.html">github-pages</a>,    <a href="//mtstickney.github.io/tag/worklog.html">worklog</a>  </section>
 
 
 
@@ -273,7 +273,7 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
           if (!window.jXHR){
               var jxhr = document.createElement('script');
               jxhr.type = 'text/javascript';
-              jxhr.src = 'http://mtstickney.github.io/theme/js/jXHR.js';
+              jxhr.src = '//mtstickney.github.io/theme/js/jXHR.js';
               var s = document.getElementsByTagName('script')[0];
               s.parentNode.insertBefore(jxhr, s);
           }
@@ -286,7 +286,7 @@ recreate databases from scratch, which makes the process very ad-hoc.&#160;<a cl
           });
       });
     </script>
-    <script src="http://mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
+    <script src="//mtstickney.github.io/theme/js/github.js" type="text/javascript"> </script>
   </section>
 
 
